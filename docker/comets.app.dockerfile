@@ -15,7 +15,7 @@ FROM cbiitss/comets:r-package
 #           git clone https://github.com/CBIIT/R-cometsAnalytics 
 #           popd
 #           cp -R /tmp/R-cometsAnalytics/RPackageSource/* comets/restricted/rcode
-COPY comets/* /deploy/app/
+COPY comets/ /deploy/app/
 
 # Start application using entrypoint
 ENTRYPOINT ["entrypoint.sh"]

@@ -10,7 +10,7 @@ FROM cbiitss/comets:r-package
 # Copy application source and configuration:
 # Ensure that the comets/restricted folder contains the following:
 #   settings.yml - private settings for comets
-COPY comets/* /deploy/app/
+COPY comets/ /deploy/app/
 
 # Copy entrypoint and make it executable
 COPY docker/entrypoint.processor.sh /bin/entrypoint.processor.sh
