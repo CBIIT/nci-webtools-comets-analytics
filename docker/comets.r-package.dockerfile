@@ -11,7 +11,7 @@ FROM cbiitss/comets:base0
 #           popd
 #           cp -R /tmp/R-cometsAnalytics/RPackageSource/* comets/restricted/rcode
 RUN mkdir -p /deploy/app/restricted/rcode
-COPY comets/restricted/rcode/* /deploy/app/restricted/rcode
+COPY comets/restricted/rcode/ /deploy/app/restricted/rcode
 
 # Install COMETS Package
 RUN install_comets_package.sh
