@@ -1,0 +1,54 @@
+html, body {
+    min-width: 320px;
+}
+header {
+    margin: 0px;
+    padding: 0px 15px;
+}
+header img {
+    width: 500px;
+    max-width: 100%;
+}
+a {
+    color: #3070a7;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    background-color: #215a82;
+}
+#page-head {
+    color: #FFF;
+    font-size: 16pt;
+    background-color: #1a4869;
+    padding: 5px 0 5px 10px;
+    border-radius: 4px 4px 0 0;
+}
+#logoutBtn {
+    color: #b0d8ff;
+    float: right;
+    margin-left: 1em;
+    width: 4em;
+}
+strong {
+    color: #D4B300;
+}
+.dark-orange, .dark-orange * {
+    color: #f76900;
+}
+#pageContent > .container-fluid {
+    margin-bottom: 2em;
+}
+#pageContent > #header {
+    border-radius: 4px;
+    box-shadow: 0 4px 16px #eee;
+}
+.tab-content.tab-border {
+    border: 1px solid #000;
+    border-color: #d9d9d9;
+    border-radius: 0 0 4px 4px;
+    border-top: 0px;
+    overflow: auto;
+    padding: 15px;
+}
+select.disabled {
+    background: #EBEBE4;
+}

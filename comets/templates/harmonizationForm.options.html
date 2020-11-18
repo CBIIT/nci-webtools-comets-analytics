@@ -1,4 +1,0 @@
-<option value="">-- Select <%= optionType %> --</option>
-<% _.each(optionList,function(option,key,list) { %>
-    <option value="<%= option.value %>"<%= selectedOption == option.value ? " selected=\"SELECTED\"" : "" %>><%= option.text %></option>
-<% }); %>

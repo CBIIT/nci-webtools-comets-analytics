@@ -1,0 +1,37 @@
+<div class="row">
+    <h3><strong>Welcome to Comets - New User Registration</strong></h3>
+    <p>To complete your account registration, please provide the following information.</p>
+</div>
+<div class="row">
+    <h3><strong>Information Needed</strong></h3>
+    <p>Please provide the following information to register your account in COMETS:</p>
+    <input type="hidden" name="user_id" value="<%= user_id %>"/>
+    <ul>
+        <li>
+            <label><strong>Email Address:</strong></label>
+            <span id="email"><%= email %></span>
+        </li>
+        <li>
+            <label for="family_name"><strong>Last Name:</strong></label>
+            <input type="text" name="family_name" value="<%= family_name %>"/>
+        </li>
+        <li>
+            <label for="given_name"><strong>First Name:</strong></label>
+            <input type="text" name="given_name" value="<%= given_name %>"/>
+        </li>
+        <li>
+            <label for="affiliation"><strong>Affiliation:</strong></label>
+            <input type="text" name="affiliation" value="<%= affiliation %>"/>
+        </li>
+        <li>
+            <label for="cohort"><strong>Cohort:</strong></label>
+            <select name="cohort">
+                <option value="">-- Select Cohort --</option>
+<% _.each(cohortList,function(option,key,list) { %>
+                <option value="<%= option %>"<%= option === cohort ? " SELECTED" : ""%>><%= option %></option>
+<% }) %>
+            </select>
+        </li>
+    </ul>
+    <input id="submit" type="button" class="btn btn-default" value="Submit" disabled="true"/>
+</div>
