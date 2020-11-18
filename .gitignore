@@ -1,8 +1,9 @@
-*.pyc
-*.log
-*.log.*
-.vscode
-comets/restricted/
-comets/tmp/
-node_modules
+.vscode/
+__pycache__/
+node_modules/
+input/
+output/
+logs/
 tests/*.xml
+settings.ini
+tmp/
