@@ -1,4 +1,4 @@
-import json, linecache, os, requests, sys, time, yaml, logging
+import json, linecache, os, requests, sys, time, logging
 import traceback
 from configparser import ConfigParser
 import pyper as pr

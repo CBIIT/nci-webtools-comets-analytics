@@ -8,9 +8,7 @@ import json
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import r_functions
-
 from utils import (
-    queue_file,
     render_template,
     receive_message,
     send_email,

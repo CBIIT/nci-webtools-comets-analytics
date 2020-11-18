@@ -20,7 +20,7 @@ getTemplates <- function() {
     rownames(ageData) <- NULL
     ageData = toJSON(ageData,auto_unbox=T)
     ageData = substr(ageData,2,nchar(ageData)-1)
-    basicData = as.data.frame(readxl::read_excel(file.path(dir,"cometsInputBasic.xlsx"),4))
+    basicData = as.data.frame(readxl::read_excel(file.path(dir,"cometsInput.xlsx"),4))
     basicData <- basicData[!is.na(basicData$VARREFERENCE),]
     basicMap = toJSON(basicData$VARREFERENCE, auto_unbox = T)
     rownames(basicData) <- basicData$VARREFERENCE
