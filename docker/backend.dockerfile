@@ -11,7 +11,10 @@ RUN R -e "remotes::install_github('$COMETS_R_PACKAGE_URL', ref='$COMETS_R_PACKAG
 
 RUN mkdir -p /deploy/app
 
-COPY comets /deploy/app
+COPY comets /deploy/app/
+
+# copy uid.xlsx file from COMETS package
+RUN cp -f /usr/lib64/R/library/COMETS/extdata/uid.xlsx /deploy/app/static/examples/uid.xlsx
 
 WORKDIR /deploy
 
