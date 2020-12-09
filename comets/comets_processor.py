@@ -2,6 +2,7 @@ from configparser import ConfigParser
 from os import path, makedirs
 from tempfile import TemporaryDirectory
 from time import time
+from datetime import datetime
 from traceback import format_exc
 import boto3
 import json
@@ -58,7 +59,8 @@ def message_handler(message):
 
             logger.info(model_results)
 
-            output_filepath = path.join(temp_dir, ".zip")
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            output_filepath = path.join(f"{temp_dir}_{timestamp}", ".zip")
             output_prefix = (
                 f"{config['s3']['output_key_prefix']}{params['message_id']}/"
             )
