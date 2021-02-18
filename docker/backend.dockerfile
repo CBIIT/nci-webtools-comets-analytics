@@ -36,14 +36,14 @@ RUN python3 -m pip install --upgrade pip \
    requests \
    r_functions
 
-ARG COMETS_R_PACKAGE_REINSTALL=null
+ARG COMETS_R_PACKAGE_REINSTALL=false
 
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
 
 ARG COMETS_R_PACKAGE_TAG=master
 
 # install version of COMETS specified by tag
-RUN R -e "remotes::install_github('$COMETS_R_PACKAGE_URL', ref='$COMETS_R_PACKAGE_TAG', upgrade='never')"
+RUN COMETS_R_PACKAGE_REINSTALL && R -e "remotes::install_github('$COMETS_R_PACKAGE_URL', ref='$COMETS_R_PACKAGE_TAG', upgrade='never')"
 
 RUN mkdir -p /deploy/app
 
