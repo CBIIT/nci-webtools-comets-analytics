@@ -36,6 +36,8 @@ RUN python3 -m pip install --upgrade pip \
    requests \
    r_functions
 
+ARG COMETS_R_PACKAGE_REINSTALL=null
+
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
 
 ARG COMETS_R_PACKAGE_TAG=master
