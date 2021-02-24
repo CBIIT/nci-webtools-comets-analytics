@@ -5,7 +5,7 @@ RUN dnf -y update \
     dnf-plugins-core \
     epel-release \
     glibc-langpack-en \
- && dnf config-manager --enable PowerTools \
+ && dnf config-manager --enable powertools \
  && dnf -y install \
     git \
     httpd-devel \
@@ -23,7 +23,6 @@ ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 RUN R -e "install.packages(c('jsonlite', 'remotes'), repos='https://cloud.r-project.org/')"
 RUN R -e "remotes::install_bioc('Biobase')"
 RUN R -e "remotes::install_github('rstudio/d3heatmap')"
-RUN R -e "remotes::install_github('CBIIT/R-cometsAnalytics/RPackageSource')"
 RUN R -e "remotes::install_version('dplyr', version='0.8.5', repos='https://cloud.r-project.org/')"
 RUN R -e "remotes::install_github('CBIIT/R-cometsAnalytics/RPackageSource', upgrade='never')"
 
