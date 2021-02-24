@@ -19,44 +19,42 @@ RUN dnf -y update \
 
 ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 
-RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org/')"
+# ensure that comets dependencies are installed
+RUN R -e "install.packages(c('jsonlite', 'remotes'), repos='https://cloud.r-project.org/')"
 RUN R -e "remotes::install_bioc('Biobase')"
 RUN R -e "remotes::install_github('rstudio/d3heatmap')"
 RUN R -e "remotes::install_github('CBIIT/R-cometsAnalytics/RPackageSource')"
 RUN R -e "remotes::install_version('dplyr', version='0.8.5', repos='https://cloud.r-project.org/')"
-RUN R -e "install.packages('jsonlite', repos='https://cloud.r-project.org/')"
+RUN R -e "remotes::install_github('CBIIT/R-cometsAnalytics/RPackageSource', upgrade='never')"
+
+RUN mkdir -p /deploy/app
+
+# copy only requirements.txt to avoid invalidating build cache
+COPY comets/requirements.txt /deploy/app/requirements.txt
 
 RUN python3 -m pip install --upgrade pip \
  && python3 -m pip install wheel \
- && python3 -m pip install \
-   boto3 \
-   flask \
-   mod_wsgi \
-   pyper \
-   requests \
-   r_functions
+ && python3 -m pip install -r /deploy/app/requirements.txt
 
-ARG COMETS_R_PACKAGE_REINSTALL=false
+# UPDATE_COMETS_R_PACKAGE can be set to a timestamp to invalidate build cache
+ARG UPDATE_COMETS_R_PACKAGE=false
 
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
 
 ARG COMETS_R_PACKAGE_TAG=master
 
 # install version of COMETS specified by tag
-RUN COMETS_R_PACKAGE_REINSTALL && R -e "remotes::install_github('$COMETS_R_PACKAGE_URL', ref='$COMETS_R_PACKAGE_TAG', upgrade='never')"
-
-RUN mkdir -p /deploy/app
+RUN [[ $UPDATE_COMETS_R_PACKAGE != "false" ]] \
+ && R -e "remotes::install_github('$COMETS_R_PACKAGE_URL', ref='$COMETS_R_PACKAGE_TAG', upgrade='never')"
 
 COPY comets /deploy/app/
 
 # copy uid.xlsx file from COMETS package
-RUN cp -f /usr/lib64/R/library/COMETS/extdata/uid.xlsx /deploy/app/static/examples/uid.xlsx
-
-WORKDIR /deploy
+RUN cp -f /usr/lib64/R/library/COMETS/extdata/uid-public.xlsx /deploy/app/static/examples/uid.xlsx
 
 RUN chown -R apache:apache /deploy
 
-RUN python3 -m pip install -r app/requirements.txt
+WORKDIR /deploy
 
 CMD mod_wsgi-express start-server /deploy/app/deploy.wsgi \
   --port 8000 \
