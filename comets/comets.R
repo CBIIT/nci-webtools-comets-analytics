@@ -50,7 +50,7 @@ run_batch_models <- function(filepath, output_folder="tmp", cohort="") {
         cohort=cohort
     )
 
-    # run correlation analysis on all models and save results to output folder
+    # run all models and save results to output folder
     model_results <- Map(function(model_name) {
         model_data <- COMETS::getModelData(
             comets_input,
@@ -74,8 +74,8 @@ run_batch_models <- function(filepath, output_folder="tmp", cohort="") {
         list(
             model_name=model_name,
             processing_time=attr(result$output, "ptime"),
-            warnings=result$warnings,
-            errors=result$errors,
+            warnings=I(result$warnings),
+            errors=I(result$errors),
             csv=csv
         )
     }, comets_input$mods$model)

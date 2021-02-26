@@ -24,8 +24,8 @@
         {% for result in model_results %}
             <p>
                 <strong>{{ result.model_name }}</strong> - 
-                {% if result.error %} 
-                    Error: {{ result.error[0] }}
+                {% if result.errors %} 
+                    Error (see below)
                 {% else %}
                     Complete ({{ result.processing_time }})
                 {% endif %}
@@ -41,8 +41,13 @@
                     </ul>
                 {% endif %}
 
-                {% if result.error %}
-                    <p>Error: {{ result.error[0] }}</p>
+                {% if result.errors %}
+                    <p>Errors: </p>
+                    <ul>
+                        {% for error in result.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
                 {% endif %}
             </div>
         {% endfor %}

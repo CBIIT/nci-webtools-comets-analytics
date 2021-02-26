@@ -55,7 +55,7 @@ def message_handler(message):
             processing_time = time() - processing_time
 
             # check if any models have valid results
-            has_results = True in (result["errors"] == {} for result in model_results)
+            has_results = True in (result["errors"] == [] for result in model_results)
 
             logger.info(model_results)
 
