@@ -61,7 +61,7 @@ def message_handler(message):
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = path.splitext(params["filename"])[0]
-            output_filename = f"{filename}_{timestamp}.zip"
+            output_filename = f"{filename}.{timestamp}.zip"
             output_filepath = path.join(temp_dir, output_filename)
             output_key = (
                 f"{config['s3']['output_key_prefix']}{params['message_id']}/{output_filename}"
