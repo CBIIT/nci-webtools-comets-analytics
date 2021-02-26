@@ -60,14 +60,11 @@ def message_handler(message):
             logger.info(model_results)
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            output_filepath = path.join(f"{temp_dir}_{timestamp}", ".zip")
-            output_prefix = (
-                f"{config['s3']['output_key_prefix']}{params['message_id']}/"
-            )
+            filename = path.splitext(params["filename"])[0]
+            output_filename = f"{filename}_{timestamp}.zip"
+            output_filepath = path.join(temp_dir, output_filename)
             output_key = (
-                output_prefix
-                + path.splitext(params["filename"])[0]
-                + path.basename(output_filepath)
+                f"{config['s3']['output_key_prefix']}{params['message_id']}/{output_filename}"
             )
 
             # create archive from output folder
