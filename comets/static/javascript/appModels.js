@@ -223,6 +223,18 @@ appComets.CorrelationResultsModel = Backbone.Model.extend({
     },
     url: "/cometsRest/correlate",
     fetch: function(options) {
+        var cohortSelection = options.data.get('cohortSelection');
+        var methodSelection = options.data.get('methodSelection') // All, Interactive or Batch
+        var modelName = options.data.get('modelName');
+        var eventName = {
+            All: 'all', 
+            Interactive: 'custom', 
+            Batch: modelName
+        }[methodSelection];
+
+        ga('send', 'event', 'select-cohort', cohortSelection);
+        ga('send', 'event', 'run-model', eventName);
+
         var response = Backbone.Model.prototype.fetch.call(this,options),
             model = this;
         response.done(function(response) {
