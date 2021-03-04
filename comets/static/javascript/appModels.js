@@ -107,7 +107,7 @@ appComets.CombineFormModel = Backbone.Model.extend({
 appComets.HarmonizationFormModel = Backbone.Model.extend({
     defaults: {
         cohortList: ["Other"],
-        cohortSelection: null,
+        cohortSelection: 'Undefined',
         covariates: [],
         csvFile: null,
         email: "",
