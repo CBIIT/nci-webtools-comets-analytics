@@ -740,7 +740,7 @@ appComets.IntegrityView = Backbone.View.extend({
         var $that = this;
         if (this.model.get('csvDownload')) appComets.events.preauthenticate(e, function () {
             window.location = $that.model.get('csvDownload');
-            ga('send', 'event', 'download-file', 'integrity check results');
+            ga('send', 'event', 'download', 'results', 'integrity check');
         });
     },
     render: function () {
@@ -945,7 +945,7 @@ appComets.SummaryView = Backbone.View.extend({
         if (this.model.get('csv')) {
             appComets.events.preauthenticate(e, function () {
                 window.location = $that.model.get('csv');
-                ga('send', 'event', 'download-file', 'correlation results');
+                ga('send', 'event', 'download', 'results', 'correlation results');
             });
         }
     },
