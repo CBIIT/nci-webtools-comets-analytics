@@ -340,113 +340,65 @@
 
                 <!-- start help Tab -->
                 <div class="tab-pane" id="tab-help">
-                    <div id="toc">
-                        <div><a href="#about" class="goto">About</a></div>
-                        <div><a href="#support" class="goto">Support</a></div>
-                        <div><a href="#flowchart" class="goto">Analytic Flow</a></div>
-                    </div>
+                    <!-- <div id="toc">
+                        <div><a href="#help-about" class="goto">About</a></div>
+                        <div><a href="#help-accessibility" class="goto">Accessibility</a></div>
+                        <div><a href="#help-current-version-functionality" class="goto">Current Version Functionality</a></div>
+                        <div><a href="#help-tutorial" class="goto">Help</a></div>
+                        <div><a href="#help-acknowledgements" class="goto">Acknowledgements</a></div>
+                    </div> -->
                     <div id="help-content">
-                        <div id="about">
+                        <div id="help-about">
                             <h2>About</h2>
-                            <p>COMETS Analytics was developed by the COMETS Data Harmonization Group with web interface support from NCI's <a href="http://cbiit.nci.nih.gov/" target="_blank">CBIIT</a>. Metabolite names were harmonized by linking metabolite lists of frequently-used metabolomics platforms to unique identifiers from public metabolite databases (e.g. HMDB, REFMET). Prototypes of the web platform were developed using R Shiny. The underlying statistical analyses and data processing uses an R package called COMETS which can be run locally. The HTML5-based web interface to the COMETS package is currently hosted on Amazon Cloud to provides scalability for computationally-intensive analyses. COMETS analytics was designed so that users can submit data in standard Excel format using the template described below where one can also specify models through the Excel file or through a web-interface. The app currently performs Spearman correlations, with interactive graphics provided by Plotly.</p>
-                            <p>We thank Krista Zanetti for her support and the CBIIT team who translated the R Shiny prototype to HTML5 with funding support from the DCEG Informatics Challenge: Sue Pan, JJ Pan, Kai-Ling Chen, Tony Hall, and Wesley Obenshain.</p>
-                            <p>COMETS Package Development Team: <a href="mailto:ella@bsc.gwu.edu">Ella Temprosa</a>, <a href="mailto:Ewy.Mathe@osumc.edu">Ewy Mathe</a>, <a href="mailto:moorest@mail.nih.gov">Steve Moore</a>, and <a href="mailto:RischA@imsweb.com">Adam Risch</a></p>
+                            <p>COMETS Analytics supports and streamlines consortium-based analyses of metabolomics data. The software is continuously being developed and maintained by the <a href="https://epi.grants.cancer.gov/comets/interest-groups.html">COMETS Data Infrastructure Working Group</a> with web interface support from NCI's <a href="http://cbiit.nci.nih.gov/">CBIIT</a> and R package development support from IMS. </p>
+                            <p>COMETS Analytics was designed to simplify meta-analysis at the consortia level.  Users prepare data input, and then the software takes care of checking the data integrity, performs data analyses securely, and aggregates results in a standardized format.  Further details on the vision for implementing the software and the current features available can be found <a href="https://www.youtube.com/watch?reload=9&v=dWJ_fdibnms">here.</a> </p>
                         </div>
-                        <div id="support">
-                            <h2>Support</h2>
-                            <p>For questions or help on COMETS Analytics, please send email to <a href="mailto:comets.analytics@gmail.com">comets.analytics@gmail.com</a></p>
-                            <p>For help on metabolite harmonization, contact <a href="mailto:RischA@imsweb.com">Adam Risch</a>.</p>
+
+                        <div id="help-accessibility">
+                            <h2>Accessibility</h2>
+
+                            <p>The software can be run two different ways:</p>
+
+                            <ol>
+                                <li>A standalone R package “R-cometsAnalytics” that encapsulates our core algorithms and functionality, allowing the software to be run locally. The GitHub repository for the development of COMETS Analytics is publicly available at <a href="https://github.com/CBIIT/R-cometsAnalytics/">https://github.com/CBIIT/R-cometsAnalytics/</a> under a GPL-3 license. </li>
+
+                                <li>A web-based app (<a href="https://www.comets-analytics.org">https://www.comets-analytics.org</a>) developed as a user friendly interface to the R package using HTML5.  This app operates on secure cloud-based servers that delete data after analyses.  </li>
+                            </ol>
+
+                            <p>All underlying statistical analyses and data processing use the R-cometsAnalytics R package so that using the R package or the app will produce the same results.</p>
                         </div>
-                        <div id="flowchart">
-                            <div class="row">
-                                <h2 class="col-xs-12">Analytic Flow</h2>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <span>Steps in the COMETS analysis process are outlined below.</span>
-                                    <img class="img-repsonsive" src="public/images/cometsWorkflow.png" alt="diagram of the workflow for the comets application" width="800" />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <h3 class="col-xs-12 col-md-2">
-                                    <div class="steps">Step 1</div>
-                                </h3>
-                                <div class="col-xs-12 col-md-10">
-                                    <h3>Upload input file</h3>
-                                    <p>The input file is currently in excel formate with 5 sheets. Download and use the <a href="examples/cometsInput.xlsx" title="example input excel file">example input file here</a> as a template.</p>
-                                    <ol>
-                                        <li> <b><i>Metabolites</i></b>
-                                            <br>This sheet serves as the metadata or information on the metabolites used for the harmonization step. Minimum required columns include analysis platform, metabolite name and metabolite id (ie. variable name of your metabolite). It is preferred to also include RT, m/z, chemical ID (HMDB, InChi key, or other identifier).
-                                        </li>
-                                        <li> <b><i>SubjectMetabolites</i></b>
-                                            <br> This sheet contains the abundances in columns and subject in rows. The subject identifier is expected in the first column and the remaining columns are considered as metabolite ids.
-                                        </li>
-                                        <li> <b><i>SubjectData</i></b>
-                                            <br> This sheet contains other exposure and adjustment variables for use in the analyses.
-                                        </li>
-                                        <li> <b><i>VarMap</i></b>
-                                            <br>This sheet is used to map the variables needed to conduct the cohort specific analysis. Specify the name of variables under CohortVariable column and add notes for your convenience. Cells in grey are protected. You will also need to specify the column name in the metabolites sheet corresponding to your metabolite_id.
-                                        </li>
-                                        <li> <b><i>Models</i></b>
-                                            <br> This sheet is used for the batch analyses mode and contains the model specifications. Outcomes, exposures and adjustment can specify multiple covariates delimited by spaces (ie: age bmi).
-                                        </li>
-                                    </ol>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <h3 class="col-xs-12 col-md-2">
-                                    <div class="steps">Step 2</div>
-                                </h3>
-                                <div class="col-xs-12 col-md-10">
-                                    <h3>Harmonize Metabolites</h3>
-                                    <p>
-                                        The harmonization step will assess whether your cohort’s metabolites are available in COMET’s master metabolites so that a universal ID (named UID_01) can be associated with your metabolites. The COMETS master metabolite list is maintained by IMS and can be sent in advance of the analyses to ensure availability of a universal ID for each of your metabolites. The universal ID (currently named UID_01) ensures alignment of metabolites across the different cohorts to ensure identification for meta-analysis.</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <h3 class="col-xs-12 col-md-2">
-                                    <div class="steps">Step 3</div>
-                                </h3>
-                                <div class="col-xs-12 col-md-10">
-                                    <h3>Data Integrity</h3>
-                                    <p>
-                                        Data integrity checks are run to ensure the appropriate data are presented for analyses. The following conditions are checked:
-                                        <ol>
-                                            <li> Subject ID or Metabolite ID is/are not provided in the Varmap sheet
-                                            </li>
-                                            <li> Subject ID or Metabolite ID provided in Varmap sheet do not correspond to a column in “Metabolites” and “SubjectData” sheets, respectively
-                                            </li>
-                                            <li> Metabolites ids in Metabolites and SubjectMetabolites sheet do not match
-                                            </li>
-                                            <li> Subject ids in SubjectData and SubjectMetabolites sheet do not match
-                                            </li>
-                                        </ol>
-                                        If any of the following conditions failed, the analyses will be suspended and corrections to the data are required. The data integrity checks will also flag the following but will proceed with the analyses:
-                                        <ol>
-                                            <li> Number of subjects in “SubjectData” and “SubjectMetabolites” sheets do not match
-                                            </li>
-                                            <li> Metabolite abundances from “SubjectMetabolites” contains duplicate columns (metabolites) or rows (subjects)
-                                            </li>
-                                            <li> There are duplicate subject ids in Subject Information “SubjectData” sheet
-                                            </li>
-                                            <li> There are duplicate metabolite ids in Metabolite Information “Metabolites” sheet
-                                            </li>
-                                        </ol>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <h3 class="col-xs-12 col-md-2">
-                                    <div class="steps">Step 4</div>
-                                </h3>
-                                <div class="col-xs-12 col-md-10">
-                                    <h3>Run Correlation Analyses</h3>
-                                    <p>
-                                        The correlation analyses can be done in batch (as specified in the input file) or in interactive mode using user specified exposure and outcome variables. Heatmaps and hierarchical clustering of the computed Spearman correlations are also available.
-                                    </p>
-                                </div>
-                            </div>
+
+                        <div id="help-current-version-functionality">
+                            <h2>Current Version Functionality</h2>
+
+                            <p>Current Version is 1.6: Released on 10/14/2019 with analytic module for unadjusted and partial correlation analyses. Complete details of the version history are documented in the GitHub repository: <a href="https://github.com/CBIIT/R-cometsAnalytics">https://github.com/CBIIT/R-cometsAnalytics</a>.</p>
+
+                            <p>Upcoming Version 2.0: Analytic module with generalized linear models is in testing, expected release in 2021. </p>
+                            
+                            <p>Previous releases can be found here: <a href="https://github.com/CBIIT/R-cometsAnalytics/releases">https://github.com/CBIIT/R-cometsAnalytics/releases</a></p>
                         </div>
+
+               
+                        <div id="help-tutorial">
+                            <h2>Help</h2>
+
+                            <p>A companion tutorial can be found at <a href="https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/">https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/</a>.  A presentation of the software, its implementation and vision can be found <a href="https://www.youtube.com/watch?reload=9&v=dWJ_fdibnms"> here.</a>  </p>
+
+                            <p>For questions or help on COMETS Analytics app or R package, please send an e-mail to <a href="mailto:comets.analytics@gmail.com">comets.analytics@gmail.com</a>.</p>
+
+                            <p>For help on metabolite harmonization, contact <a href="mailto:moorest@mail.nih.gov">Steve Moore</a>.</p>
+                        </div>
+
+                        <div id="help-acknowledgements">
+                            <h2>Acknowledgements</h2>
+
+                            <p>We thank the National Cancer Institute (NCI) for supporting the development and expansion of COMETS Analytics, the NCI Center for Biomedical Informatics and Information Technology team for developing the app, the Information Management Services team for further developing the R package, and our users for providing feedback so we can continuously ameliorate the software.</p>
+                            <p>R COMETS Package Development Team: <a href="mailto:Ewy.Mathe@nih.gov">Ewy Mathé</a>, <a href="mailto:moorest@mail.nih.gov">Steve Moore</a>, <a href="mailto:ella@bsc.gwu.edu">Ella Temprosa</a>, <a href="mailto:WheelerB@imsweb.com">Bill Wheeler</a>, and <a href="mailto:ZouJ@imsweb.com">Joe Zou</a>.</p>
+                            <p>Web application Development Team: <a href="mailto:kai-ling.chen@nih.gov">Kailing Chen</a>, <a href="mailto:Ewy.Mathe@nih.gov">Ewy Mathé</a>, <a href="mailto:moorest@mail.nih.gov">Steve Moore</a>, <a href="mailto:brian.park@nih.gov">Brian Park</a>, and <a href="mailto:ella@bsc.gwu.edu">Ella Temprosa</a>.</p>
+                            <p>Metabolite Harmonization Team: <a href="mailto:RuggieriD@imsweb.com">Dave Ruggieri</a> and <a href="mailto:moorest@mail.nih.gov">Steve Moore</a>.</p>
+                            <p>A special thanks as well to the Broader COMETS Data Infrastructure Group.</p>
+                        </div>
+
                     </div>
                 </div>
                 <!-- end of help tab content -->
