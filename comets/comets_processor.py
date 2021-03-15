@@ -79,7 +79,7 @@ def message_handler(message):
             results_url = s3_client.generate_presigned_url(
                 ClientMethod="get_object",
                 Params={"Bucket": config["s3"]["bucket"], "Key": output_key},
-                ExpiresIn=3600 * 24 * 14,  # 2 weeks
+                ExpiresIn=60 * 60 * 24 * 7,  # 1 week
             )
 
             logger.info(f"Sending success email")
