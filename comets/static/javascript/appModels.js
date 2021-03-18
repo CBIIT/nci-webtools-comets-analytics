@@ -223,6 +223,9 @@ appComets.CorrelationResultsModel = Backbone.Model.extend({
     },
     url: "/cometsRest/correlate",
     fetch: function(options) {
+        // attach urlRoot to options
+        options.data.append('urlRoot', location.protocol + '//' + location.host);
+
         var cohortSelection = options.data.get('cohortSelection');
         var methodSelection = options.data.get('methodSelection') // All, Interactive or Batch
         var modelName = options.data.get('modelName');
