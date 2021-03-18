@@ -1,11 +1,14 @@
 import json, linecache, os, requests, sys, time, logging
 import traceback
+from datetime import datetime, timedelta, timezone
+from uuid import UUID
 from configparser import ConfigParser
 import pyper as pr
 from pyper import R
 import boto3
-from flask import Flask, json, jsonify, request, send_from_directory, Response
+from flask import Flask, json, jsonify, request, redirect, send_from_directory, Response
 from werkzeug.utils import secure_filename
+
 from utils import queue_file, send_email, render_template
 
 app = Flask(__name__, static_url_path="")
@@ -49,6 +52,12 @@ def loadCohortList():
     r("cohorts = getCohorts()")
     return {"cohorts": json.loads(r["cohorts"])}
 
+def is_valid_uuid(id):
+    try:
+        UUID(str(id))
+        return True
+    except ValueError:
+        return False    
 
 app.config["htmlTemplates"] = loadHtmlTemplates()
 app.config["excelTemplates"] = loadExcelTemplates()
@@ -193,6 +202,7 @@ def correlate():
                     "filename": request.files["inputFile"].filename,
                     "cohort": parameters["cohortSelection"],
                     "email": parameters["email"],
+                    "url_root": parameters["urlRoot"]
                 },
             )
 
@@ -476,6 +486,38 @@ def end_session():
                 os.remove(filepath)
 
     return jsonify(True)
+    
+
+@app.route("/api/download-batch-results/<id>", methods=["GET"])
+def download_batch_results(id):
+    """ Downloads batch results by redirecting to a temporary presigned url """
+
+    if not is_valid_uuid(id):
+        return "Please provide a valid identifier.", 400
+
+    s3_objects = s3_client.list_objects_v2(
+        Bucket=config["s3"]["bucket"],
+        Prefix=f"{config['s3']['output_key_prefix']}{id}/",
+    )
+
+    if "Contents" not in s3_objects or not s3_objects["Contents"]:
+        return "Your results could not be found.", 400
+
+    s3_object = s3_objects["Contents"][0]
+    key = s3_object["Key"]
+    last_modified = s3_object["LastModified"]
+    expiration_date = last_modified + timedelta(days = 7)
+
+    if datetime.now(tz=timezone.utc) > expiration_date:
+        return "Your results have expired.", 400
+
+    results_url = s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={"Bucket": config["s3"]["bucket"], "Key": key},
+        ExpiresIn=60 * 60 * 6,  # 6 hours (maximum for IAM instance roles)
+    )
+
+    return redirect(results_url, code=302)
     
 
 if __name__ == "__main__":
