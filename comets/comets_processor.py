@@ -76,11 +76,7 @@ def message_handler(message):
                 Filename=output_filepath, Bucket=config["s3"]["bucket"], Key=output_key
             )
 
-            results_url = s3_client.generate_presigned_url(
-                ClientMethod="get_object",
-                Params={"Bucket": config["s3"]["bucket"], "Key": output_key},
-                ExpiresIn=60 * 60 * 24 * 7,  # 1 week
-            )
+            results_url = f"{params['url_root']}/api/download-batch-results/{params['message_id']}"
 
             logger.info(f"Sending success email")
 
