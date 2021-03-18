@@ -241,6 +241,9 @@ appComets.CorrelationResultsModel = Backbone.Model.extend({
         var response = Backbone.Model.prototype.fetch.call(this,options),
             model = this;
         response.done(function(response) {
+            // show summary immediately for batch results
+            if (methodSelection === 'All')
+                $('a[href="#tab-summary"]').tab('show')
             if (options.reset) {
                 model.trigger('reset',model,options);
             }
