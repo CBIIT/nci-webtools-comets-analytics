@@ -6,4 +6,5 @@ output/
 logs/
 tests/*.xml
 settings.ini
+settings.yml
 tmp/
