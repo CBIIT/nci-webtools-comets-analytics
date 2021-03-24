@@ -7,7 +7,7 @@ getCohorts <- function() {
     dir <- system.file("extdata", package="COMETS", mustWork=TRUE)
     masterfile <- file.path(dir, "compileduids.RData")
     load(masterfile)
-    toJSON(c("Undefined", cohorts$Cohort), auto_unbox = T)
+    toJSON(cohorts$Cohort, auto_unbox = T)
 }
 
 getTemplates <- function() {

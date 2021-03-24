@@ -30,12 +30,26 @@ Backbone.Model.prototype.fetch = function(options) {
 
 appComets.CohortsModel = Backbone.Model.extend({
     defaults: {
-        cohorts: [{'text': 'Other', 'value': 'Other'}]
+        cohorts: [
+            {
+                text: 'Other/Undefined', 
+                value: 'Other'
+            }
+        ]
     },
     url: "/cometsRest/public/cohorts",
     parse: function(response) {
-        response.cohorts.push("Other");
-        response.cohorts = response.cohorts.map(function(entry) { return { 'text': entry, 'value': entry } });
+        response.cohorts = [
+            {
+                text: 'Other/Undefined', 
+                value: 'Other'
+            }
+        ].concat(response.cohorts.map(function(entry) { 
+            return { 
+                text: entry, 
+                value: entry 
+            } 
+        }));
         console.log(response);
         return response;
     }
@@ -106,8 +120,8 @@ appComets.CombineFormModel = Backbone.Model.extend({
 
 appComets.HarmonizationFormModel = Backbone.Model.extend({
     defaults: {
-        cohortList: ["Other"],
-        cohortSelection: 'Undefined',
+        cohortList: [],
+        cohortSelection: 'Other',
         covariates: [],
         csvFile: null,
         email: "",
