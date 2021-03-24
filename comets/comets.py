@@ -328,6 +328,9 @@ def cohorts():
 
 @app.route("/cometsRest/registration/user_metadata", methods=["POST"])
 def user_metadata():
+    if "auth0" not in app.config:
+        return "Not Available", 500
+
     try:
         parameters = json.loads(request.data)
         data = {
@@ -392,6 +395,9 @@ def user_metadata():
 
 @app.route("/cometsRest/admin/users", methods=["GET"])
 def user_list_get():
+    if "auth0" not in app.config:
+        return "Not Available", 500
+
     try:
         # url = "https://"+app.config['auth0.domain']+".auth0.com/api/v2/users?q=comets%3A*%20TO%20*&fields=app_metadata%2Cemail%2Cfamily_name%2Cgiven_name%2Cidentities.connection%2Cuser_id%2Cuser_metadata&include_fields=true&per_page=100&page="
         url = (
@@ -432,6 +438,9 @@ def user_list_get():
 
 @app.route("/cometsRest/admin/users", methods=["PATCH"])
 def user_list_update():
+    if "auth0" not in app.config:
+        return "Not Available", 500
+
     try:
         user_list = json.loads(request.data)
         response = []
