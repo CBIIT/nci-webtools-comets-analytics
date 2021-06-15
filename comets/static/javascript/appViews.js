@@ -740,7 +740,7 @@ appComets.IntegrityView = Backbone.View.extend({
         var $that = this;
         if (this.model.get('csvDownload')) appComets.events.preauthenticate(e, function () {
             window.location = $that.model.get('csvDownload');
-            ga('send', 'event', 'download', 'results', 'integrity check');
+            ga('send', 'event', 'download', 'results', 'harmonized metabolites');
         });
     },
     render: function () {
