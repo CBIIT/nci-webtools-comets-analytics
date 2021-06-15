@@ -247,7 +247,7 @@ appComets.CorrelationResultsModel = Backbone.Model.extend({
             All: 'all', 
             Interactive: 'custom', 
             Batch: modelName
-        }[methodSelection];
+        }[methodSelection] || 'custom';
 
         ga('send', 'event', 'run', 'cohort', cohortSelection);
         ga('send', 'event', 'run', 'model', eventName);
