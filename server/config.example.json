@@ -1,0 +1,14 @@
+{
+    "server": {
+        "port": 9000,
+        "static": "../client/build"
+    },
+    "results": {
+        "folder": "results"
+        
+    },
+    "logs": {
+        "folder": "logs",
+        "level": "debug"
+    }
+}
