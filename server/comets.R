@@ -94,7 +94,7 @@ loadFile <- function(req, res) {
 #* @post /runModel
 #*
 #* @parser json
-#* @serializer unboxedJSON
+#* @serializer unboxedJSON list(force=T, na="null")
 #*
 runModel <- function(req, res) {
  # future-scoped blocks only have access to copies of the
@@ -110,12 +110,12 @@ runModel <- function(req, res) {
     covariates <- req$body$covariates
     strata <- req$body$strata
     filters <- req$body$filters
-    
 
     inputFilePath <- file.path(config$results$folder, id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
     results <- FALSE
 
+    # run selected model
     if (method == "selectedModel") {
       modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModel)
       results <- COMETS::runModel(modelData, metaboliteData, cohort)
@@ -135,6 +135,23 @@ runModel <- function(req, res) {
       )
 
       results <- COMETS::runModel(modelData, metaboliteData, cohort)
+
+      # for now, only support correlation results
+      x <- "term"
+      y <- "outcomespec"
+      z <- "corr"
+
+      heatmapData <- results$Effects |>
+        dplyr::select(all_of(x), all_of(y), all_of(z)) |>
+        tidyr::pivot_wider(names_from = x, values_from = z) |>
+        tibble::column_to_rownames(y)
+
+      results$heatmapData <- I(heatmapData)
+
+      # get hierarchical clusters if there are at least two exposures and outcomes
+      if (nrow(heatmapData) >= 2 && ncol(heatmapData) >= 2) {
+        results$plotlyDendrogram <- plotly::plotly_build(heatmaply::heatmaply(heatmapData, cellnote = heatmapData))$x
+      }
     }
 
     # queue models
