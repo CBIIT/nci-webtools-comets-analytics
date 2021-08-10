@@ -5,7 +5,7 @@
   "main": "server/server.R",
   "scripts": {
     "prepare": "husky install",
-    "install:r": "cd server && Rscript install.R",
+    "install:server": "cd server && Rscript install.R",
     "test": "npm run test:client && npm run test:server",
     "test:client": "cd client && npm run test",
     "test:server": "cd server && Rscript test.R",
