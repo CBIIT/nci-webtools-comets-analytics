@@ -121,6 +121,10 @@ export default function InputForm({
             name="inputFile" 
             onChange={handleChange} 
             disabled={integrityCheckResults?.id} />
+          <Form.Text>
+            <i className="bi bi-download me-1"></i>
+            <a href="files/cometsInput.xlsx">Download Sample Input</a>            
+          </Form.Text>
         </Form.Group>
 
         <div className="text-end">
@@ -323,6 +327,7 @@ export default function InputForm({
             </Button>
           </div>
         </Form>
+
         </>
       )}
 
