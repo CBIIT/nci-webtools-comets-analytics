@@ -1,25 +1,38 @@
-FROM centos:8
+FROM quay.io/centos/centos:stream8
 
 RUN dnf -y update \
- && dnf -y module enable mod_auth_openidc \
  && dnf -y install \
+    dnf-plugins-core \
+    epel-release \
+    glibc-langpack-en \
+ && dnf -y module enable nodejs:14 \
+ && dnf -y install \
+    gcc-c++ \
     httpd \
-    mod_auth_openidc \
+    make \
+    nodejs \
  && dnf clean all
 
 # Add custom httpd configuration
-ADD docker/frontend.conf /etc/httpd/conf.d/frontend.conf
+COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
-# Docker copy ignores top-level directories
-COPY /comets/static /var/www/html
+RUN mkdir /client
 
-WORKDIR /var/www/html/
+WORKDIR /client
 
-RUN chmod 755 -R /var/www/html
+COPY client/package*.json /client/
+
+RUN npm install
+
+COPY client /client/
+
+RUN npm run build \
+ && mv /client/build/* /var/www/html/
+
+WORKDIR /var/www/html
 
 EXPOSE 80
 EXPOSE 443
 
-# Simple startup script to avoid some issues observed with container restart
 CMD rm -rf /run/httpd/* /tmp/httpd* \
  && exec /usr/sbin/apachectl -DFOREGROUND
