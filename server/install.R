@@ -2,8 +2,6 @@ install.packages(
   c(
     "future",
     "jsonlite",
-    "jsonlite",
-    "magrittr",
     "paws",
     "plumber",
     "remotes",
@@ -12,8 +10,10 @@ install.packages(
   repos = "https://cloud.r-project.org/"
 )
 
+remotes::install_bioc("Biobase")
+
 remotes::install_github(
   "CBIIT/R-cometsAnalytics/RPackageSource",
-  ref = "wheelerb",
+  ref = "v2.0",
   upgrade = "never"
 )
