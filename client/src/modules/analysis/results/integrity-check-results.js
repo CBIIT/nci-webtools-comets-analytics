@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Plot from 'react-plotly.js'
+import Plot from "../../common/plot";
 import Table, { RangeFilter, TextFilter } from '../../common/table';
 import { downloadTables } from '../../../services/download';
 
