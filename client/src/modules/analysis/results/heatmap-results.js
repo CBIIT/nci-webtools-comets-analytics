@@ -57,7 +57,7 @@ export default function HeatmapResults({ results }) {
     }
   };
 
-  const hcluster = cloneDeep(results?.plotlyDendrogram);
+  const hcluster = cloneDeep(results?.heatmapDendrogram);
   const hclusterLayoutProps =  [
     "anchor",
     "automargin",
@@ -130,7 +130,6 @@ export default function HeatmapResults({ results }) {
         tickvals: sample(hcluster.layout.yaxis2.tickvals, defaultInterval),
         ticktext: sample(hcluster.layout.yaxis2.ticktext, defaultInterval),
       },
-      
     }
   } : {data: [], layout: {}};
 
