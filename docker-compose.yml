@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: 
+      context: "."
+      dockerfile: "docker/backend.dockerfile"
+    expose:
+      - "8000"
+    volumes:
+      - "./server/temp:/server/temp"
+      - "./server/logs:/server/logs"
+  frontend:
+    build:
+      context: "."
+      dockerfile: "docker/frontend.dockerfile"
+    ports: 
+      - "8080:80"
+    environment: 
+      API_HOST: "http://backend:8000"
