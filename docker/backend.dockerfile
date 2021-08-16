@@ -11,28 +11,21 @@ RUN dnf -y update \
     httpd-devel \
     libcurl-devel \
     libjpeg-turbo-devel \
+    libsodium-devel \
+    libxml2-devel \
     openssl-devel \
     R \
  && dnf clean all
 
 ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 
-# ensure that comets dependencies are installed
-RUN R -e "install.packages( \
-  c( \
-    'future', \
-    'jsonlite', \
-    'paws', \
-    'plumber', \
-    'remotes', \
-    'uuid' \
-  ), \
-  repos = 'https://cloud.r-project.org/' \
-)"
-RUN R -e "remotes::install_bioc('Biobase')"
-RUN R -e "remotes::install_github('CBIIT/R-cometsAnalytics/RPackageSource', ref = 'v2.0', upgrade = 'never')"
+RUN mkdir -p /server
 
-RUN mkdir -p /deploy/app
+WORKDIR /server
+
+COPY server/install.R /server/
+
+RUN Rscript install.R
 
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
 
@@ -42,8 +35,6 @@ ARG COMETS_R_PACKAGE_TAG=v2.0
 # install version of COMETS specified by tag
 RUN R -e "remotes::install_github('$COMETS_R_PACKAGE_URL', ref='$COMETS_R_PACKAGE_TAG', upgrade='never')"
 
-COPY server /deploy/app/
-
-WORKDIR /deploy
+COPY server /server/
 
 CMD Rscript server.R
