@@ -1,14 +1,24 @@
 {
     "server": {
-        "port": 9000,
-        "static": "../client/build"
-    },
-    "results": {
-        "folder": "results"
-        
+        "port": 8000,
+        "sessionFolder": "temp"
     },
     "logs": {
         "folder": "logs",
         "level": "debug"
+    },
+    "aws": {
+        "region": "region",
+        "accessKeyId": "accessKeyId",
+        "secretAccessKey": "secretAccessKey"
+    },
+    "s3": {
+        "bucket": "bucket",
+        "inputKeyPrefix": "comets/input/",
+        "outputKeyPrefix": "comets/output/"
+    },
+    "ses": {
+        "admin": "admin@example.com",
+        "sender": "sender@example.com"
     }
 }
