@@ -1,8 +1,7 @@
 library(COMETS)
 library(future)
-library(uuid)
-library(paws)
 library(jsonlite)
+library(paws)
 
 plan(multisession)
 config <- jsonlite::read_json("config.json")
@@ -34,9 +33,15 @@ loadFile <- function(req, res) {
   # future-scoped blocks only have access to copies of the
   # request and response objects
   future({
+    id <- plumber::random_cookie_key()
+
+    # create temporary session folder
+    sessionFolder <- file.path(config$server$sessionFolder, id)
+    dir.create(sessionFolder, recursive = T)
+
+    # write input file to session folder
     inputFile <- req$body$inputFile
-    inputFilePath <- tempfile()
-    on.exit(unlink(inputFilePath), add = TRUE)
+    inputFilePath <- file.path(sessionFolder, "input.xlsx")
     writeBin(inputFile$value, inputFilePath)
 
     # capture errors and warnings from readCOMETSinput
@@ -44,17 +49,14 @@ loadFile <- function(req, res) {
 
     # return errors if present
     if (length(results$errors)) {
+      unlink(sessionFolder, recursive = T)
       stop(results$errors)
     }
 
-    # if valid, generate unique id for results
-    id <- uuid::UUIDgenerate()
     output <- results$output
 
-    # save results
-    resultsFolder <- file.path(config$results$folder, id)
-    dir.create(resultsFolder, recursive = T)
-    saveRDS(output, file.path(resultsFolder, "input.rds"))
+    # save results to session folder
+    saveRDS(output, file.path(sessionFolder, "input.rds"))
 
     # Return metabolites, models, variables, and summary statistics
     # I() inhibits conversion of single-value vectors to scalars
@@ -107,11 +109,11 @@ runModel <- function(req, res) {
     modelName <- req$body$modelName
     exposures <- req$body$exposures
     outcomes <- req$body$outcomes
-    covariates <- req$body$covariates
+    adjustedCovariates <- req$body$adjustedCovariates
     strata <- req$body$strata
     filters <- req$body$filters
 
-    inputFilePath <- file.path(config$results$folder, id, "input.rds")
+    inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
     results <- FALSE
 
@@ -129,17 +131,17 @@ runModel <- function(req, res) {
         modlabel = modelName,
         exposures = as.character(exposures),
         outcomes = as.character(outcomes),
-        adjvars = as.character(covariates),
+        adjvars = as.character(adjustedCovariates),
         strvars = as.character(strata),
         where = filters
       )
-
-      results <- COMETS::runModel(modelData, metaboliteData, cohort)
 
       # for now, only support correlation results
       x <- "term"
       y <- "outcomespec"
       z <- "corr"
+
+      results <- COMETS::runModel(modelData, metaboliteData, cohort)
 
       heatmapData <- results$Effects |>
         dplyr::select(all_of(x), all_of(y), all_of(z)) |>
@@ -148,9 +150,9 @@ runModel <- function(req, res) {
 
       results$heatmapData <- I(heatmapData)
 
-      # get hierarchical clusters if there are at least two exposures and outcomes
+      # get hierarchical clusters if there are at least two rows/columns in the heatmap
       if (nrow(heatmapData) >= 2 && ncol(heatmapData) >= 2) {
-        results$plotlyDendrogram <- plotly::plotly_build(heatmaply::heatmaply(heatmapData, cellnote = heatmapData))$x
+        results$heatmapDendrogram <- plotly::plotly_build(heatmaply::heatmaply(heatmapData))$x
       }
     }
 
