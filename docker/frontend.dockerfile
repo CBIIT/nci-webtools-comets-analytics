@@ -13,9 +13,6 @@ RUN dnf -y update \
     nodejs \
  && dnf clean all
 
-# Add custom httpd configuration
-COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
-
 RUN mkdir /client
 
 WORKDIR /client
@@ -28,6 +25,9 @@ COPY client /client/
 
 RUN npm run build \
  && mv /client/build/* /var/www/html/
+
+# Add custom httpd configuration
+COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
 WORKDIR /var/www/html
 
