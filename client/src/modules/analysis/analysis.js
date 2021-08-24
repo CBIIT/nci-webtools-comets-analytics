@@ -16,13 +16,14 @@ import {
   getIntegrityCheckResults,
   getModelResults,
 } from "../../services/query";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   integrityCheckResultsState,
   modelResultsState,
   loadingState,
   activeResultsTabState,
   formValuesState,
+  heatmapOptionsState,
 } from "./analysis.state";
 
 export default function Analysis() {
@@ -37,6 +38,9 @@ export default function Analysis() {
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(
     activeResultsTabState
   );
+  const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
+  const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
+  const mergeHeatmapOptions = obj => setHeatmapOptions({...heatmapOptions, ...obj});
 
   async function handleSubmitIntegrityCheck(params) {
     try {
@@ -54,9 +58,15 @@ export default function Analysis() {
   async function handleSubmitModel(params) {
     try {
       setLoading(true);
+      resetHeatmapOptions();
       const results = await getModelResults(params);
+      const isCorrelation = results.modelOptions.modelClass === 'correlation';
+
       setActiveResultsTab('modelResults');
       setModelResults(results);
+      mergeHeatmapOptions({
+        zKey: isCorrelation ? 'corr' : 'estimate'
+      });
     } catch(e) {
       console.error('handleSubmitModel', e);
     }
