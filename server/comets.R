@@ -7,13 +7,6 @@ plan(multisession)
 config <- jsonlite::read_json("config.json")
 source("utils.R")
 
-# set AWS configuration
-Sys.setenv(
-  AWS_ACCESS_KEY_ID = config$aws$accessKeyId,
-  AWS_SECRET_ACCESS_KEY = config$aws$secretAccessKey,
-  AWS_REGION = config$aws$region
-)
-
 #* Returns COMETS cohorts
 #* @get /cohorts
 getCohorts <- function() {

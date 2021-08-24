@@ -4,12 +4,6 @@ library(jsonlite)
 config <- jsonlite::read_json("config.json")
 source("utils.R")
 
-# set AWS configuration
-Sys.setenv(
-  AWS_ACCESS_KEY_ID = config$aws$accessKeyId,
-  AWS_SECRET_ACCESS_KEY = config$aws$secretAccessKey,
-  AWS_REGION = config$aws$region
-)
 
 messageHandler <- function(message) {
   s3 <- paws::s3()
