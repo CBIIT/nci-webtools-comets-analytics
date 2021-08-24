@@ -7,6 +7,13 @@ plan(multisession)
 config <- jsonlite::read_json("config.json")
 source("utils.R")
 
+# set AWS configuration
+Sys.setenv(
+  AWS_ACCESS_KEY_ID = config$aws$accessKeyId,
+  AWS_SECRET_ACCESS_KEY = config$aws$secretAccessKey,
+  AWS_REGION = config$aws$region
+)
+
 #* Returns COMETS cohorts
 #* @get /cohorts
 getCohorts <- function() {
@@ -107,6 +114,7 @@ runModel <- function(req, res) {
     cohort <- req$body$cohort
     selectedModel <- req$body$selectedModel
     modelName <- req$body$modelName
+    modelClass <- req$body$modelClass
     exposures <- req$body$exposures
     outcomes <- req$body$outcomes
     adjustedCovariates <- req$body$adjustedCovariates
@@ -121,6 +129,10 @@ runModel <- function(req, res) {
     if (method == "selectedModel") {
       modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModel)
       results <- COMETS::runModel(modelData, metaboliteData, cohort)
+      results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
+      results$modelOptions <- list(
+        modelClass = modelData$options$model
+      )
     }
 
     # run custom model
@@ -136,24 +148,19 @@ runModel <- function(req, res) {
         where = filters
       )
 
-      # for now, only support correlation results
-      x <- "term"
-      y <- "outcomespec"
-      z <- "corr"
-
-      results <- COMETS::runModel(modelData, metaboliteData, cohort)
-
-      heatmapData <- results$Effects |>
-        dplyr::select(all_of(x), all_of(y), all_of(z)) |>
-        tidyr::pivot_wider(names_from = x, values_from = z) |>
-        tibble::column_to_rownames(y)
-
-      results$heatmapData <- I(heatmapData)
-
-      # get hierarchical clusters if there are at least two rows/columns in the heatmap
-      if (nrow(heatmapData) >= 2 && ncol(heatmapData) >= 2) {
-        results$heatmapDendrogram <- plotly::plotly_build(heatmaply::heatmaply(heatmapData))$x
-      }
+      results <- COMETS::runModel(
+        modelData, 
+        metaboliteData, 
+        cohort,
+        op = list(
+          model = modelClass
+        )
+      )
+      
+      results$heatmap <- getHeatmap(results$Effects, modelClass)
+      results$modelOptions <- list(
+        modelClass = modelClass
+      )
     }
 
     # queue models
@@ -164,4 +171,31 @@ runModel <- function(req, res) {
    results
   })
 
+}
+
+
+getHeatmap <- function(effects, modelClass = "correlation") {
+  heatmap <- list()
+  
+  # by default, z should be for correlation results
+  x <- "term"
+  y <- "outcomespec"
+  z <- "corr"
+
+  if (modelClass %in% c("lm", "glm")) {
+    z <- "estimate"
+  }
+
+  heatmap$data <- effects |>
+    dplyr::select(all_of(x), all_of(y), all_of(z)) |>
+    tidyr::pivot_wider(names_from = x, values_from = z) |>
+    tibble::column_to_rownames(y)
+
+  # get hierarchical clusters if there are at least two rows/columns in the heatmap
+  if (nrow(heatmap$data) >= 2 && ncol(heatmap$data) >= 2) {
+    heatmap$dendrogram <- I(plotly::plotly_build(heatmaply::heatmaply(heatmap$data))$x)
+  }
+
+  heatmap$data <- I(heatmap$data)
+  heatmap
 }
