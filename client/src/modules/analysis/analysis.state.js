@@ -9,6 +9,7 @@ export const defaultFormValues = {
   email: "",
   modelType: "",
   modelName: "Unadjusted",
+  modelClass: "correlation",
   showMetabolites: false,
   exposures: [],
   outcomes: [{label: 'All metabolites', value: 'All metabolites'}],
