@@ -203,8 +203,18 @@ export default function InputForm({
             <>
               <Form.Group controlId="modelName" className="mb-3">
                 <Form.Label className="required">Model Description</Form.Label>
-                <Form.Control type="text" name="modelName" placeholder="Enter model description"></Form.Control>
+                <Form.Control type="text" name="modelName" onChange={handleChange} value={formValues.modelName} placeholder="Enter model description"></Form.Control>
               </Form.Group>
+
+              <Form.Group controlId="modelClass" className="mb-3">
+                <Form.Label className="required">Model Class</Form.Label>
+                <Form.Select name="modelClass" onChange={handleChange} value={formValues.modelClass}>
+                  <option value="correlation">Correlation</option>
+                  <option value="lm">Linear Model (LM)</option>
+                  <option value="glm">Generalized Linear Model (GLM)</option>
+                </Form.Select>
+              </Form.Group>
+
               <Form.Check
                 type="checkbox"
                 className="mb-3"
