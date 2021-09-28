@@ -126,6 +126,7 @@ runModel <- function(req, res) {
       results <- COMETS::runModel(modelData, metaboliteData, cohort)
       results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
       results$options <- modelData$options
+      results$options$name <- selectedModel
     }
 
     # run custom model
@@ -150,6 +151,7 @@ runModel <- function(req, res) {
 
       results$heatmap <- getHeatmap(results$Effects, options$model)
       results$options <- options
+      results$options$name <- modelName
     }
 
     # queue models
