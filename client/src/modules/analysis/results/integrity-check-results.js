@@ -1,175 +1,238 @@
-import { useMemo } from 'react';
-import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import { useMemo } from "react";
+import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import Plot from "../../common/plot";
-import Table, { RangeFilter, TextFilter } from '../../common/table';
-import { downloadTables } from '../../../services/download';
+import Table, { RangeFilter, TextFilter } from "../../common/table";
+import { downloadTables } from "../../../services/download";
+import { pluralCount } from "../../../services/text";
 
 export default function IntegrityCheckResults({ results, children = null }) {
-
-  const columns = useMemo(() => [
-    {
-      id: "metabid",
-      accessor: "metabid",
-      Filter: TextFilter,
-    },
-    {
-      id: "metabolite_name",
-      accessor: "metabolite_name",
-      Filter: TextFilter,
-    },
-    {
-      id: "super_pathway",
-      accessor: "super_pathway",
-      Filter: TextFilter,
-    },
-    {
-      id: "sub_pathway",
-      accessor: "sub_pathway",
-      Filter: TextFilter,
-    },
-    {
-      id: "comp_id.cohort",
-      accessor: record => record["comp_id.cohort"],
-      Filter: TextFilter,
-    },
-    {
-      id: "platform",
-      accessor: "platform",
-      Filter: TextFilter,
-    },
-    {
-      id: "pubchem",
-      accessor: "pubchem",
-      Filter: TextFilter,
-    },
-    {
-      id: "hmdb_id.cohort",
-      accessor: record => record["hmdb_id.cohort"],
-      Filter: TextFilter,
-    },
-    {
-      id: "uid_01",
-      accessor: "uid_01",
-      Filter: TextFilter,
-    },
-    {
-      id: "uidsource",
-      accessor: record => record.uidsource.split(';').sort().join(';'),
-      Cell: ({value}) => (
-        <details title={value}>
-            <summary className="text-truncate">{value.split(';').length} sources</summary>
-            <ul>{value.split(';').map((v, i) => <li key={`uidsource-${v}-${i}`} className="text-truncate">{v}</li>)}</ul>
-        </details>
-      ),
-      Filter: TextFilter,
-    },
-    {
-      id: "main_class",
-      accessor: "main_class",
-      Filter: TextFilter,
-    },
-    {
-      id: "chemical_id",
-      accessor: "chemical_id",
-      Filter: TextFilter,
-    },
-    {
-      id: "comp_id.comets",
-      accessor: record => record["comp_id.comets"],
-      Filter: TextFilter,
-    },
-    {
-      id: "hmdb_id.comets", 
-      accessor: record => record["hmdb_id.comets"],
-      Filter: TextFilter,
-    },
-    {
-      id: "biochemical",
-      accessor: "biochemical",
-      Filter: TextFilter,
-    },
-    {
-      id: "comp_id",
-      accessor: "comp_id",
-      Filter: TextFilter,
-    },    
-    {
-      id: "var",
-      accessor: "var",
-      Filter: RangeFilter,
-      filter: "between",
-    },
-    {
-      id: "num.min",
-      accessor: record => record["num.min"],
-      Filter: RangeFilter,
-      filter: "between",
-    },
-  ], []);
+  const columns = useMemo(
+    () => [
+      {
+        id: "metabid",
+        accessor: "metabid",
+        Filter: TextFilter,
+      },
+      {
+        id: "metabolite_name",
+        accessor: "metabolite_name",
+        Filter: TextFilter,
+      },
+      {
+        id: "super_pathway",
+        accessor: "super_pathway",
+        Filter: TextFilter,
+      },
+      {
+        id: "sub_pathway",
+        accessor: "sub_pathway",
+        Filter: TextFilter,
+      },
+      {
+        id: "comp_id.cohort",
+        accessor: (record) => record["comp_id.cohort"],
+        Filter: TextFilter,
+      },
+      {
+        id: "platform",
+        accessor: "platform",
+        Filter: TextFilter,
+      },
+      {
+        id: "pubchem",
+        accessor: "pubchem",
+        Filter: TextFilter,
+      },
+      {
+        id: "hmdb_id.cohort",
+        accessor: (record) => record["hmdb_id.cohort"],
+        Filter: TextFilter,
+      },
+      {
+        id: "uid_01",
+        accessor: "uid_01",
+        Filter: TextFilter,
+      },
+      {
+        id: "uidsource",
+        accessor: (record) => record.uidsource.split(";").sort().join(";"),
+        Cell: ({ value }) => (
+          <details title={value}>
+            <summary className="text-truncate">
+              {value.split(";").length} sources
+            </summary>
+            <ul>
+              {value.split(";").map((v, i) => (
+                <li key={`uidsource-${v}-${i}`} className="text-truncate">
+                  {v}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ),
+        Filter: TextFilter,
+      },
+      {
+        id: "main_class",
+        accessor: "main_class",
+        Filter: TextFilter,
+      },
+      {
+        id: "chemical_id",
+        accessor: "chemical_id",
+        Filter: TextFilter,
+      },
+      {
+        id: "comp_id.comets",
+        accessor: (record) => record["comp_id.comets"],
+        Filter: TextFilter,
+      },
+      {
+        id: "hmdb_id.comets",
+        accessor: (record) => record["hmdb_id.comets"],
+        Filter: TextFilter,
+      },
+      {
+        id: "biochemical",
+        accessor: "biochemical",
+        Filter: TextFilter,
+      },
+      {
+        id: "comp_id",
+        accessor: "comp_id",
+        Filter: TextFilter,
+      },
+      {
+        id: "var",
+        accessor: "var",
+        Filter: RangeFilter,
+        filter: "between",
+      },
+      {
+        id: "num.min",
+        accessor: (record) => record["num.min"],
+        Filter: RangeFilter,
+        filter: "between",
+      },
+    ],
+    []
+  );
 
   const defaultColumn = {
-    Header: ({column }) => <span title={column.id}>{column.id}</span>,
-    Cell: ({value}) => <div title={value} className="text-truncate">{value}</div>,
+    Header: ({ column }) => <span title={column.id}>{column.id}</span>,
+    Cell: ({ value }) => (
+      <div title={value} className="text-truncate">
+        {value}
+      </div>
+    ),
     minWidth: 50,
     width: 180,
-  }
+  };
 
   const variancePlot = {
     data: [
       {
-        x: results?.metabolites?.map(m => m.var) || [],
-        type: 'histogram'
-      }
+        x: results?.metabolites?.map((m) => m.var) || [],
+        type: "histogram",
+      },
     ],
     layout: {
       title: "Distribution of Variance",
       xaxis: {
-        title: "Variance of transformed metabolite abundances"
+        title: "Variance of transformed metabolite abundances",
       },
       yaxis: {
-        title: "Frequency"
-      }
+        title: "Frequency",
+      },
     },
   };
 
   const missingValuesPlot = {
     data: [
       {
-        x: results?.metabolites?.map(m => m['num.min']) || [],
-        type: 'histogram'
-      }
+        x: results?.metabolites?.map((m) => m["num.min"]) || [],
+        type: "histogram",
+      },
     ],
     layout: {
       title: "Distribution of the Number/Missing Values",
       xaxis: {
-        title: "Number of minimum/missing values"
+        title: "Number of minimum/missing values",
       },
       yaxis: {
-        title: "Frequency"
-      }
+        title: "Frequency",
+      },
     },
   };
 
   function downloadResults() {
-    const sheets = [{name: 'export', data: results.metabolites}];
-    downloadTables(sheets, `export.csv`);
+    const sheets = [{ name: "export", data: results.metabolites }];
+
+    const d = new Date();
+    const pad = (e) => String(e).padStart(2, "0");
+    const timestamp = [
+      d.getFullYear(),
+      pad(d.getMonth() + 1),
+      pad(d.getDate()),
+      "_",
+      pad(d.getHours()),
+      pad(d.getMinutes()),
+      pad(d.getSeconds()),
+    ].join("");
+    const filename = `metabolites_${timestamp}.csv`;
+    downloadTables(sheets, filename);
   }
 
-  
-  return !results ? children : (
-    <>
-      {results.error && <Alert variant="danger">{results.message}</Alert>}
-      {results.messages.length > 0 && <Alert variant="primary">{results.messages}</Alert>}
-      {results.warnings.length > 0 && <Alert variant="warning">
-        <h2 className="h5">Warnings</h2>
+  if (!results) return children;
+
+  if (results.errors) {
+    return (
+      <Alert variant="danger">
+        <h2 className="h5">Integrity Check Failed</h2>
+        <p>
+          The input data file could not be loaded due to the following errors.
+          For further assistance, please contact{" "}
+          <a href="mailto:comets.analytics@gmail.com">
+            comets.analytics@gmail.com
+          </a>
+          .
+        </p>
         <ul className="mb-0">
-          {results.warnings.map((warning, i) => <li key={`warning-${i}`}>{warning}</li>)}
+          {results.capturedOutput
+            .filter((line) => /ERROR/i.test(line))
+            .map((line, i) => (
+              <li key={`output-error-${i}`}>{line}</li>
+            ))}
+          <li>{results.errors}</li>
         </ul>
-      </Alert>}
+      </Alert>
+    );
+  }
+
+  return (
+    <>
+      {results.messages?.length > 0 && (
+        <Alert variant="primary">
+          <h2 className="h5">Integrity Check Successful</h2>
+          {results.messages}
+        </Alert>
+      )}
+      {results.warnings?.length > 0 && (
+        <Alert variant="warning">
+          <h2 className="h5">
+            {pluralCount(results.warnings.length, "Warning")}
+          </h2>
+          <ul className="mb-0">
+            {results.warnings.map((warning, i) => (
+              <li key={`warning-${i}`}>{warning}</li>
+            ))}
+          </ul>
+        </Alert>
+      )}
 
       {/* <h2 className="h4 text-primary d-flex justify-content-between align-items-baseline">
         Results
@@ -180,8 +243,6 @@ export default function IntegrityCheckResults({ results, children = null }) {
       </h2> */}
 
       {/* <Table columns={columns} data={results.metabolites} options={{defaultColumn}} /> */}
-
-
 
       {/* <table className="table">
         <thead className="table-light text-muted text-uppercase small">
@@ -204,8 +265,6 @@ export default function IntegrityCheckResults({ results, children = null }) {
         </tbody>
       </table> */}
 
-
-
       <h2 className="h4 text-primary d-flex justify-content-between align-items-baseline">
         Input Data Summary
         <Button variant="primary" size="sm" onClick={downloadResults}>
@@ -217,36 +276,44 @@ export default function IntegrityCheckResults({ results, children = null }) {
       {/* <h2 className="h4 text-primary">Input Data Summary</h2> */}
       <Row>
         <Col md>
-        <Card className="mb-3 shadow-sm">
+          <Card className="mb-3 shadow-sm">
             <Card.Body>
               <h2 className="h6 text-muted">Total Metabolites</h2>
-              <div className="h3">{results.summary.input.metabolites.toLocaleString()}</div>
+              <div className="h3">
+                {results.summary.input.metabolites.toLocaleString()}
+              </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md>
-        <Card className="mb-3 shadow-sm">
+          <Card className="mb-3 shadow-sm">
             <Card.Body>
-            <h2 className="h6 text-muted">Subjects</h2>
-            <div className="h3">{results.summary.input.subjects.toLocaleString()}</div>
+              <h2 className="h6 text-muted">Subjects</h2>
+              <div className="h3">
+                {results.summary.input.subjects.toLocaleString()}
+              </div>
             </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md>
-        <Card className="mb-3 shadow-sm">
-            <Card.Body>
-              <h2 className="h6">Subject Covariates</h2>
-              <div className="h3">{results.summary.input.subjectCovariates.toLocaleString()}</div>
-              </Card.Body>
           </Card>
         </Col>
 
         <Col md>
           <Card className="mb-3 shadow-sm">
-          <Card.Body>
-            <h2 className="h6">Subject Metabolites</h2>
-            <div className="h3">{results.summary.input.subjectMetabolites.toLocaleString()}</div>
+            <Card.Body>
+              <h2 className="h6">Subject Covariates</h2>
+              <div className="h3">
+                {results.summary.input.subjectCovariates.toLocaleString()}
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md>
+          <Card className="mb-3 shadow-sm">
+            <Card.Body>
+              <h2 className="h6">Subject Metabolites</h2>
+              <div className="h3">
+                {results.summary.input.subjectMetabolites.toLocaleString()}
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -273,53 +340,72 @@ export default function IntegrityCheckResults({ results, children = null }) {
 
       <Row>
         <Col md>
-        <Card className="mb-3 shadow-sm">
+          <Card className="mb-3 shadow-sm">
             <Card.Body>
               <h2 className="h6 text-muted">N Metabolites</h2>
-              <div className="h3">{results.summary.metabolites.metabolites.toLocaleString()}</div>
+              <div className="h3">
+                {results.summary.metabolites.metabolites.toLocaleString()}
+              </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md>
-        <Card className="mb-3 shadow-sm">
+          <Card className="mb-3 shadow-sm">
             <Card.Body>
-            <h2 className="h6 text-muted">N Harmonized</h2>
-            <div className="h3">{results.summary.metabolites.harmonized.toLocaleString()}</div>
+              <h2 className="h6 text-muted">N Harmonized</h2>
+              <div className="h3">
+                {results.summary.metabolites.harmonized.toLocaleString()}
+              </div>
             </Card.Body>
           </Card>
         </Col>
 
         <Col md>
-        <Card className="mb-3 shadow-sm">
+          <Card className="mb-3 shadow-sm">
             <Card.Body>
               <h2 className="h6">N Non-Harmonized</h2>
-              <div className="h3">{results.summary.metabolites.nonHarmonized.toLocaleString()}</div>
-              </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md>
-          <Card className="mb-3 shadow-sm">
-          <Card.Body>
-            <h2 className="h6">N with zero variance</h2>
-            <div className="h3">{results.summary.metabolites.zeroVariance.toLocaleString()}</div>
+              <div className="h3">
+                {results.summary.metabolites.nonHarmonized.toLocaleString()}
+              </div>
             </Card.Body>
           </Card>
         </Col>
 
         <Col md>
           <Card className="mb-3 shadow-sm">
-          <Card.Body>
-            <h2 className="h6">N with &gt; 25% at min</h2>
-            <div className="h3">{results.summary.metabolites.min25PercentSubjects.toLocaleString()}</div>
+            <Card.Body>
+              <h2 className="h6">N with zero variance</h2>
+              <div className="h3">
+                {results.summary.metabolites.zeroVariance.toLocaleString()}
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md>
+          <Card className="mb-3 shadow-sm">
+            <Card.Body>
+              <h2 className="h6">N with &gt; 25% at min</h2>
+              <div className="h3">
+                {results.summary.metabolites.min25PercentSubjects.toLocaleString()}
+              </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      <Plot {...variancePlot} useResizeHandler className="w-100" style={{height: '400px'}}/>
-      <Plot {...missingValuesPlot} useResizeHandler className="w-100" style={{height: '400px'}}/>
-      
+      <Plot
+        {...variancePlot}
+        useResizeHandler
+        className="w-100"
+        style={{ height: "400px" }}
+      />
+      <Plot
+        {...missingValuesPlot}
+        useResizeHandler
+        className="w-100"
+        style={{ height: "400px" }}
+      />
     </>
   );
 }
