@@ -5,6 +5,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import ObjectList from "../common/object-list";
 import { isNull, omitBy } from "lodash";
 import {
   cohortsState,
@@ -156,18 +157,7 @@ export default function InputForm({
       ...modelSpecifier.modelOptions,
     };
 
-    return (
-      <ul>
-        {Object.entries(modelOptions).map(([key, value], index) => (
-          <li key={`model-specifier-option-${index}`}>
-            <span className="fw-semibold me-1">{key}:</span>
-            <span style={{ whiteSpace: "pre" }}>
-              {JSON.stringify(value, null, 2)}
-            </span>
-          </li>
-        ))}
-      </ul>
-    );
+    return <ObjectList obj={modelOptions} />;
   }
 
   return (

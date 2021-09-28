@@ -1,6 +1,7 @@
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Table from "../../common/table";
+import ObjectList from "../../common/object-list";
 import {
   defaultColumn,
   getColumns,
@@ -8,9 +9,9 @@ import {
 } from "./model-results.utils";
 
 export default function ModelResults({ results, children = "" }) {
-  return !results ? (
-    children
-  ) : (
+  if (!results) return children;
+
+  return (
     <>
       {results.Errors_Warnings?.length > 0 && (
         <Alert variant="warning">
@@ -18,13 +19,25 @@ export default function ModelResults({ results, children = "" }) {
           <ul className="mb-0">
             {results.Errors_Warnings.map((warning, i) => (
               <li key={`warning-${i}`}>
-                {warning.object && `(${warning.object})`}
+                {warning.object && (
+                  <span className="me-1">({warning.object})</span>
+                )}
                 {warning.message}
               </li>
             ))}
           </ul>
         </Alert>
       )}
+
+      <h2 className="h4 text-primary">{results.options.name}</h2>
+
+      <ObjectList
+        className="list-unstyled"
+        obj={{
+          model: results.options.model,
+          ...results.options["model.options"],
+        }}
+      />
 
       <h2 className="h4 text-primary d-flex justify-content-between align-items-baseline">
         Model Summary
