@@ -12,10 +12,10 @@
     <meta name="keywords" content="Comets Analytics, COMETS Harmonization" />
     <title>COMETS Analytics: Consortium of METabolomic Studies</title>
   </head>
-  <body>
+  <body class="d-flex flex-column vh-100">
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
-    <header>
+    <a href="#main-content" class="visually-hidden-focusable mb-1">Skip to main content</a>
+    <header class="flex-grow-0 no-print">
         <div class="container">
           <a href=".">
             <img src="images/logo.png" alt="COMETS Analytics" title="Banner of COMETS Analytics" />
@@ -29,9 +29,55 @@
           </div>
         </div>
     </header>
-    <div id="root"></div>
-    <footer>
+    <div id="root" class="d-flex flex-column flex-grow-1"></div>
 
+    <footer class="bg-primary text-light pt-4 flex-grow-0 no-print">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <h2 class="h4">COMETS Analytics</h2>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="h5 mb-1 font-weight-light">CONTACT US</div>
+            <ul class="list-unstyled mb-0">
+              <li>
+                <a class="text-light" href="mailto:comets.analytics@gmail.com">
+                  General Support
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 mb-4">
+            <div class="h5 mb-1 font-weight-light">MORE RESOURCES</div>
+            <ul class="list-unstyled mb-0">
+              <li>
+                <a class="text-light" href="https://epi.grants.cancer.gov/comets/" target="_blank" rel="noopener">
+                  About COMETS
+                </a>
+              </li>
+              <li>
+                <a class="text-light" href="https://www.youtube.com/watch?reload=9&v=dWJ_fdibnms" target="_blank" rel="noopener">
+                  Introduction
+                </a>
+              </li>
+              <li>
+                <a class="text-light" href="https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/" target="_blank" rel="noopener">
+                  Tutorials
+                </a>
+              </li>
+              <li>
+                <a class="text-light" href="https://cbiit.github.io/R-cometsAnalytics/cometsvignette_v1.6.html" target="_blank" rel="noopener">
+                  Vignettes
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-center my-3 text-primary-light">©2017-<span id="currentYear">2021</span> COMETS Analytics</div>
+        <script>currentYear.innerText = new Date().getFullYear()</script>
+      </div>
     </footer>
 
   </body>
