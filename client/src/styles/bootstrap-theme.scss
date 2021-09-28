@@ -12,6 +12,12 @@ a,
   font-weight: 500;
 }
 
+.disabled,
+[disabled],
+:disabled {
+  cursor: not-allowed;
+}
+
 .vh-100 {
   height: 100vh;
 }
@@ -58,11 +64,11 @@ a,
   display: inline-block;
   margin-bottom: 0;
 
-  th, .th {
+  th,
+  .th {
     font-weight: $table-th-font-weight;
     text-transform: uppercase;
     font-size: 0.875em;
-    
   }
 
   .th,
@@ -79,7 +85,7 @@ a,
       top: 0;
       transform: translateX(50%);
       z-index: 1;
-      touch-action:none;
+      touch-action: none;
       background: #ddd;
       opacity: 0.1;
 
@@ -90,40 +96,46 @@ a,
     }
   }
 
-  
-&.table-bordered {
-  > :not(caption) > * {
-    border-width: $table-border-width 0;
-    // stylelint-disable-next-line selector-max-universal
-    > * {
-      border-width: 0 $table-border-width;
+  &.table-bordered {
+    > :not(caption) > * {
+      border-width: $table-border-width 0;
+      // stylelint-disable-next-line selector-max-universal
+      > * {
+        border-width: 0 $table-border-width;
+      }
     }
   }
-}
 
-&.table-borderless {
-  // stylelint-disable-next-line selector-max-universal
-  > :not(caption) > * > * {
-    border-bottom-width: 0;
+  &.table-borderless {
+    // stylelint-disable-next-line selector-max-universal
+    > :not(caption) > * > * {
+      border-bottom-width: 0;
+    }
   }
-}
 
   &.table-striped {
     > .tbody > .tr:nth-of-type(#{$table-striped-order}) {
-      --#{$variable-prefix}table-accent-bg: var(--#{$variable-prefix}table-striped-bg);
+      --#{$variable-prefix}table-accent-bg: var(
+        --#{$variable-prefix}table-striped-bg
+      );
       color: var(--#{$variable-prefix}table-striped-color);
     }
   }
 
   &.table-hover {
     .tbody > .tr:hover {
-      --#{$variable-prefix}table-accent-bg: var(--#{$variable-prefix}table-hover-bg);
+      --#{$variable-prefix}table-accent-bg: var(
+        --#{$variable-prefix}table-hover-bg
+      );
       color: var(--#{$variable-prefix}table-hover-color);
     }
   }
 
   &.table-nowrap {
-    td, th, .td, .th {
+    td,
+    th,
+    .td,
+    .th {
       white-space: nowrap;
     }
   }
@@ -136,10 +148,10 @@ a,
   }
 }
 
-/** Tooltips */ 
+/** Tooltips */
 .tooltip {
   .tooltip-inner {
-    box-shadow: 0 .25rem 0.5rem rgba($black, .1);
+    box-shadow: 0 0.25rem 0.5rem rgba($black, 0.1);
   }
 }
 
