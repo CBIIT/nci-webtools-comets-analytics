@@ -7,7 +7,7 @@ getAwsServiceConfig <- function(config, ...) {
     region = config$aws$region
   )
 
-  if (all(c('accessKeyId', 'secretAccessKey') %in% config$aws)) {
+  if (all(c("accessKeyId", "secretAccessKey") %in% config$aws)) {
     serviceConfig$credentials <- list(
       creds = list(
         access_key_id = config$aws$accessKeyId,
@@ -23,24 +23,30 @@ getAwsServiceConfig <- function(config, ...) {
 callWithHandlers <- function(func, ...) {
   errors <- c()
   warnings <- c()
-  list(
-    output = tryCatch(
-      withCallingHandlers(
-        func(...),
-        warning = function(x) warnings <<- c(warnings, x$message)
+
+  capturedOutput <- capture.output(invisible(
+    results <- list(
+      output = tryCatch(
+        withCallingHandlers(
+          func(...),
+          warning = function(x) warnings <<- c(warnings, x$message)
+        ),
+        error = function(x) {
+          errors <<- c(errors, x$message)
+          NULL
+        }
       ),
-      error = function(x) {
-        errors <<- c(errors, x$message)
-        NULL
-      }
-    ),
-    errors = errors,
-    warnings = warnings
-  )
+      errors = errors,
+      warnings = warnings
+    )
+  ))
+
+  results$capturedOutput <- capturedOutput
+  results
 }
 
 receiveMessage <- function(queueName, messageHandler, visibilityTimeout = 60) {
-  sqs <- paws::sqs(getAwsServiceConfig('config.json'))
+  sqs <- paws::sqs(getAwsServiceConfig("config.json"))
   queueUrl <- sqs$get_queue_url(QueueName = queueName)$QueueUrl
 
   tryCatch(
@@ -79,6 +85,3 @@ receiveMessage <- function(queueName, messageHandler, visibilityTimeout = 60) {
     }
   )
 }
-
-
-
