@@ -1,16 +1,15 @@
-import { RecoilRoot } from 'recoil';
-import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Container from 'react-bootstrap/Container';
-import Home from './modules/home/home';
-import About from './modules/about/about';
-import Analysis from './modules/analysis/analysis';
-import CreateInput from './modules/create-input/create-input';
+import { RecoilRoot } from "recoil";
+import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+import Container from "react-bootstrap/Container";
+import Home from "./modules/home/home";
+import About from "./modules/about/about";
+import Analysis from "./modules/analysis/analysis";
+import CreateInput from "./modules/create-input/create-input";
 import "./styles/main.scss";
 
 export default function App() {
-
   const links = [
     {
       route: "/",
@@ -37,7 +36,7 @@ export default function App() {
   return (
     <RecoilRoot>
       <Router>
-        <Navbar expand="sm" className="navbar-light shadow-sm">
+        <Navbar expand="sm" className="navbar-light shadow-sm flex-none-auto">
           <Container>
             <Navbar.Toggle aria-controls="app-navbar" />
             <Navbar.Collapse id="app-navbar">
@@ -59,10 +58,14 @@ export default function App() {
 
         <div id="main-content" className="flex-grow-1">
           {links.map((link, index) => (
-            <Route exact key={`route-${index}`} path={link.route} component={link.component} />
+            <Route
+              exact
+              key={`route-${index}`}
+              path={link.route}
+              component={link.component}
+            />
           ))}
         </div>
-
       </Router>
     </RecoilRoot>
   );
