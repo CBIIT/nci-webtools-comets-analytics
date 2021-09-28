@@ -9,11 +9,10 @@ export const defaultFormValues = {
   email: "",
   modelType: "",
   modelName: "Unadjusted",
-  modelClass: "correlation",
   showMetabolites: false,
   exposures: [],
-  outcomes: [{label: 'All metabolites', value: 'All metabolites'}],
-  covariates: [],
+  outcomes: [{ label: "All metabolites", value: "All metabolites" }],
+  adjustedCovariates: [],
   strata: [],
   filterVariable: "",
   filterOperator: "",
@@ -23,7 +22,7 @@ export const defaultFormValues = {
       variable: "",
       operator: "",
       value: "",
-    }
+    },
   ],
 };
 
@@ -35,17 +34,17 @@ export const formValuesState = atom({
 export const heatmapOptionsState = atom({
   key: "analysis.heatmapOptionsState",
   default: {
-    sortColumn: '',
-    sortRow: '',
-    xKey: 'term',
-    yKey: 'outcomespec',
-    zKey: 'corr',
+    sortColumn: "",
+    sortRow: "",
+    xKey: "term",
+    yKey: "outcomespec",
+    zKey: "corr",
     showAnnotations: false,
     showDendrogram: false,
-    pValueMin: '',
-    pValueMax: '',
-  }
-})
+    pValueMin: "",
+    pValueMax: "",
+  },
+});
 
 export const cohortsState = selector({
   key: "analysis.cohortsState",
@@ -72,30 +71,27 @@ export const activeResultsTabState = atom({
   default: "integrityCheckResults",
 });
 
-
 export const variablesState = selector({
   key: "analysis.variablesState",
-  get: ({get}) => {
+  get: ({ get }) => {
     const integrityCheckResults = get(integrityCheckResultsState);
 
-    if (integrityCheckResults) {
-      const asOption = v => ({value: v, label: v});
+    if (integrityCheckResults && !integrityCheckResults.errors) {
+      const asOption = (v) => ({ value: v, label: v });
       const { variables, metabolites } = integrityCheckResults;
 
-      return [
-        {value: 'All metabolites', label: 'All metabolites'},
-      ].concat(
-        variables.map(asOption)
-      ).concat(
-        metabolites.map(m => ({
-          ...asOption(m.metabid),
-          isMetabolite: true, 
-        }))
-      );
+      return [{ value: "All metabolites", label: "All metabolites" }]
+        .concat(variables.map(asOption))
+        .concat(
+          metabolites.map((m) => ({
+            ...asOption(m.metabid),
+            isMetabolite: true,
+          }))
+        );
     }
 
     return [];
-  }
+  },
 });
 
 // export const tagsState = selector({
