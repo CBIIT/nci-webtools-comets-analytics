@@ -50,7 +50,8 @@ loadFile <- function(req, res) {
     # return errors if present
     if (length(results$errors)) {
       unlink(sessionFolder, recursive = T)
-      stop(results$errors)
+      res$status <- 500
+      return(results)
     }
 
     output <- results$output
@@ -68,6 +69,7 @@ loadFile <- function(req, res) {
       warnings = I(results$warnings),
       metabolites = I(output$metab),
       models = I(output$mods),
+      options = I(output$options),
       variables = I(output$allSubjectMetaData),
       summary = list(
         input = list(
@@ -99,7 +101,7 @@ loadFile <- function(req, res) {
 #* @serializer unboxedJSON list(force=T, na="null")
 #*
 runModel <- function(req, res) {
- # future-scoped blocks only have access to copies of the
+  # future-scoped blocks only have access to copies of the
   # request and response objects
   future({
     id <- req$body$id
@@ -107,12 +109,12 @@ runModel <- function(req, res) {
     cohort <- req$body$cohort
     selectedModel <- req$body$selectedModel
     modelName <- req$body$modelName
-    modelClass <- req$body$modelClass
     exposures <- req$body$exposures
     outcomes <- req$body$outcomes
     adjustedCovariates <- req$body$adjustedCovariates
     strata <- req$body$strata
     filters <- req$body$filters
+    options <- req$body$options
 
     inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
@@ -123,16 +125,14 @@ runModel <- function(req, res) {
       modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModel)
       results <- COMETS::runModel(modelData, metaboliteData, cohort)
       results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
-      results$modelOptions <- list(
-        modelClass = modelData$options$model
-      )
+      results$options <- modelData$options
     }
 
     # run custom model
     else if (method == "customModel") {
       modelData <- COMETS::getModelData(
-        metaboliteData, 
-        modelspec="Interactive",
+        metaboliteData,
+        modelspec = "Interactive",
         modlabel = modelName,
         exposures = as.character(exposures),
         outcomes = as.character(outcomes),
@@ -142,34 +142,29 @@ runModel <- function(req, res) {
       )
 
       results <- COMETS::runModel(
-        modelData, 
-        metaboliteData, 
+        modelData,
+        metaboliteData,
         cohort,
-        op = list(
-          model = modelClass
-        )
+        op = options
       )
-      
-      results$heatmap <- getHeatmap(results$Effects, modelClass)
-      results$modelOptions <- list(
-        modelClass = modelClass
-      )
+
+      results$heatmap <- getHeatmap(results$Effects, options$model)
+      results$options <- options
     }
 
     # queue models
     else if (method == "allModels") {
-      
+
     }
 
-   results
+    results
   })
-
 }
 
 
 getHeatmap <- function(effects, modelClass = "correlation") {
   heatmap <- list()
-  
+
   # by default, z should be for correlation results
   x <- "term"
   y <- "outcomespec"
