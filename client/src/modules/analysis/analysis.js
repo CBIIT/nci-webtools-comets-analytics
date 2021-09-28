@@ -16,7 +16,12 @@ import {
   getIntegrityCheckResults,
   getModelResults,
 } from "../../services/query";
-import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil";
+import {
+  useRecoilState,
+  useRecoilValue,
+  useResetRecoilState,
+  useSetRecoilState,
+} from "recoil";
 import {
   integrityCheckResultsState,
   modelResultsState,
@@ -32,24 +37,26 @@ export default function Analysis() {
   const [integrityCheckResults, setIntegrityCheckResults] = useRecoilState(
     integrityCheckResultsState
   );
-  const [modelResults, setModelResults] = useRecoilState(
-    modelResultsState
-  );
+  const [modelResults, setModelResults] = useRecoilState(modelResultsState);
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(
     activeResultsTabState
   );
   const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
-  const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
-  const mergeHeatmapOptions = obj => setHeatmapOptions({...heatmapOptions, ...obj});
+  const [heatmapOptions, setHeatmapOptions] = useRecoilState(
+    heatmapOptionsState
+  );
+  const mergeHeatmapOptions = (obj) =>
+    setHeatmapOptions({ ...heatmapOptions, ...obj });
 
   async function handleSubmitIntegrityCheck(params) {
     try {
       setLoading(true);
       const results = await getIntegrityCheckResults(params);
-      setActiveResultsTab('integrityCheckResults');
+      setActiveResultsTab("integrityCheckResults");
       setIntegrityCheckResults(results);
-    } catch(e) {
-      console.error('handleSubmitIntegrityCheck', e);
+      console.log(results);
+    } catch (e) {
+      console.error("handleSubmitIntegrityCheck", e);
     } finally {
       setLoading(false);
     }
@@ -60,17 +67,16 @@ export default function Analysis() {
       setLoading(true);
       resetHeatmapOptions();
       const results = await getModelResults(params);
-      const isCorrelation = results.modelOptions.modelClass === 'correlation';
+      const isCorrelation = results.options.model === "correlation";
 
-      setActiveResultsTab('modelResults');
+      setActiveResultsTab("modelResults");
       setModelResults(results);
       mergeHeatmapOptions({
-        zKey: isCorrelation ? 'corr' : 'estimate'
+        zKey: isCorrelation ? "corr" : "estimate",
       });
-    } catch(e) {
-      console.error('handleSubmitModel', e);
-    }
-    finally {
+    } catch (e) {
+      console.error("handleSubmitModel", e);
+    } finally {
       setLoading(false);
     }
   }
@@ -81,7 +87,7 @@ export default function Analysis() {
   }
 
   function handleSelectTab(key) {
-    setTimeout(() => window.dispatchEvent(new Event('resize')), 10);
+    setTimeout(() => window.dispatchEvent(new Event("resize")), 10);
     setActiveResultsTab(key);
   }
 
@@ -91,7 +97,9 @@ export default function Analysis() {
       <Container className="my-3">
         <Row>
           <Col md={4}>
-            <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
+            <Card
+              className="shadow-sm mb-3 position-relative"
+              style={{ minHeight: "100px" }}>
               <Card.Body>
                 <ErrorBoundary
                   fallback={
@@ -113,8 +121,11 @@ export default function Analysis() {
             </Card>
           </Col>
           <Col md={8}>
-            <Tab.Container id="results-tabs" activeKey={activeResultsTab} onSelect={handleSelectTab}>
-              <Card className="shadow-sm mb-3" style={{minHeight: '400px'}}>
+            <Tab.Container
+              id="results-tabs"
+              activeKey={activeResultsTab}
+              onSelect={handleSelectTab}>
+              <Card className="shadow-sm mb-3" style={{ minHeight: "400px" }}>
                 <Card.Header>
                   <Nav variant="tabs">
                     <Nav.Item>
@@ -123,12 +134,16 @@ export default function Analysis() {
                       </Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
-                      <Nav.Link eventKey="modelResults">
+                      <Nav.Link
+                        eventKey="modelResults"
+                        disabled={!modelResults}>
                         Results
                       </Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
-                      <Nav.Link eventKey="heatmap">Heatmap</Nav.Link>
+                      <Nav.Link eventKey="heatmap" disabled={!modelResults}>
+                        Heatmap
+                      </Nav.Link>
                     </Nav.Item>
                   </Nav>
                 </Card.Header>
@@ -141,7 +156,10 @@ export default function Analysis() {
                       <ModelResults results={modelResults} />
                     </Tab.Pane>
                     <Tab.Pane eventKey="heatmap">
-                      <HeatmapResults results={modelResults} formValues={formValues} />
+                      <HeatmapResults
+                        results={modelResults}
+                        formValues={formValues}
+                      />
                     </Tab.Pane>
                   </Tab.Content>
                 </Card.Body>
