@@ -4,7 +4,8 @@ install.packages(
     "jsonlite",
     "paws",
     "plumber",
-    "remotes"
+    "remotes",
+    "styler"
   ),
   repos = "https://cloud.r-project.org/"
 )
