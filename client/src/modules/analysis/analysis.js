@@ -16,12 +16,7 @@ import {
   getIntegrityCheckResults,
   getModelResults,
 } from "../../services/query";
-import {
-  useRecoilState,
-  useRecoilValue,
-  useResetRecoilState,
-  useSetRecoilState,
-} from "recoil";
+import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
   integrityCheckResultsState,
   modelResultsState,
