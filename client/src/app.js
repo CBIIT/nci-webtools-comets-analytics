@@ -6,7 +6,7 @@ import Container from "react-bootstrap/Container";
 import Home from "./modules/home/home";
 import About from "./modules/about/about";
 import Analysis from "./modules/analysis/analysis";
-import CreateInput from "./modules/create-input/create-input";
+// import CreateInput from "./modules/create-input/create-input";
 import "./styles/main.scss";
 
 export default function App() {
