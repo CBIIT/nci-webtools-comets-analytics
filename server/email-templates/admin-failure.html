@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMETS Results - Error</title>
+</head>
+<body>
+    <p>Dear COMETS administrators,</p>
+    <p>The following file could not be processed: {{ filename }}. To protect user privacy, the original file has been deleted and is not recoverable.</p>
+
+    <ul>
+        <li><strong>Email: </strong> {{ email }}</li>
+        <li><strong>Cohort: </strong> {{ cohort }}</li>
+        <li><strong>Error: </strong> <pre>{{ exception }}</pre></li>
+    </ul>
+
+    <p>Respectfully,</p>
+    <p>COMETS Web Tool</p>
+</body>
+</html>

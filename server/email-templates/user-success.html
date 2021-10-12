@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMETS Results</title>
+</head>
+<body>
+    <p>Dear COMETS user,</p>
+
+    <p>We've finished running your file: {{ filename }}</p>
+    
+    {{#has_results}}
+        <p>The results of your batch data run are available through the following link. Any additional information (warnings, errors, etc.) are included below.</p>
+        <p><a href="{{ results_url }}">{{ results_url }}</a></p>
+        <p>This link will be valid for the next seven days.</p>
+    {% else %}
+        <p>There were no models or all the models resulted in errors, so no data is available. Any additional information (warnings, errors, etc.) are included below.</p>
+    {% endif %}
+
+    {% if model_results %}
+        <p>The following models were run and took a total processing time of {{ processing_time | round(2) }} seconds.</p>
+
+        {% for result in model_results %}
+            <p>
+                <strong>{{ result.model_name }}</strong> - 
+                {% if result.errors %} 
+                    Error (see below)
+                {% else %}
+                    Complete ({{ result.processing_time }})
+                {% endif %}
+            </p>
+
+            <div style="margin-left: 20px">
+                {% if result.warnings %}
+                    <p>Warnings: </p>
+                    <ul>
+                        {% for warning in result.warnings %}
+                        <li>{{ warning }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if result.errors %}
+                    <p>Errors: </p>
+                    <ul>
+                        {% for error in result.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <p>Respectfully,</p>
+    <p>COMETS Web Tool</p>
+</body>
+</html>
