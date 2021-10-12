@@ -29,18 +29,8 @@ export default function ModelResults({ results, children = "" }) {
         </Alert>
       )}
 
-      <h2 className="h4 text-primary">{results.options.name}</h2>
-
-      <ObjectList
-        className="list-unstyled"
-        obj={{
-          model: results.options.model,
-          ...results.options["model.options"],
-        }}
-      />
-
       <h2 className="h4 text-primary d-flex justify-content-between align-items-baseline">
-        Model Summary
+        Effects
         <Button
           variant="primary"
           size="sm"
@@ -49,14 +39,6 @@ export default function ModelResults({ results, children = "" }) {
           Download Results
         </Button>
       </h2>
-      <Table
-        columns={getColumns(results.ModelSummary)}
-        data={results.ModelSummary}
-        options={{ defaultColumn }}
-        useColumnFilters
-      />
-
-      <h2 className="h4 text-primary">Effects</h2>
       <Table
         columns={getColumns(results.Effects)}
         data={results.Effects}
