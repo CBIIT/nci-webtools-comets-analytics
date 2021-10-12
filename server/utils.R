@@ -2,16 +2,20 @@ library(future)
 
 plan(multisession)
 
-getAwsServiceConfig <- function(config, ...) {
+sanitize <- function(str) {
+  gsub("[^[:alnum:][:space:]_,-.]+", "_", str)
+}
+
+getAwsConfig <- function(config, ...) {
   serviceConfig <- list(
     region = config$aws$region
   )
 
-  if (all(c("accessKeyId", "secretAccessKey") %in% config$aws)) {
+  if (all(c("accessKeyId", "secretAccessKey") %in% names(config$aws))) {
     serviceConfig$credentials <- list(
       creds = list(
         access_key_id = config$aws$accessKeyId,
-        secret_access_key = config$aws$secretAccessKey,
+        secret_access_key = config$aws$secretAccessKey
       )
     )
   }
@@ -21,32 +25,35 @@ getAwsServiceConfig <- function(config, ...) {
 
 
 callWithHandlers <- function(func, ...) {
+  output <- NULL
   errors <- c()
   warnings <- c()
 
   capturedOutput <- capture.output(invisible(
-    results <- list(
-      output = tryCatch(
-        withCallingHandlers(
-          func(...),
-          warning = function(x) warnings <<- c(warnings, x$message)
-        ),
-        error = function(x) {
-          errors <<- c(errors, x$message)
-          NULL
+    output <- tryCatch(
+      withCallingHandlers(
+        func(...),
+        warning = function(x) {
+          print(x$message)
+          warnings <<- c(warnings, x$message)
         }
       ),
-      errors = errors,
-      warnings = warnings
+      error = function(x) {
+        errors <<- c(errors, x$message)
+        NULL
+      }
     )
   ))
 
-  results$capturedOutput <- capturedOutput
-  results
+  list(
+    output = output,
+    capturedOuput = capturedOutput,
+    warnings = warnings,
+    errors = errors
+  )
 }
 
-receiveMessage <- function(queueName, messageHandler, visibilityTimeout = 60) {
-  sqs <- paws::sqs(getAwsServiceConfig("config.json"))
+receiveMessage <- function(sqs, queueName, messageHandler, visibilityTimeout = 60) {
   queueUrl <- sqs$get_queue_url(QueueName = queueName)$QueueUrl
 
   tryCatch(
@@ -59,20 +66,23 @@ receiveMessage <- function(queueName, messageHandler, visibilityTimeout = 60) {
       )
 
       if (length(response$Messages) > 0) {
-        message <- response$Messages[0]
+        message <- response$Messages[[1]]
 
-        messageHandlerTask <- future({
-          messageHandler(message$Body)
-        })
+        callWithHandlers(messageHandler, message$Body)
 
-        while (!resolved(messageHandlerTask)) {
-          sqs$change_message_visibility(
-            QueueUrl = queueUrl,
-            ReceiptHandle = message$ReceiptHandle,
-            VisibilityTimeout = visibilityTimeout
-          )
-          Sys.sleep(1)
-        }
+        # messageHandlerTask <- future({
+        #  callWithHandlers(messageHandler, message$Body)
+        # })
+
+        # while (!resolved(messageHandlerTask)) {
+        #   sqs$change_message_visibility(
+        #     QueueUrl = queueUrl,
+        #     ReceiptHandle = message$ReceiptHandle,
+        #     VisibilityTimeout = visibilityTimeout
+        #   )
+        #   print("changing visibility")
+        #   Sys.sleep(1)
+        # }
 
         sqs$delete_message(
           QueueUrl = queueUrl,
@@ -82,6 +92,55 @@ receiveMessage <- function(queueName, messageHandler, visibilityTimeout = 60) {
     },
     error = function(x) {
       print(x)
+    }
+  )
+}
+
+
+defaultLogFormatter <- function(object) {
+  sprintf(
+    "[%s] [%s] %s",
+    object$logLevel,
+    object$timestamp,
+    jsonlite::toJSON(object$message, auto_unbox = T)
+  )
+}
+
+httpLogFormatter <- function(object) {
+  sprintf(
+    "[%s] [%s] %s",
+    object$logLevel,
+    object$timestamp,
+    jsonlite::toJSON(object$message, auto_unbox = T)
+  )
+}
+
+createDailyRotatingLogger <- function(fileNamePrefix = "app", formatter = defaultLogFormatter) {
+  logMessage <- function(logLevel = "INFO", message) {
+    logFileName <- paste(fileNamePrefix, Sys.Date(), "log", sep = ".")
+
+    formattedMessage <- formatter(list(
+      logLevel = logLevel,
+      timestamp = Sys.time(),
+      message = message
+    ))
+
+    print(formattedMessage)
+    write(formattedMessage, file = logFileName, append = T)
+  }
+
+  list(
+    debug = function(message) {
+      logMessage("DEBUG", message)
+    },
+    info = function(message) {
+      logMessage("INFO", message)
+    },
+    warning = function(message) {
+      logMessage("WARNING", message)
+    },
+    error = function(message) {
+      logMessage("ERROR", message)
     }
   )
 }
