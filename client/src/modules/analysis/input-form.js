@@ -67,7 +67,7 @@ export default function InputForm({
       onSubmitModel({
         ...formValues,
         id: integrityCheckResults.id,
-        options: getOptions(formValues.modelSpecifier, true),
+        options: getOptions(formValues.modelType, true),
         exposures: formValues.exposures.map(asValue),
         outcomes: formValues.outcomes.map(asValue),
         adjustedCovariates: formValues.adjustedCovariates.map(asValue),
