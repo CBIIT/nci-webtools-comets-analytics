@@ -38,6 +38,10 @@ export default function InputForm({
       value = files && files.length ? files[0].name : null;
     }
 
+    if (name === "selectedModelType") {
+      mergeFormValues({ selectedModel: null });
+    }
+
     mergeFormValues({ [name]: value });
   }
 
@@ -157,7 +161,7 @@ export default function InputForm({
       ...modelSpecifier.modelOptions,
     };
 
-    return <ObjectList obj={modelOptions} />;
+    return <ObjectList obj={modelOptions} className="mb-1 text-start" />;
   }
 
   return (
@@ -263,22 +267,65 @@ export default function InputForm({
             )}
 
             {formValues.method === "selectedModel" && (
-              <Form.Group controlId="selectedModel" className="mb-3">
-                <Form.Label className="required">Model</Form.Label>
-                <Form.Select
-                  name="selectedModel"
-                  value={formValues.selectedModel}
-                  onChange={handleChange}>
-                  <option value="" hidden>
-                    No model chosen
-                  </option>
-                  {integrityCheckResults.models.map((m, i) => (
-                    <option value={m.model} key={i + m.model}>
-                      {m.model}
+              <>
+                <Form.Group controlId="selectedModelType" className="mb-3">
+                  <Form.Label>
+                    Model Type
+                    {formValues.selectedModelType && (
+                      <OverlayTrigger
+                        overlay={
+                          <Tooltip id="modelTypeTooltip">
+                            <Form.Label>Model Options</Form.Label>
+
+                            <ModelOptions
+                              modelSpecifierName={formValues.selectedModelType}
+                            />
+                          </Tooltip>
+                        }>
+                        <i class="bi bi-info-circle ms-1"></i>
+                      </OverlayTrigger>
+                    )}
+                  </Form.Label>
+                  <Form.Select
+                    name="selectedModelType"
+                    onChange={handleChange}
+                    value={formValues.selectedModelType}>
+                    <option value="">All model types</option>
+                    {integrityCheckResults.modelSpecifiers
+                      .filter((specifier) => specifier.model)
+                      .map((specifier, i) => (
+                        <option
+                          value={specifier.name}
+                          key={`selected-model-type-${i}`}>
+                          {specifier.name}
+                        </option>
+                      ))}
+                  </Form.Select>
+                </Form.Group>
+
+                <Form.Group controlId="selectedModel" className="mb-3">
+                  <Form.Label className="required">Model</Form.Label>
+                  <Form.Select
+                    name="selectedModel"
+                    value={formValues.selectedModel}
+                    onChange={handleChange}>
+                    <option value="" hidden>
+                      No model chosen
                     </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
+                    {integrityCheckResults.models
+                      .filter(
+                        (m) =>
+                          !formValues.selectedModelType ||
+                          formValues.selectedModelType == m.modelspec
+                      )
+                      .map((m, i) => (
+                        <option value={m.model} key={i + m.model}>
+                          {m.model}
+                        </option>
+                      ))}
+                  </Form.Select>
+                </Form.Group>
+              </>
             )}
 
             {formValues.method === "customModel" && (
@@ -295,12 +342,28 @@ export default function InputForm({
                     placeholder="Enter model description"></Form.Control>
                 </Form.Group>
 
-                <Form.Group controlId="modelSpecifier" className="mb-3">
-                  <Form.Label className="required">Model Specifier</Form.Label>
+                <Form.Group controlId="modelType" className="mb-3">
+                  <Form.Label>
+                    Model Type
+                    {formValues.modelType && (
+                      <OverlayTrigger
+                        overlay={
+                          <Tooltip id="modelTypeTooltip">
+                            <Form.Label>Model Options</Form.Label>
+
+                            <ModelOptions
+                              modelSpecifierName={formValues.modelType}
+                            />
+                          </Tooltip>
+                        }>
+                        <i class="bi bi-info-circle ms-1"></i>
+                      </OverlayTrigger>
+                    )}
+                  </Form.Label>
                   <Form.Select
-                    name="modelSpecifier"
+                    name="modelType"
                     onChange={handleChange}
-                    value={formValues.modelSpecifier}>
+                    value={formValues.modelType}>
                     <option value="">Default (correlation)</option>
                     {integrityCheckResults.modelSpecifiers
                       .filter((specifier) => specifier.model)
@@ -313,15 +376,6 @@ export default function InputForm({
                       ))}
                   </Form.Select>
                 </Form.Group>
-
-                {formValues.modelSpecifier && (
-                  <Form.Group className="mb-3">
-                    <Form.Label>Model Options</Form.Label>
-                    <ModelOptions
-                      modelSpecifierName={formValues.modelSpecifier}
-                    />
-                  </Form.Group>
-                )}
 
                 <Form.Check
                   type="checkbox"
