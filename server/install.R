@@ -2,10 +2,13 @@ install.packages(
   c(
     "future",
     "jsonlite",
+    "openxlsx",
     "paws",
     "plumber",
     "remotes",
-    "styler"
+    "styler",
+    "whisker",
+    "zip"
   ),
   repos = "https://cloud.r-project.org/"
 )
