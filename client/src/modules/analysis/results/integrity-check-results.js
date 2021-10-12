@@ -202,8 +202,8 @@ export default function IntegrityCheckResults({ results, children = null }) {
           .
         </p>
         <ul className="mb-0">
-          {results.capturedOutput
-            .filter((line) => /ERROR/i.test(line))
+          {results?.capturedOutput
+            ?.filter((line) => /ERROR/i.test(line))
             .map((line, i) => (
               <li key={`output-error-${i}`}>{line}</li>
             ))}
