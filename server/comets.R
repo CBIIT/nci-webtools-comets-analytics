@@ -7,6 +7,12 @@ plan(multisession)
 config <- jsonlite::read_json("config.json")
 source("utils.R")
 
+# configure AWS services if needed
+s3 <- paws::s3(config = getAwsConfig(config))
+sqs <- paws::sqs(config = getAwsConfig(config))
+
+logger <- createDailyRotatingLogger("comets-app")
+
 #* Returns COMETS cohorts
 #* @get /cohorts
 getCohorts <- function() {
@@ -66,7 +72,7 @@ loadFile <- function(req, res) {
     list(
       id = id,
       messages = I(output$integritymessage),
-      warnings = I(results$warnings),
+      warnings = I(as.list(results$warnings)),
       metabolites = I(output$metab),
       models = I(output$mods),
       options = I(output$options),
@@ -93,7 +99,125 @@ loadFile <- function(req, res) {
   })
 }
 
-#* Runs a specified model
+#* Runs a prespecified model
+#*
+#* @post /runSelectedModel
+#*
+#* @parser json
+#* @serializer unboxedJSON list(force=T, na="null")
+#*
+runSelectedModel <- function(req, res) {
+  id <- sanitize(req$body$id)
+  cohort <- sanitize(req$body$cohort)
+  selectedModel <- sanitize(req$body$selectedModel)
+
+  inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
+  metaboliteData <- readRDS(inputFilePath)
+
+  modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModel)
+  results <- COMETS::runModel(modelData, metaboliteData, cohort)
+  results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
+  results$options <- modelData$options
+  results$options$name <- selectedModel
+
+  results
+}
+
+#* Runs a custom model
+#*
+#* @post /runCustomModel
+#*
+#* @parser json
+#* @serializer unboxedJSON list(force=T, na="null")
+#*
+runCustomModel <- function(req, res) {
+  id <- sanitize(req$body$id)
+  cohort <- sanitize(req$body$cohort)
+  modelName <- sanitize(req$body$modelName)
+  exposures <- req$body$exposures
+  outcomes <- req$body$outcomes
+  adjustedCovariates <- req$body$adjustedCovariates
+  strata <- req$body$strata
+  filters <- req$body$filters
+  options <- req$body$options
+
+  modelData <- COMETS::getModelData(
+    metaboliteData,
+    modelspec = "Interactive",
+    modlabel = modelName,
+    exposures = as.character(exposures),
+    outcomes = as.character(outcomes),
+    adjvars = as.character(adjustedCovariates),
+    strvars = as.character(strata),
+    where = filters
+  )
+
+  results <- COMETS::runModel(
+    modelData,
+    metaboliteData,
+    cohort,
+    op = options
+  )
+
+  results$heatmap <- getHeatmap(results$Effects, options$model)
+  results$options <- options
+  results$options$name <- modelName
+
+  results
+}
+
+#* Runs all models by sending them to a queue
+#*
+#* @post /runAllModels
+#*
+#* @parser json
+#* @serializer unboxedJSON list(force=T, na="null")
+#*
+runAllModels <- function(req, res) {
+  id <- sanitize(req$body$id)
+  cohort <- sanitize(req$body$cohort)
+  originalFileName <- sanitize(req$body$inputFile)
+  email <- req$body$email
+
+  sessionFolder <- file.path(config$server$sessionFolder, id)
+  inputFilePath <- file.path(sessionFolder, "input.xlsx")
+
+  # determine key for s3 object
+  s3FilePath <- paste0(config$s3$inputKeyPrefix, id, "/", "input.xlsx")
+
+  # upload input file to s3 bucket
+  s3$put_object(
+    Body = inputFilePath,
+    Bucket = config$s3$bucket,
+    Key = s3FilePath
+  )
+
+  # create parameters for queue
+  params <- list(
+    id = id,
+    cohort = cohort,
+    s3FilePath = s3FilePath,
+    originalFileName = originalFileName,
+    email = email
+  )
+
+  # determine queue url from queue name
+  queueUrl <- sqs$get_queue_url(
+    QueueName = config$sqs$queueName
+  )$QueueUrl
+
+  # enqueue parameters
+  sqs$send_message(
+    QueueUrl = queueUrl,
+    MessageBody = jsonlite::toJSON(params, auto_unbox = T),
+    MessageDeduplicationId = plumber::random_cookie_key(),
+    MessageGroupId = plumber::random_cookie_key()
+  )
+
+  TRUE
+}
+
+#* Runs a model
 #*
 #* @post /runModel
 #*
@@ -104,62 +228,27 @@ runModel <- function(req, res) {
   # future-scoped blocks only have access to copies of the
   # request and response objects
   future({
-    id <- req$body$id
     method <- req$body$method
-    cohort <- req$body$cohort
-    selectedModel <- req$body$selectedModel
-    modelName <- req$body$modelName
-    exposures <- req$body$exposures
-    outcomes <- req$body$outcomes
-    adjustedCovariates <- req$body$adjustedCovariates
-    strata <- req$body$strata
-    filters <- req$body$filters
-    options <- req$body$options
-
-    inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
-    metaboliteData <- readRDS(inputFilePath)
-    results <- FALSE
 
     # run selected model
     if (method == "selectedModel") {
-      modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModel)
-      results <- COMETS::runModel(modelData, metaboliteData, cohort)
-      results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
-      results$options <- modelData$options
-      results$options$name <- selectedModel
+      return(runSelectedModel(req, res))
     }
 
     # run custom model
     else if (method == "customModel") {
-      modelData <- COMETS::getModelData(
-        metaboliteData,
-        modelspec = "Interactive",
-        modlabel = modelName,
-        exposures = as.character(exposures),
-        outcomes = as.character(outcomes),
-        adjvars = as.character(adjustedCovariates),
-        strvars = as.character(strata),
-        where = filters
-      )
-
-      results <- COMETS::runModel(
-        modelData,
-        metaboliteData,
-        cohort,
-        op = options
-      )
-
-      results$heatmap <- getHeatmap(results$Effects, options$model)
-      results$options <- options
-      results$options$name <- modelName
+      return(runCustomModel(req, res))
     }
 
     # queue models
     else if (method == "allModels") {
-
+      return(runAllModels(req, res))
     }
 
-    results
+    res$status <- 500
+    list(
+      error = "Invalid method specified"
+    )
   })
 }
 
