@@ -76,7 +76,11 @@ export const variablesState = selector({
   get: ({ get }) => {
     const integrityCheckResults = get(integrityCheckResultsState);
 
-    if (integrityCheckResults && !integrityCheckResults.errors) {
+    if (
+      integrityCheckResults &&
+      !integrityCheckResults.errors &&
+      !integrityCheckResults.error
+    ) {
       const asOption = (v) => ({ value: v, label: v });
       const { variables, metabolites } = integrityCheckResults;
 
