@@ -141,6 +141,9 @@ runCustomModel <- function(req, res) {
   filters <- req$body$filters
   options <- req$body$options
 
+  inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
+  metaboliteData <- readRDS(inputFilePath)
+
   modelData <- COMETS::getModelData(
     metaboliteData,
     modelspec = "Interactive",
