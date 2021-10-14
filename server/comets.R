@@ -75,7 +75,7 @@ loadFile <- function(req, res) {
       warnings = I(as.list(results$warnings)),
       metabolites = I(output$metab),
       models = I(output$mods),
-      options = I(output$options),
+      options = I(as.data.frame(output$options)),
       variables = I(output$allSubjectMetaData),
       summary = list(
         input = list(
@@ -108,17 +108,19 @@ loadFile <- function(req, res) {
 #*
 runSelectedModel <- function(req, res) {
   id <- sanitize(req$body$id)
-  cohort <- sanitize(req$body$cohort)
-  selectedModel <- sanitize(req$body$selectedModel)
+  cohort <- sanitize(req$body$cohort) 
+  selectedModelType <- sanitize(req$body$selectedModelType) 
+  selectedModelName <- sanitize(req$body$selectedModelName)
 
   inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
   metaboliteData <- readRDS(inputFilePath)
 
-  modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModel)
+  modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModelName)
   results <- COMETS::runModel(modelData, metaboliteData, cohort)
   results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
   results$options <- modelData$options
-  results$options$name <- selectedModel
+  results$options$name <- selectedModelName
+  results$options$type <- selectedModelType
 
   results
 }
@@ -133,6 +135,7 @@ runSelectedModel <- function(req, res) {
 runCustomModel <- function(req, res) {
   id <- sanitize(req$body$id)
   cohort <- sanitize(req$body$cohort)
+  modelType <- sanitize(req$body$modelType)
   modelName <- sanitize(req$body$modelName)
   exposures <- req$body$exposures
   outcomes <- req$body$outcomes
@@ -165,6 +168,7 @@ runCustomModel <- function(req, res) {
   results$heatmap <- getHeatmap(results$Effects, options$model)
   results$options <- options
   results$options$name <- modelName
+  results$options$type <- modelType
 
   results
 }
