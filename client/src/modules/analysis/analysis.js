@@ -92,28 +92,22 @@ export default function Analysis() {
       <Container className="my-3">
         <Row>
           <Col md={4}>
-            <Card
-              className="shadow-sm mb-3 position-relative"
-              style={{ minHeight: "100px" }}>
-              <Card.Body>
-                <ErrorBoundary
-                  fallback={
-                    <Alert variant="danger">
-                      An internal error prevented the input form from loading.
-                      Please contact the website administrator if this problem
-                      persists.
-                    </Alert>
-                  }>
-                  <Suspense fallback={<Loader>Loading Form</Loader>}>
-                    <InputForm
-                      onSubmitIntegrityCheck={handleSubmitIntegrityCheck}
-                      onSubmitModel={handleSubmitModel}
-                      onReset={handleReset}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              </Card.Body>
-            </Card>
+            <ErrorBoundary
+              fallback={
+                <Alert variant="danger">
+                  An internal error prevented the input form from loading.
+                  Please contact the website administrator if this problem
+                  persists.
+                </Alert>
+              }>
+              <Suspense fallback={<Loader>Loading Form</Loader>}>
+                <InputForm
+                  onSubmitIntegrityCheck={handleSubmitIntegrityCheck}
+                  onSubmitModel={handleSubmitModel}
+                  onReset={handleReset}
+                />
+              </Suspense>
+            </ErrorBoundary>
           </Col>
           <Col md={8}>
             <Tab.Container
