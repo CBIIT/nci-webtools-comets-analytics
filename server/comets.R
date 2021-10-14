@@ -108,8 +108,8 @@ loadFile <- function(req, res) {
 #*
 runSelectedModel <- function(req, res) {
   id <- sanitize(req$body$id)
-  cohort <- sanitize(req$body$cohort) 
-  selectedModelType <- sanitize(req$body$selectedModelType) 
+  cohort <- sanitize(req$body$cohort)
+  selectedModelType <- sanitize(req$body$selectedModelType)
   selectedModelName <- sanitize(req$body$selectedModelName)
 
   inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
