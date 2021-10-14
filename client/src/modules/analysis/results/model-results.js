@@ -30,7 +30,7 @@ export default function ModelResults({ results, children = "" }) {
       )}
 
       <h2 className="h4 text-primary d-flex justify-content-between align-items-baseline">
-        Effects
+        {results.options.type || "Correlation"} - {results.options.name}
         <Button
           variant="primary"
           size="sm"
