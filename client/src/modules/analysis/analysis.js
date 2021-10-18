@@ -62,14 +62,16 @@ export default function Analysis() {
       setLoading(true);
       resetHeatmapOptions();
       const results = await getModelResults(params);
-      const isCorrelation = results.options.model === "correlation";
 
       setActiveResultsTab("modelResults");
       setModelResults(results);
+
+      const isCorrelation = results?.options?.model === "correlation";
       mergeHeatmapOptions({
         zKey: isCorrelation ? "corr" : "estimate",
       });
     } catch (e) {
+      setModelResults(e);
       console.error("handleSubmitModel", e);
     } finally {
       setLoading(false);
