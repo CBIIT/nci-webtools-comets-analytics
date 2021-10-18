@@ -38,7 +38,7 @@ export default function HeatmapResults({ results }) {
     mergeHeatmapOptions({ [name]: value });
   }
 
-  return !results ? null : (
+  return !results || results.error || results.queue ? null : (
     <>
       <Form>
         <Row>
