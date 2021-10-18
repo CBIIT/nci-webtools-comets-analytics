@@ -1,4 +1,3 @@
-
 /** Colors */
 $blue: rgb(24, 83, 148);
 $dark-blue: rgb(18, 46, 81);
@@ -17,6 +16,7 @@ $link-decoration: none;
 $link-hover-decoration: underline;
 
 /** Text */
+$paragraph-margin-bottom: 0.5rem;
 $text-muted: #595959;
 
 /** Navbar */
@@ -46,7 +46,7 @@ $table-group-separator-color: #ddd;
 $table-cell-padding-x: 1rem;
 $table-cell-padding-y: 0.75rem;
 $table-striped-order: even;
-$table-striped-bg-factor: .02;
+$table-striped-bg-factor: 0.02;
 $table-striped-bg: rgba(#000, $table-striped-bg-factor);
 
 /** Pagination */
