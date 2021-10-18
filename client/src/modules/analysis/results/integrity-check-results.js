@@ -40,10 +40,10 @@ export default function IntegrityCheckResults({ results, children = null }) {
                 .
               </p>
               <ul className="mb-0">
-                {results?.capturedOutput
+                {results.capturedOutput
                   ?.filter((line) => /ERROR/i.test(line))
-                  .map((line, i) => (
-                    <li key={`output-error-${i}`}>{line}</li>
+                  ?.map((line, i) => (
+                    <li key={`integrity-check-error-${i}`}>{line}</li>
                   ))}
                 <li>{results.errors}</li>
               </ul>
@@ -259,54 +259,11 @@ export default function IntegrityCheckResults({ results, children = null }) {
 
   if (!results) return children;
 
-  // if (results.errors) {
-  //   return (
-
-  //     <Alert variant="danger" >
-  //       <h2 className="h5">Integrity Check Failed</h2>
-  //       <p>
-  //         The input data file could not be loaded due to the following errors.
-  //         For further assistance, please contact{" "}
-  //         <a href="mailto:comets.analytics@gmail.com">
-  //           comets.analytics@gmail.com
-  //         </a>
-  //         .
-  //       </p>
-  //       <ul className="mb-0">
-  //         {results?.capturedOutput
-  //           ?.filter((line) => /ERROR/i.test(line))
-  //           .map((line, i) => (
-  //             <li key={`output-error-${i}`}>{line}</li>
-  //           ))}
-  //         <li>{results.errors}</li>
-  //       </ul>
-  //     </Alert>
-  //   );
-  // }
-
   return (
     <>
-      {/* {results.messages?.length > 0 && (
-        <Alert variant="primary">
-          <h2 className="h5">Integrity Check Successful</h2>
-          {results.messages}
-        </Alert>
-      )}
-      {results.warnings?.length > 0 && (
-        <Alert variant="warning">
-          <h2 className="h5">
-            {pluralCount(results.warnings.length, "Warning")}
-          </h2>
-          <ul className="mb-0">
-            {results.warnings.map((warning, i) => (
-              <li key={`warning-${i}`}>{warning}</li>
-            ))}
-          </ul>
-        </Alert>
-      )} */}
-
       {messages.map(({ type, title, body }, index) => (
         <Alert
+          key={`integrity-check-results-message-${index}`}
           variant={type}
           onClose={() => removeMessageByIndex(index)}
           dismissible>
