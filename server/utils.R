@@ -47,13 +47,13 @@ callWithHandlers <- function(func, ...) {
 
   list(
     output = output,
-    capturedOuput = capturedOutput,
+    capturedOutput = capturedOutput,
     warnings = warnings,
     errors = errors
   )
 }
 
-receiveMessage <- function(sqs, queueName, messageHandler, visibilityTimeout = 60) {
+receiveMessage <- function(sqs, queueName, messageHandler, errorHandler, logger, visibilityTimeout = 60) {
   queueUrl <- sqs$get_queue_url(QueueName = queueName)$QueueUrl
 
   tryCatch(
@@ -68,26 +68,29 @@ receiveMessage <- function(sqs, queueName, messageHandler, visibilityTimeout = 6
       if (length(response$Messages) > 0) {
         message <- response$Messages[[1]]
 
-        callWithHandlers(messageHandler, message$Body)
+        messageHandlerTask <- future({
+          output <- callWithHandlers(messageHandler, message$Body)
 
-        # messageHandlerTask <- future({
-        #  callWithHandlers(messageHandler, message$Body)
-        # })
+          if (length(output$errors) > 0) {
+            errorOutput <- callWithHandlers(errorHandler, message$Body, output)
+            logger$error(errorOutput)
+          }
+        })
 
-        # while (!resolved(messageHandlerTask)) {
-        #   sqs$change_message_visibility(
-        #     QueueUrl = queueUrl,
-        #     ReceiptHandle = message$ReceiptHandle,
-        #     VisibilityTimeout = visibilityTimeout
-        #   )
-        #   print("changing visibility")
-        #   Sys.sleep(1)
-        # }
+        while (!resolved(messageHandlerTask)) {
+          sqs$change_message_visibility(
+            QueueUrl = queueUrl,
+            ReceiptHandle = message$ReceiptHandle,
+            VisibilityTimeout = visibilityTimeout
+          )
+          Sys.sleep(1)
+        }
 
         sqs$delete_message(
           QueueUrl = queueUrl,
           ReceiptHandle = message$ReceiptHandle
         )
+
       }
     },
     error = function(x) {
@@ -125,7 +128,7 @@ createDailyRotatingLogger <- function(fileNamePrefix = "app", formatter = defaul
       message = message
     ))
 
-    print(formattedMessage)
+    cat(formattedMessage, "\n")
     write(formattedMessage, file = logFileName, append = T)
   }
 
