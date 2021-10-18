@@ -90,7 +90,6 @@ receiveMessage <- function(sqs, queueName, messageHandler, errorHandler, logger,
           QueueUrl = queueUrl,
           ReceiptHandle = message$ReceiptHandle
         )
-
       }
     },
     error = function(x) {
