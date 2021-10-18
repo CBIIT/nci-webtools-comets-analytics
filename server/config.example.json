@@ -1,29 +1,30 @@
 {
-    "server": {
-        "port": 8000,
-        "sessionFolder": "temp"
-    },
-    "logs": {
-        "folder": "logs",
-        "level": "debug"
-    },
-    "aws": {
-        "region": "region",
-        "accessKeyId": "accessKeyId",
-        "secretAccessKey": "secretAccessKey"
-    },
-    "s3": {
-        "bucket": "bucket",
-        "inputKeyPrefix": "comets/input/",
-        "outputKeyPrefix": "comets/output/"
-    },
-    "ses": {
-        "admin": "admin@example.com",
-        "sender": "sender@example.com"
-    },
-    "sqs": {
-        "queueName": "queueName",
-        "visibilityTimeout": 60,
-        "pollInterval": 60
-    }
+  "server": {
+    "port": 8000,
+    "sessionFolder": "temp"
+  },
+  "logs": {
+    "folder": "logs",
+    "level": "debug"
+  },
+  "aws": {
+    "region": "region",
+    "accessKeyId": "accessKeyId",
+    "secretAccessKey": "secretAccessKey"
+  },
+  "s3": {
+    "bucket": "bucket",
+    "inputKeyPrefix": "comets/input/",
+    "outputKeyPrefix": "comets/output/"
+  },
+  "sqs": {
+    "queueName": "queueName",
+    "visibilityTimeout": 60,
+    "pollInterval": 60
+  },
+  "email": {
+    "admin": "admin@example.com",
+    "sender": "sender@example.com",
+    "baseUrl": "http://localhost:8000"
+  }
 }
