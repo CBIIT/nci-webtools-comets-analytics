@@ -1,11 +1,9 @@
-library(COMETS)
-library(jsonlite)
-
-config <- jsonlite::read_json("config.json")
 source("utils.R")
 
 # configure AWS services if needed
+config <- jsonlite::read_json("config.json")
 s3 <- paws::s3(config = getAwsConfig(config))
+ses <- paws::ses(config = getAwsConfig(config))
 sqs <- paws::sqs(config = getAwsConfig(config))
 logger <- createDailyRotatingLogger(
   file.path(config$logs$folder, "comets-processor")
@@ -13,13 +11,35 @@ logger <- createDailyRotatingLogger(
 
 logger$info("Started COMETS Processor")
 
+runPredefinedModel <- function(cometsInput, modelName, cohort) {
+  modelData <- COMETS::getModelData(
+    cometsInput,
+    modelspec = "Batch",
+    modlabel = modelName
+  )
+
+  COMETS::runModel(
+    modelData,
+    cometsInput,
+    cohort
+  )
+}
+
+listItems <- function(values) {
+  if (length(values)) {
+    paste("<li>", values, "</li>", collapse = "", sep = "")
+  } else {
+    ""
+  }
+}
 
 messageHandler <- function(message) {
-  logger$info(message)
+  logger$info(paste("Received parameters: ", message))
   params <- jsonlite::fromJSON(message)
 
   id <- sanitize(params$id)
   cohort <- sanitize(params$cohort)
+  originalFileName <- params$originalFileName
   s3FilePath <- params$s3FilePath
   email <- params$email
 
@@ -36,6 +56,12 @@ messageHandler <- function(message) {
   )
   writeBin(s3Object$Body, inputFilePath)
   logger$info(sprintf("Downloaded input file: %s", inputFilePath))
+
+  s3$delete_object(
+    Bucket = config$s3$bucket,
+    Key = params$s3FilePath
+  )
+  logger$info(sprintf("Deleted original input file from s3: %s", params$s3FilePath))
 
 
   cometsInput <- COMETS::readCOMETSinput(inputFilePath)
@@ -56,56 +82,187 @@ messageHandler <- function(message) {
 
   # write harmonization results to output folder
   harmonizationFileName <- COMETS::OutputCSVResults(
-    filename = file.path(outputFolder, "harmonization"),
+    filename = file.path(outputFolder, "harmonization_"),
     dataf = cometsInput$metab,
-    cohort = cohort
+    cohort = paste0(cohort, "_")
   )
   logger$info(sprintf("Saved harmonization results: %s", harmonizationFileName))
 
   # write input summary to output folder
   summaryFileName <- COMETS::OutputXLSResults(
-    filename = file.path(outputFolder, "summary"),
+    filename = file.path(outputFolder, "summary_"),
     datal = cometsInputSummary,
-    cohort = cohort
+    cohort = paste0(cohort, "_")
   )
   logger$info(sprintf("Saved summary: %s", summaryFileName))
 
   # run all models and save results to output folder
-  modelResults <- Map(function(modelName) {
-    modelData <- COMETS::getModelData(
+
+  modelResults <- data.frame(matrix(ncol = 6, nrow = 0))
+  colnames(modelResults) <- c("modelName", "processingTime", "hasWarnings", "hasErrors", "warnings", "errors")
+
+  for (modelName in cometsInput$mods$model) {
+    startTime <- Sys.time()
+
+    results <- callWithHandlers(
+      runPredefinedModel,
       cometsInput,
-      modelspec = "Batch",
-      modlabel = modelName
+      modelName,
+      cohort
     )
 
-    logger$info(sprintf("Started running model: %s", modelName))
-    results <- COMETS::runModel(modelData, cometsInput, cohort)
-    logger$info(sprintf("Finished running model: %s", modelName))
+    endTime <- Sys.time()
+    processingTime <- as.numeric(endTime - startTime)
 
-    # result <- call_with_handlers(
-    #     COMETS::runCorr,
-    #     model_data,
-    #     comets_input,
-    #     cohort
-    # )
+    logger$info(sprintf("Ran model: %s", modelName))
 
-    resultsFile <- COMETS::OutputXLSResults(
-      filename = file.path(outputFolder, modelName),
-      datal = results,
-      cohort = cohort
-    )
+    if (length(results$errors) == 0) {
+      resultsFile <- COMETS::OutputXLSResults(
+        filename = file.path(outputFolder, paste0(modelName, "_")),
+        datal = results$output,
+        cohort = paste0(cohort, "_")
+      )
+      logger$info(sprintf("Saved model results: %s", resultsFile))
+    }
 
-    list(
+    modelResults <- rbind(modelResults, data.frame(
       modelName = modelName,
-      fileName = xlsxFile
-      # processing_time=attr(result$output, "ptime"),
-      # warnings=I(result$warnings),
-      # errors=I(result$errors),
-      # csv=csv
-    )
-  }, cometsInput$mods$model)
+      processingTime = round(as.numeric(processingTime), 2),
+      warnings = listItems(results$warnings),
+      errors = listItems(results$errors),
+      hasWarnings = length(results$warnings) > 0,
+      hasErrors = length(results$errors) > 0
+    ))
+  }
+
+  outputFile <- file.path(outputFolder, "output.zip")
+  zip::zip(outputFile, list.files(outputFolder, full.names = T), mode = "cherry-pick")
+
+  logger$info(paste("Created output file: ", outputFile))
+
+  s3FilePath <- paste0(config$s3$outputKeyPrefix, id, "/output.zip")
+
+  # upload output file to s3 bucket
+  s3$put_object(
+    Body = outputFile,
+    Bucket = config$s3$bucket,
+    Key = s3FilePath
+  )
+
+  logger$info(paste("Uploaded output file to s3: ", s3FilePath))
+
+  unlink(outputFolder, recursive = T)
+  logger$info(paste("Deleted local results: ", outputFolder))
+
+  # generate success email
+  template <- readLines(file.path("email-templates", "user-success.html"))
+  templateData <- list(
+    originalFileName = params$originalFileName,
+    resultsUrl = paste0(config$email$baseUrl, "/api/batchResults/", id),
+    totalProcessingTime = round(sum(unlist(modelResults$processingTime)), 2),
+    modelResults = whisker::rowSplit(modelResults)
+  )
+
+  emailSubject <- "COMETS Analytics Batch Results"
+  emailBody <- whisker::whisker.render(template, templateData)
+  logger$info(emailBody)
+
+  ses$send_email(
+    Source = config$email$sender,
+    Destination = list(ToAddresses = email),
+    Message = list(
+      Body = list(
+        Html = list(
+          Charset = "UTF-8",
+          Data = emailBody
+        )
+      ),
+      Subject = list(
+        Charset = "UTF-8",
+        Data = emailSubject
+      )
+    ),
+  )
+
+  logger$info(paste("Sent user success email to: ", email))
 
   unname(modelResults)
+}
+
+errorHandler <- function(message, output) {
+  params <- jsonlite::fromJSON(message)
+
+  id <- sanitize(params$id)
+  cohort <- sanitize(params$cohort)
+  originalFileName <- params$originalFileName
+  s3FilePath <- params$s3FilePath
+  email <- params$email
+
+  errors <- output$errors
+  warnings <- output$warnings
+  capturedOutput <- output$capturedOutput
+
+  # send user failure email
+  ses$send_email(
+    Source = config$email$sender,
+    Destination = list(ToAddresses = email),
+    Message = list(
+      Body = list(
+        Html = list(
+          Charset = "UTF-8",
+          Data = whisker::whisker.render(
+            readLines(file.path("email-templates", "user-failure.html")),
+            list(
+              originalFileName = originalFileName
+            )
+          )
+        )
+      ),
+      Subject = list(
+        Charset = "UTF-8",
+        Data = "COMETS Analytics Batch Results - Error"
+      )
+    )
+  )
+
+  logger$info(paste("Sent user failure email to: ", email))
+
+
+  # send admin failure email
+  ses$send_email(
+    Source = config$email$sender,
+    Destination = list(ToAddresses = config$email$admin),
+    Message = list(
+      Body = list(
+        Html = list(
+          Charset = "UTF-8",
+          Data = whisker::whisker.render(
+            readLines(file.path("email-templates", "admin-failure.html")),
+            list(
+              originalFileName = originalFileName,
+              email = email,
+              cohort = cohort,
+              error = paste0(errors, collapse = "", sep = "")
+            )
+          )
+        )
+      ),
+      Subject = list(
+        Charset = "UTF-8",
+        Data = "COMETS Analytics Batch Results - Error"
+      )
+    )
+  )
+
+  logger$info(paste("Sent admin failure email to: ", config$email$admin))
+
+  callWithHandlers(
+    s3$delete_object,
+    Bucket = config$s3$bucket,
+    Key = s3FilePath
+  )
+
+  logger$info(sprintf("Deleted original input file from s3: %s", s3FilePath))
 }
 
 # set up message handler loop
@@ -114,6 +271,8 @@ while (TRUE) {
     sqs = sqs,
     queueName = config$sqs$queueName,
     messageHandler = messageHandler,
+    errorHandler = errorHandler,
+    logger = logger,
     visibilityTimeout = config$sqs$visibilityTimeout
   )
   Sys.sleep(config$sqs$pollInterval)
