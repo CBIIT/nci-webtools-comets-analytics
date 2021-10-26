@@ -25,9 +25,7 @@ export function getColumns(table) {
     // use first row to determine if column is numeric
     const isNumericColumn = isNumber(firstRow[columnName]);
 
-    const columnFilter = isNumericColumn
-      ? { Filter: RangeFilter, filter: "between" }
-      : { Filter: TextFilter };
+    const columnFilter = isNumericColumn ? { Filter: RangeFilter, filter: "between" } : { Filter: TextFilter };
 
     // todo: determine column width based on avg length/clientWidth
     const columnWidth = {
@@ -43,7 +41,7 @@ export function getColumns(table) {
   });
 }
 
-export function downloadResults(results, filename = "export.xlsx") {
+export function downloadResults(results, filename) {
   const sheetNames = ["ModelSummary", "Effects", "Errors_Warnings"];
   const sheets = sheetNames.map((name) => ({ name, data: results[name] }));
   const d = new Date();
@@ -57,6 +55,6 @@ export function downloadResults(results, filename = "export.xlsx") {
     pad(d.getMinutes()),
     pad(d.getSeconds()),
   ].join("");
-  filename = `model_results_${timestamp}.xlsx`;
+  filename = filename || `model_results_${timestamp}.xlsx`;
   downloadTables(sheets, filename);
 }
