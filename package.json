@@ -38,6 +38,16 @@
     ]
   },
   "prettier": {
+    "printWidth": 120,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "quoteProps": "consistent",
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "htmlWhitespaceSensitivity": "css",
+    "singleQuote": false,
     "jsxBracketSameLine": true
   }
 }
