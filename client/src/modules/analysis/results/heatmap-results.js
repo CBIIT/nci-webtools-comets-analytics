@@ -1,22 +1,40 @@
+import { useEffect, useCallback } from "react";
+import { useRecoilState } from "recoil";
+import { cloneDeep, uniq, map, merge } from "lodash";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import InputGroup from "react-bootstrap/InputGroup";
 import Plot from "../../common/plot";
-import { useRecoilState } from "recoil";
-import { cloneDeep, uniq, map } from "lodash";
-import { heatmapOptionsState } from "../analysis.state";
-import {
-  getHeatmapPlot,
-  getHeatmapDendrogramPlot,
-} from "./heatmap-results.utils";
+import { defaultHeatmapOptions, heatmapOptionsState } from "./heatmap-results.state";
+import { getHeatmapPlot, getHeatmapDendrogramPlot } from "./heatmap-results.utils";
 export default function HeatmapResults({ results }) {
-  const [heatmapOptions, setHeatmapOptions] = useRecoilState(
-    heatmapOptionsState
-  );
-  const mergeHeatmapOptions = (value) =>
-    setHeatmapOptions({ ...heatmapOptions, ...value });
+  const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
+  const mergeHeatmapOptions = useCallback((value) => setHeatmapOptions({ ...heatmapOptions, ...value }), [
+    heatmapOptions,
+    setHeatmapOptions,
+  ]);
+
+  useEffect(() => {
+    console.log("results");
+    console.log(results);
+    let newHeatmapOptions = cloneDeep(defaultHeatmapOptions);
+
+    if (results?.options) {
+      const model = results.options["model"];
+      const modelOptions = results.options["model.options"];
+
+      if (model === "correlation") {
+        newHeatmapOptions.zKey = "corr";
+      } else if (model === "lm" || (model === "glm" && modelOptions.family === "gaussian")) {
+        newHeatmapOptions.zKey = "estimate";
+      }
+    }
+
+    setHeatmapOptions(newHeatmapOptions);
+  }, [results, setHeatmapOptions]);
 
   const { xKey } = heatmapOptions;
   const records = cloneDeep(results?.Effects) || [];
@@ -24,13 +42,8 @@ export default function HeatmapResults({ results }) {
   const xCategoriesSorted = cloneDeep(xCategories).sort();
 
   const heatmapPlot = getHeatmapPlot(results, heatmapOptions);
-  const heatmapDendrogramPlot = getHeatmapDendrogramPlot(
-    results,
-    heatmapOptions
-  );
-  const selectedHeatmapPlot = heatmapOptions.showDendrogram
-    ? heatmapDendrogramPlot
-    : heatmapPlot;
+  const heatmapDendrogramPlot = getHeatmapDendrogramPlot(results, heatmapOptions);
+  const selectedHeatmapPlot = heatmapOptions.showDendrogram ? heatmapDendrogramPlot : heatmapPlot;
 
   function handleChange(event) {
     let { name, value, type, checked } = event.target;
@@ -70,6 +83,37 @@ export default function HeatmapResults({ results }) {
               </Form.Select>
             </Form.Group>
           </Col>
+          <Col md={4}>
+            <Form.Group className="mb-3" controlId="pValueRange">
+              <Form.Label>P-Value</Form.Label>
+
+              <InputGroup>
+                <Form.Control
+                  type="number"
+                  placeholder="Min"
+                  aria-label="Minp-value"
+                  name="pValueMin"
+                  value={heatmapOptions.pValueMin}
+                  onChange={handleChange}
+                  step="0.01"
+                  min="0"
+                  max="1"
+                />
+                <InputGroup.Text>-</InputGroup.Text>
+                <Form.Control
+                  type="number"
+                  placeholder="Max"
+                  aria-label="Max p-value"
+                  name="pValueMax"
+                  value={heatmapOptions.pValueMax}
+                  onChange={handleChange}
+                  step="0.01"
+                  min="0"
+                  max="1"
+                />
+              </InputGroup>
+            </Form.Group>
+          </Col>
         </Row>
 
         <Form.Group className="mb-1" controlId="showAnnotations">
@@ -93,11 +137,7 @@ export default function HeatmapResults({ results }) {
               <>
                 Show Hierarchical Clustering
                 <OverlayTrigger
-                  overlay={
-                    <Tooltip id="showMetabolitesTooltip">
-                      Requires at least 2 exposures and outcomes
-                    </Tooltip>
-                  }>
+                  overlay={<Tooltip id="showMetabolitesTooltip">Requires at least 2 exposures and outcomes</Tooltip>}>
                   <i className="bi bi-info-circle ms-1" />
                 </OverlayTrigger>
               </>
@@ -106,12 +146,7 @@ export default function HeatmapResults({ results }) {
         </Form.Group>
       </Form>
 
-      <Plot
-        {...selectedHeatmapPlot}
-        useResizeHandler
-        className="w-100"
-        style={{ height: "800px" }}
-      />
+      <Plot {...selectedHeatmapPlot} useResizeHandler className="w-100" style={{ height: "800px" }} />
     </>
   );
 }
