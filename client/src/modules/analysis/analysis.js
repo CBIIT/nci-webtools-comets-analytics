@@ -12,48 +12,30 @@ import InputForm from "./input-form";
 import ModelResults from "./results/model-results";
 import HeatmapResults from "./results/heatmap-results";
 import IntegrityCheckResults from "./results/integrity-check-results";
-import {
-  getIntegrityCheckResults,
-  getModelResults,
-} from "../../services/query";
+import { getIntegrityCheckResults, getModelResults } from "../../services/query";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
-import {
-  integrityCheckResultsState,
-  modelResultsState,
-  loadingState,
-  activeResultsTabState,
-  formValuesState,
-  heatmapOptionsState,
-} from "./analysis.state";
+import { integrityCheckResultsState, modelResultsState, loadingState, activeResultsTabState } from "./analysis.state";
+import { formValuesState } from "./input-form.state";
+import { heatmapOptionsState } from "./results/heatmap-results.state";
 
 export default function Analysis() {
   const formValues = useRecoilValue(formValuesState);
   const [loading, setLoading] = useRecoilState(loadingState);
-  const [integrityCheckResults, setIntegrityCheckResults] = useRecoilState(
-    integrityCheckResultsState
-  );
+  const [integrityCheckResults, setIntegrityCheckResults] = useRecoilState(integrityCheckResultsState);
   const [modelResults, setModelResults] = useRecoilState(modelResultsState);
-  const [activeResultsTab, setActiveResultsTab] = useRecoilState(
-    activeResultsTabState
-  );
+  const [activeResultsTab, setActiveResultsTab] = useRecoilState(activeResultsTabState);
   const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
-  const [heatmapOptions, setHeatmapOptions] = useRecoilState(
-    heatmapOptionsState
-  );
-  const mergeHeatmapOptions = (obj) =>
-    setHeatmapOptions({ ...heatmapOptions, ...obj });
 
   async function handleSubmitIntegrityCheck(params) {
     try {
       setLoading(true);
-      const results = await getIntegrityCheckResults(params);
-      setActiveResultsTab("integrityCheckResults");
-      setIntegrityCheckResults(results);
-      console.log(results);
-    } catch (e) {
-      console.error("handleSubmitIntegrityCheck", e);
+      setIntegrityCheckResults(await getIntegrityCheckResults(params));
+    } catch (error) {
+      setIntegrityCheckResults(error);
+      console.error("handleSubmitIntegrityCheck", error);
     } finally {
       setLoading(false);
+      setActiveResultsTab("integrityCheckResults");
     }
   }
 
@@ -61,20 +43,13 @@ export default function Analysis() {
     try {
       setLoading(true);
       resetHeatmapOptions();
-      const results = await getModelResults(params);
-
-      setActiveResultsTab("modelResults");
-      setModelResults(results);
-
-      const isCorrelation = results?.options?.model === "correlation";
-      mergeHeatmapOptions({
-        zKey: isCorrelation ? "corr" : "estimate",
-      });
-    } catch (e) {
-      setModelResults(e);
-      console.error("handleSubmitModel", e);
+      setModelResults(await getModelResults(params));
+    } catch (error) {
+      setModelResults(error);
+      console.error("handleSubmitModel", error);
     } finally {
       setLoading(false);
+      setActiveResultsTab("modelResults");
     }
   }
 
@@ -84,6 +59,7 @@ export default function Analysis() {
   }
 
   function handleSelectTab(key) {
+    // reflow responsive plots
     setTimeout(() => window.dispatchEvent(new Event("resize")), 10);
     setActiveResultsTab(key);
   }
@@ -97,9 +73,8 @@ export default function Analysis() {
             <ErrorBoundary
               fallback={
                 <Alert variant="danger">
-                  An internal error prevented the input form from loading.
-                  Please contact the website administrator if this problem
-                  persists.
+                  An internal error prevented the input form from loading. Please contact the website administrator if
+                  this problem persists.
                 </Alert>
               }>
               <Suspense fallback={<Loader>Loading Form</Loader>}>
@@ -112,22 +87,15 @@ export default function Analysis() {
             </ErrorBoundary>
           </Col>
           <Col md={8}>
-            <Tab.Container
-              id="results-tabs"
-              activeKey={activeResultsTab}
-              onSelect={handleSelectTab}>
+            <Tab.Container id="results-tabs" activeKey={activeResultsTab} onSelect={handleSelectTab}>
               <Card className="shadow-sm mb-3" style={{ minHeight: "400px" }}>
                 <Card.Header>
                   <Nav variant="tabs">
                     <Nav.Item>
-                      <Nav.Link eventKey="integrityCheckResults">
-                        Integrity Check
-                      </Nav.Link>
+                      <Nav.Link eventKey="integrityCheckResults">Integrity Check</Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
-                      <Nav.Link
-                        eventKey="modelResults"
-                        disabled={!modelResults}>
+                      <Nav.Link eventKey="modelResults" disabled={!modelResults}>
                         Results
                       </Nav.Link>
                     </Nav.Item>
@@ -147,10 +115,7 @@ export default function Analysis() {
                       <ModelResults results={modelResults} />
                     </Tab.Pane>
                     <Tab.Pane eventKey="heatmap">
-                      <HeatmapResults
-                        results={modelResults}
-                        formValues={formValues}
-                      />
+                      <HeatmapResults results={modelResults} formValues={formValues} />
                     </Tab.Pane>
                   </Tab.Content>
                 </Card.Body>
