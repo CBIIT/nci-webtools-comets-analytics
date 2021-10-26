@@ -9,25 +9,16 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import ObjectList from "../common/object-list";
 import { isNull, omitBy } from "lodash";
-import {
-  cohortsState,
-  formValuesState,
-  integrityCheckResultsState,
-  variablesState,
-} from "./analysis.state";
+import { cohortsState, formValuesState, variablesState } from "./input-form.state";
+import { integrityCheckResultsState } from "./analysis.state";
 
-export default function InputForm({
-  onSubmitIntegrityCheck,
-  onSubmitModel,
-  onReset,
-}) {
+export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onReset }) {
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
   const variables = useRecoilValue(variablesState);
   const [formValues, setFormValues] = useRecoilState(formValuesState);
   const resetFormValues = useResetRecoilState(formValuesState);
-  const mergeFormValues = (values) =>
-    setFormValues((oldFormValues) => ({ ...oldFormValues, ...values }));
+  const mergeFormValues = (values) => setFormValues((oldFormValues) => ({ ...oldFormValues, ...values }));
   const inputFileRef = useRef(null);
 
   function handleChange(event) {
@@ -76,14 +67,8 @@ export default function InputForm({
         adjustedCovariates: formValues.adjustedCovariates.map(asValue),
         strata: formValues.strata.map(asValue),
         filters:
-          formValues.filterVariable &&
-          formValues.filterOperator &&
-          formValues.filterValue
-            ? [
-                formValues.filterVariable,
-                formValues.filterOperator,
-                formValues.filterValue,
-              ].join("")
+          formValues.filterVariable && formValues.filterOperator && formValues.filterValue
+            ? [formValues.filterVariable, formValues.filterOperator, formValues.filterValue].join("")
             : null,
       });
     }
@@ -102,8 +87,7 @@ export default function InputForm({
 
   function filterVariable({ data }, value, limit = 100) {
     const { label, isMetabolite } = data;
-    const showMetabolite =
-      !isMetabolite || (isMetabolite && formValues.showMetabolites);
+    const showMetabolite = !isMetabolite || (isMetabolite && formValues.showMetabolites);
     if (!value || value.length < 2) {
       const belowLimit = variables.indexOf(data) < limit;
       return belowLimit && showMetabolite;
@@ -114,16 +98,14 @@ export default function InputForm({
   }
 
   function getModelSpecifier(modelSpecifierName) {
-    return integrityCheckResults?.modelSpecifiers?.find(
-      (spec) => spec?.name === modelSpecifierName
-    );
+    return integrityCheckResults?.modelSpecifiers?.find((spec) => spec?.name === modelSpecifierName);
   }
 
   function getOptions(modelSpecifierName, includeGlobalOptions = false) {
     const modelSpecifier = getModelSpecifier(modelSpecifierName);
     let options = modelSpecifier
       ? {
-          model: modelSpecifier.model,
+          "model": modelSpecifier.model,
           "model.options": modelSpecifier.modelOptions,
         }
       : {
@@ -152,7 +134,7 @@ export default function InputForm({
     options = omitBy(options, isNull);
     options["model.options"] = omitBy(
       options["model.options"],
-      (value, key) => isNull(value) || options.hasOwnProperty(key)
+      (value, key) => isNull(value) || options.hasOwnProperty(key),
     );
 
     return options;
@@ -172,14 +154,10 @@ export default function InputForm({
 
   return (
     <>
-      <Card
-        className="shadow-sm mb-3 position-relative"
-        style={{ minHeight: "100px" }}>
+      <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
         <Card.Body>
           <Form onSubmit={submitIntegrityCheck} onReset={reset}>
-            <h2 className="h5 text-primary mb-4">
-              Perform Cohort-specific Analyses
-            </h2>
+            <h2 className="h5 text-primary mb-4">Perform Cohort-specific Analyses</h2>
 
             <Form.Group controlId="cohort" className="mb-3">
               <Form.Label className="required">COMETS Cohort</Form.Label>
@@ -195,9 +173,7 @@ export default function InputForm({
                   </option>
                 ))}
               </Form.Select>
-              <Form.Text>
-                If not COMETS-specific, choose Other/Undefined
-              </Form.Text>
+              <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
             </Form.Group>
 
             <Form.Group controlId="inputFile" className="mb-3">
@@ -216,17 +192,10 @@ export default function InputForm({
             </Form.Group>
 
             <div className="text-end">
-              <Button
-                type="reset"
-                variant="danger-outline"
-                className="me-1"
-                disabled={integrityCheckResults?.id}>
+              <Button type="reset" variant="danger-outline" className="me-1" disabled={integrityCheckResults?.id}>
                 Reset
               </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={integrityCheckResults?.id || !formValues.inputFile}>
+              <Button type="submit" variant="primary" disabled={integrityCheckResults?.id || !formValues.inputFile}>
                 Check Integrity
               </Button>
             </div>
@@ -236,13 +205,9 @@ export default function InputForm({
 
       {integrityCheckResults && !integrityCheckResults.errors && (
         <>
-          <Card
-            className="shadow-sm mb-3 position-relative"
-            style={{ minHeight: "100px" }}>
+          <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
             <Card.Body>
-              <h2 className="h5 text-primary mb-4">
-                Specify Method Of Analyses
-              </h2>
+              <h2 className="h5 text-primary mb-4">Specify Method Of Analyses</h2>
 
               <Form onSubmit={submitModel} onReset={reset}>
                 <Form.Group controlId="method" className="mb-3">
@@ -279,26 +244,15 @@ export default function InputForm({
                   <>
                     <Form.Group controlId="email" className="mb-3">
                       <Form.Label className="required">Email</Form.Label>
-                      <Form.Control
-                        type="email"
-                        name="email"
-                        onChange={handleChange}
-                        value={formValues.email}
-                      />
+                      <Form.Control type="email" name="email" onChange={handleChange} value={formValues.email} />
                     </Form.Group>
 
                     <div className="text-end">
-                      <Button
-                        type="reset"
-                        variant="danger-outline"
-                        className="me-1">
+                      <Button type="reset" variant="danger-outline" className="me-1">
                         Reset
                       </Button>
 
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={!formValues.email}>
+                      <Button type="submit" variant="primary" disabled={!formValues.email}>
                         Run Model
                       </Button>
                     </div>
@@ -315,14 +269,10 @@ export default function InputForm({
                             overlay={
                               <Tooltip id="modelTypeTooltip">
                                 <Form.Label>Model Options</Form.Label>
-                                <ModelOptions
-                                  modelSpecifierName={
-                                    formValues.selectedModelType
-                                  }
-                                />
+                                <ModelOptions modelSpecifierName={formValues.selectedModelType} />
                               </Tooltip>
                             }>
-                            <i class="bi bi-info-circle ms-1"></i>
+                            <i className="bi bi-info-circle ms-1"></i>
                           </OverlayTrigger>
                         )}
                       </Form.Label>
@@ -335,14 +285,10 @@ export default function InputForm({
                           .filter(
                             (specifier) =>
                               specifier.model &&
-                              integrityCheckResults.models.find(
-                                (m) => m.modelspec == specifier.name
-                              )
+                              integrityCheckResults.models.find((m) => m.modelspec == specifier.name),
                           )
                           .map((specifier, i) => (
-                            <option
-                              value={specifier.name}
-                              key={`selected-model-type-${i}`}>
+                            <option value={specifier.name} key={`selected-model-type-${i}`}>
                               {specifier.name}
                             </option>
                           ))}
@@ -359,16 +305,10 @@ export default function InputForm({
                           No model chosen
                         </option>
                         {integrityCheckResults.models
-                          .filter(
-                            (m) =>
-                              !formValues.selectedModelType ||
-                              formValues.selectedModelType == m.modelspec
-                          )
+                          .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
                           .map((m, i) => (
                             <option value={m.model} key={i + m.model}>
-                              {!formValues.selectedModelType &&
-                                m.modelspec &&
-                                `${m.modelspec} - `}
+                              {!formValues.selectedModelType && m.modelspec && `${m.modelspec} - `}
                               {m.model}
                             </option>
                           ))}
@@ -376,17 +316,11 @@ export default function InputForm({
                     </Form.Group>
 
                     <div className="text-end">
-                      <Button
-                        type="reset"
-                        variant="danger-outline"
-                        className="me-1">
+                      <Button type="reset" variant="danger-outline" className="me-1">
                         Reset
                       </Button>
 
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={!formValues.selectedModelName}>
+                      <Button type="submit" variant="primary" disabled={!formValues.selectedModelName}>
                         Run Model
                       </Button>
                     </div>
@@ -404,28 +338,21 @@ export default function InputForm({
                               <Tooltip id="modelTypeTooltip">
                                 <Form.Label>Model Options</Form.Label>
 
-                                <ModelOptions
-                                  modelSpecifierName={formValues.modelType}
-                                />
+                                <ModelOptions modelSpecifierName={formValues.modelType} />
                               </Tooltip>
                             }>
-                            <i class="bi bi-info-circle ms-1"></i>
+                            <i className="bi bi-info-circle ms-1"></i>
                           </OverlayTrigger>
                         )}
                       </Form.Label>
-                      <Form.Select
-                        name="modelType"
-                        onChange={handleChange}
-                        value={formValues.modelType}>
+                      <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
                         <option value="" hidden>
                           No model type chosen
                         </option>
                         {integrityCheckResults.modelSpecifiers
                           .filter((specifier) => specifier.model)
                           .map((specifier, i) => (
-                            <option
-                              value={specifier.name}
-                              key={`model-specifier-${i}`}>
+                            <option value={specifier.name} key={`model-specifier-${i}`}>
                               {specifier.name}
                             </option>
                           ))}
@@ -452,9 +379,7 @@ export default function InputForm({
               <Card>
                 <Card.Body>
                   <Form onSubmit={submitModel} onReset={reset}>
-                    <h2 className="h5 text-primary mb-4">
-                      Specify Custom Model Parameters
-                    </h2>
+                    <h2 className="h5 text-primary mb-4">Specify Custom Model Parameters</h2>
 
                     <Form.Check
                       type="checkbox"
@@ -467,11 +392,10 @@ export default function InputForm({
                           <OverlayTrigger
                             overlay={
                               <Tooltip id="showMetabolitesTooltip">
-                                This option applies to Exposures, Outcomes and
-                                Adjusted Covariates
+                                This option applies to Exposures, Outcomes and Adjusted Covariates
                               </Tooltip>
                             }>
-                            <i class="bi bi-info-circle ms-1"></i>
+                            <i className="bi bi-info-circle ms-1"></i>
                           </OverlayTrigger>
                         </>
                       }
@@ -513,9 +437,7 @@ export default function InputForm({
                         placeholder="No adjusted covariates chosen"
                         name="adjustedCovariates"
                         value={formValues.adjustedCovariates}
-                        onChange={(ev) =>
-                          handleSelectChange("adjustedCovariates", ev)
-                        }
+                        onChange={(ev) => handleSelectChange("adjustedCovariates", ev)}
                         defaultOptions
                         options={variables}
                         filterOption={filterVariable}
@@ -575,21 +497,14 @@ export default function InputForm({
                     </Form.Group>
 
                     <div className="text-end">
-                      <Button
-                        type="reset"
-                        variant="danger-outline"
-                        className="me-1">
+                      <Button type="reset" variant="danger-outline" className="me-1">
                         Reset
                       </Button>
 
                       <Button
                         type="submit"
                         variant="primary"
-                        disabled={
-                          !formValues.modelName ||
-                          !formValues.exposures.length ||
-                          !formValues.outcomes.length
-                        }>
+                        disabled={!formValues.modelName || !formValues.exposures.length || !formValues.outcomes.length}>
                         Run Model
                       </Button>
                     </div>
