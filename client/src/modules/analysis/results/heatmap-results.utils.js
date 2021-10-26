@@ -6,23 +6,40 @@ export function sampleChunks(values, interval) {
 }
 
 export function getHeatmapPlot(results, heatmapOptions) {
-  if (
-    !results ||
-    !results.heatmap ||
-    !results.heatmap.data ||
-    !results.heatmap.data.length
-  ) {
+  if (!results || !results.heatmap || !results.heatmap.data || !results.heatmap.data.length) {
     return { data: [], layout: {} };
   }
 
-  const { xKey, yKey, zKey, sortColumn } = heatmapOptions;
+  const { xKey, yKey, zKey, sortColumn, pValueMin, pValueMax } = heatmapOptions;
 
-  const records = cloneDeep(results?.Effects) || [];
+  let records = (cloneDeep(results?.Effects) || []).filter(({ pvalue }) => {
+    if (pValueMin !== "" && pValueMax !== "" && !isNaN(pValueMin) && !isNaN(pValueMax)) {
+      return +pvalue >= +pValueMin && pvalue <= +pValueMax;
+    } else if (pValueMin != "" && !isNaN(+pValueMin)) {
+      return +pvalue >= +pValueMin;
+    } else if (pValueMax != "" && !isNaN(+pValueMax)) {
+      return +pvalue <= +pValueMax;
+    }
+    return true;
+  });
+
+  if (!records.length) {
+    return {
+      data: [
+        {
+          x: [],
+          y: [],
+          z: [],
+          type: "heatmap",
+        },
+      ],
+    };
+  }
+
   const xCategories = uniq(map(records, xKey));
   const recordsGroupedByY = groupBy(records, yKey);
   const xCategoriesSorted = cloneDeep(xCategories).sort();
-  const matchesSortColumn = (record) =>
-    record[xKey] === (sortColumn || xCategories[0]);
+  const matchesSortColumn = (record) => record[xKey] === (sortColumn || xCategories[0]);
   const yCategoriesSorted = Object.entries(recordsGroupedByY)
     .sort((a, b) => {
       const recordA = a[1].find(matchesSortColumn);
@@ -32,9 +49,11 @@ export function getHeatmapPlot(results, heatmapOptions) {
     .map(([key]) => key);
 
   const values = yCategoriesSorted.map((y) =>
-    xCategoriesSorted.map(
-      (x) => records.find((e) => e[xKey] === x && e[yKey] === y)[zKey]
-    )
+    xCategoriesSorted.map((x) => records.find((e) => e[xKey] === x && e[yKey] === y)[zKey]),
+  );
+
+  const customValues = yCategoriesSorted.map((y) =>
+    xCategoriesSorted.map((x) => records.find((e) => e[xKey] === x && e[yKey] === y)),
   );
 
   return {
@@ -43,7 +62,15 @@ export function getHeatmapPlot(results, heatmapOptions) {
         x: xCategoriesSorted,
         y: yCategoriesSorted,
         z: values,
+        customdata: customValues,
         type: "heatmap",
+        hovertemplate: [
+          `<b>Exposure</b>: %{x}`,
+          `<b>Outcome</b>: %{y}`,
+          zKey === "corr" ? `<b>Correlation</b>: %{z}` : `<b>Estimate</b>: %{z}`,
+          `<b>P-value</b>: %{customdata.pvalue}`,
+          "<extra></extra>",
+        ].join("<br>"),
       },
     ],
     layout: {
@@ -120,17 +147,7 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions) {
     ? {
         data: hcluster.data
           .map((t) => {
-            const props = pick(t, [
-              "x",
-              "y",
-              "z",
-              "type",
-              "mode",
-              "text",
-              "hoverinfo",
-              "xaxis",
-              "yaxis",
-            ]);
+            const props = pick(t, ["x", "y", "z", "type", "mode", "text", "hoverinfo", "xaxis", "yaxis"]);
 
             if (t.type === "scatter" && t.x && t.x.length >= 2) {
               return {
@@ -145,20 +162,12 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions) {
           })
           .filter(Boolean),
         layout: {
-          annotations: heatmapOptions.showAnnotations
-            ? hclusterAnnotations
-            : [],
+          annotations: heatmapOptions.showAnnotations ? hclusterAnnotations : [],
           margin: hcluster.layout.margin,
           xaxis: {
             ...pick(hcluster.layout.xaxis, hclusterLayoutProps),
-            tickvals: sampleChunks(
-              hcluster.layout.xaxis.tickvals,
-              defaultInterval
-            ),
-            ticktext: sampleChunks(
-              hcluster.layout.xaxis.ticktext,
-              defaultInterval
-            ),
+            tickvals: sampleChunks(hcluster.layout.xaxis.tickvals, defaultInterval),
+            ticktext: sampleChunks(hcluster.layout.xaxis.ticktext, defaultInterval),
           },
           xaxis2: {
             ...pick(hcluster.layout.xaxis2, hclusterLayoutProps),
@@ -168,14 +177,8 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions) {
           },
           yaxis2: {
             ...pick(hcluster.layout.yaxis2, hclusterLayoutProps),
-            tickvals: sampleChunks(
-              hcluster.layout.yaxis2.tickvals,
-              defaultInterval
-            ),
-            ticktext: sampleChunks(
-              hcluster.layout.yaxis2.ticktext,
-              defaultInterval
-            ),
+            tickvals: sampleChunks(hcluster.layout.yaxis2.tickvals, defaultInterval),
+            ticktext: sampleChunks(hcluster.layout.yaxis2.ticktext, defaultInterval),
           },
         },
       }
