@@ -5,12 +5,13 @@ export function sampleChunks(values, interval) {
   return chunk(values, chunkSize).map((e) => e[0]);
 }
 
-export function getHeatmapPlot(results, heatmapOptions) {
+export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
   if (!results || !results.heatmap || !results.heatmap.data || !results.heatmap.data.length) {
     return { data: [], layout: {} };
   }
 
   const { xKey, yKey, zKey, sortColumn, pValueMin, pValueMax } = heatmapOptions;
+  const { name } = modelOptions;
 
   let records = (cloneDeep(results?.Effects) || []).filter(({ pvalue }) => {
     if (pValueMin !== "" && pValueMax !== "" && !isNaN(pValueMin) && !isNaN(pValueMax)) {
@@ -56,6 +57,8 @@ export function getHeatmapPlot(results, heatmapOptions) {
     xCategoriesSorted.map((x) => records.find((e) => e[xKey] === x && e[yKey] === y)),
   );
 
+  const zKeyLabel = zKey === "corr" ? "Correlation" : "Estimate";
+
   return {
     data: [
       {
@@ -67,13 +70,19 @@ export function getHeatmapPlot(results, heatmapOptions) {
         hovertemplate: [
           `<b>Exposure</b>: %{x}`,
           `<b>Outcome</b>: %{y}`,
-          zKey === "corr" ? `<b>Correlation</b>: %{z}` : `<b>Estimate</b>: %{z}`,
+          `<b>${zKeyLabel}</b>: %{z}`,
           `<b>P-value</b>: %{customdata.pvalue}`,
           "<extra></extra>",
         ].join("<br>"),
+        colorbar: {
+          title: {
+            text: zKeyLabel,
+          },
+        },
       },
     ],
     layout: {
+      title: name,
       annotations: heatmapOptions.showAnnotations
         ? records.map((r) => ({
             x: r[xKey],
@@ -90,11 +99,16 @@ export function getHeatmapPlot(results, heatmapOptions) {
       yaxis: {
         automargin: true,
       },
+      legend: {
+        title: {
+          text: zKeyLabel,
+        },
+      },
     },
   };
 }
 
-export function getHeatmapDendrogramPlot(results, heatmapOptions) {
+export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) {
   if (
     !results ||
     !results.heatmap ||
@@ -104,6 +118,8 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions) {
   ) {
     return { data: [], layout: {} };
   }
+
+  const { name } = modelOptions;
 
   const defaultInterval = 40;
   const hcluster = cloneDeep(results?.heatmap?.dendrogram);
@@ -162,6 +178,7 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions) {
           })
           .filter(Boolean),
         layout: {
+          title: name,
           annotations: heatmapOptions.showAnnotations ? hclusterAnnotations : [],
           margin: hcluster.layout.margin,
           xaxis: {

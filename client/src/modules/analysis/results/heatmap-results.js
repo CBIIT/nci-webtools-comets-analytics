@@ -12,10 +12,10 @@ import { defaultHeatmapOptions, heatmapOptionsState } from "./heatmap-results.st
 import { getHeatmapPlot, getHeatmapDendrogramPlot } from "./heatmap-results.utils";
 export default function HeatmapResults({ results }) {
   const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
-  const mergeHeatmapOptions = useCallback((value) => setHeatmapOptions({ ...heatmapOptions, ...value }), [
-    heatmapOptions,
-    setHeatmapOptions,
-  ]);
+  const mergeHeatmapOptions = useCallback(
+    (value) => setHeatmapOptions({ ...heatmapOptions, ...value }),
+    [heatmapOptions, setHeatmapOptions],
+  );
 
   useEffect(() => {
     console.log("results");
@@ -41,8 +41,8 @@ export default function HeatmapResults({ results }) {
   const xCategories = uniq(map(records, xKey));
   const xCategoriesSorted = cloneDeep(xCategories).sort();
 
-  const heatmapPlot = getHeatmapPlot(results, heatmapOptions);
-  const heatmapDendrogramPlot = getHeatmapDendrogramPlot(results, heatmapOptions);
+  const heatmapPlot = getHeatmapPlot(results, heatmapOptions, results?.options);
+  const heatmapDendrogramPlot = getHeatmapDendrogramPlot(results, heatmapOptions, results?.options);
   const selectedHeatmapPlot = heatmapOptions.showDendrogram ? heatmapDendrogramPlot : heatmapPlot;
 
   function handleChange(event) {
@@ -62,7 +62,8 @@ export default function HeatmapResults({ results }) {
                 name="sortRow"
                 value={heatmapOptions.sortRow}
                 onChange={handleChange}
-                disabled={heatmapOptions.showDendrogram}>
+                disabled={heatmapOptions.showDendrogram}
+              >
                 <option>All participants (no stratification)</option>
               </Form.Select>
             </Form.Group>
@@ -74,7 +75,8 @@ export default function HeatmapResults({ results }) {
                 name="sortColumn"
                 value={heatmapOptions.sortColumn}
                 onChange={handleChange}
-                disabled={heatmapOptions.showDendrogram}>
+                disabled={heatmapOptions.showDendrogram}
+              >
                 {xCategoriesSorted.map((label) => (
                   <option value={label} key={label}>
                     {label}
@@ -137,7 +139,8 @@ export default function HeatmapResults({ results }) {
               <>
                 Show Hierarchical Clustering
                 <OverlayTrigger
-                  overlay={<Tooltip id="showMetabolitesTooltip">Requires at least 2 exposures and outcomes</Tooltip>}>
+                  overlay={<Tooltip id="showMetabolitesTooltip">Requires at least 2 exposures and outcomes</Tooltip>}
+                >
                   <i className="bi bi-info-circle ms-1" />
                 </OverlayTrigger>
               </>
