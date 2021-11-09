@@ -32,6 +32,13 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       value = files && files.length ? files[0].name : null;
     }
 
+    if (name === "showPredefinedModelTypes") {
+      mergeFormValues({
+        selectedModelType: null,
+        selectedModelName: null,
+      });
+    }
+
     if (name === "selectedModelType") {
       mergeFormValues({ selectedModelName: null });
     }
@@ -262,39 +269,51 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
                 {formValues.method === "selectedModel" && (
                   <>
-                    <Form.Group controlId="selectedModelType" className="mb-3">
-                      <Form.Label>
-                        Model Type
-                        {formValues.selectedModelType && (
-                          <OverlayTrigger
-                            overlay={
-                              <Tooltip id="modelTypeTooltip">
-                                <Form.Label>Model Options</Form.Label>
-                                <ModelOptions modelSpecifierName={formValues.selectedModelType} />
-                              </Tooltip>
-                            }>
-                            <i className="bi bi-info-circle ms-1"></i>
-                          </OverlayTrigger>
-                        )}
-                      </Form.Label>
-                      <Form.Select
-                        name="selectedModelType"
-                        onChange={handleChange}
-                        value={formValues.selectedModelType}>
-                        <option value="">All model types</option>
-                        {integrityCheckResults.modelSpecifiers
-                          .filter(
-                            (specifier) =>
-                              specifier.model &&
-                              integrityCheckResults.models.find((m) => m.modelspec == specifier.name),
-                          )
-                          .map((specifier, i) => (
-                            <option value={specifier.name} key={`selected-model-type-${i}`}>
-                              {specifier.name}
-                            </option>
-                          ))}
-                      </Form.Select>
-                    </Form.Group>
+                    <Form.Check
+                      type="checkbox"
+                      className="mb-3"
+                      name="showPredefinedModelTypes"
+                      id="showPredefinedModelTypes"
+                      label="Show Model Types"
+                      onChange={handleChange}
+                      checked={formValues.showPredefinedModelTypes}
+                    />
+
+                    {formValues.showPredefinedModelTypes && (
+                      <Form.Group controlId="selectedModelType" className="mb-3">
+                        <Form.Label>
+                          Model Type
+                          {formValues.selectedModelType && (
+                            <OverlayTrigger
+                              overlay={
+                                <Tooltip id="modelTypeTooltip">
+                                  <Form.Label>Model Options</Form.Label>
+                                  <ModelOptions modelSpecifierName={formValues.selectedModelType} />
+                                </Tooltip>
+                              }>
+                              <i className="bi bi-info-circle ms-1"></i>
+                            </OverlayTrigger>
+                          )}
+                        </Form.Label>
+                        <Form.Select
+                          name="selectedModelType"
+                          onChange={handleChange}
+                          value={formValues.selectedModelType}>
+                          <option value="">All model types</option>
+                          {integrityCheckResults.modelSpecifiers
+                            .filter(
+                              (specifier) =>
+                                specifier.model &&
+                                integrityCheckResults.models.find((m) => m.modelspec == specifier.name),
+                            )
+                            .map((specifier, i) => (
+                              <option value={specifier.name} key={`selected-model-type-${i}`}>
+                                {specifier.name}
+                              </option>
+                            ))}
+                        </Form.Select>
+                      </Form.Group>
+                    )}
 
                     <Form.Group controlId="selectedModelName" className="mb-3">
                       <Form.Label className="required">Model Name</Form.Label>
