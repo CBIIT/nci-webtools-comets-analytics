@@ -34,7 +34,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
     if (name === "showPredefinedModelTypes") {
       mergeFormValues({
-        selectedModelType: null,
+        selectedModelType: "",
         selectedModelName: null,
       });
     }
@@ -329,23 +329,6 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
                           .map((m, i) => ({ value: m.model, label: m.model }))}
                       />
-
-                      {/* <Form.Select
-                        name="selectedModelName"
-                        value={formValues.selectedModelName}
-                        onChange={handleChange}>
-                        <option value="" hidden>
-                          No model chosen
-                        </option>
-                        {integrityCheckResults.models
-                          .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
-                          .map((m, i) => (
-                            <option value={m.model} key={i + m.model}>
-                              {!formValues.selectedModelType && m.modelspec && `${m.modelspec} - `}
-                              {m.model}
-                            </option>
-                          ))}
-                      </Form.Select> */}
                     </Form.Group>
 
                     <div className="text-end">
