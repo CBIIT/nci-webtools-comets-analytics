@@ -281,20 +281,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
                     {formValues.showPredefinedModelTypes && (
                       <Form.Group controlId="selectedModelType" className="mb-3">
-                        <Form.Label>
-                          Model Type
-                          {formValues.selectedModelType && (
-                            <OverlayTrigger
-                              overlay={
-                                <Tooltip id="modelTypeTooltip">
-                                  <Form.Label>Model Options</Form.Label>
-                                  <ModelOptions modelSpecifierName={formValues.selectedModelType} />
-                                </Tooltip>
-                              }>
-                              <i className="bi bi-info-circle ms-1"></i>
-                            </OverlayTrigger>
-                          )}
-                        </Form.Label>
+                        <Form.Label>Model Type</Form.Label>
                         <Form.Select
                           name="selectedModelType"
                           onChange={handleChange}
@@ -312,6 +299,21 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                               </option>
                             ))}
                         </Form.Select>
+                        {formValues.selectedModelType && (
+                          <Form.Text>
+                            <OverlayTrigger
+                              overlay={
+                                <Tooltip id="modelTypeTooltip">
+                                  <Form.Label>Model Options</Form.Label>
+                                  <ModelOptions modelSpecifierName={formValues.selectedModelType} />
+                                </Tooltip>
+                              }>
+                              <span>
+                                View Model Options <i className="bi bi-info-circle"></i>
+                              </span>
+                            </OverlayTrigger>
+                          </Form.Text>
+                        )}
                       </Form.Group>
                     )}
 
@@ -361,21 +363,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                 {formValues.method === "customModel" && (
                   <>
                     <Form.Group controlId="modelType" className="mb-3">
-                      <Form.Label>
-                        Model Type
-                        {formValues.modelType && (
-                          <OverlayTrigger
-                            overlay={
-                              <Tooltip id="modelTypeTooltip">
-                                <Form.Label>Model Options</Form.Label>
-
-                                <ModelOptions modelSpecifierName={formValues.modelType} />
-                              </Tooltip>
-                            }>
-                            <i className="bi bi-info-circle ms-1"></i>
-                          </OverlayTrigger>
-                        )}
-                      </Form.Label>
+                      <Form.Label>Model Type</Form.Label>
                       <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
                         <option value="" hidden>
                           No model type chosen
@@ -388,6 +376,21 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                             </option>
                           ))}
                       </Form.Select>
+                      {formValues.modelType && (
+                        <Form.Text>
+                          <OverlayTrigger
+                            overlay={
+                              <Tooltip id="modelTypeTooltip">
+                                <Form.Label>Model Options</Form.Label>
+                                <ModelOptions modelSpecifierName={formValues.modelType} />
+                              </Tooltip>
+                            }>
+                            <span>
+                              View Model Options <i className="bi bi-info-circle"></i>
+                            </span>
+                          </OverlayTrigger>
+                        </Form.Text>
+                      )}
                     </Form.Group>
 
                     <Form.Group controlId="modelName" className="mb-3">
