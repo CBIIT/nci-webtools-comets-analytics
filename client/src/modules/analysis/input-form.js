@@ -64,7 +64,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
   function submitModel(event) {
     event.preventDefault();
     if (onSubmitModel) {
-      const asValue = ({ value }) => value;
+      const asValue = (obj) => (obj ? obj.value : null);
       onSubmitModel({
         ...formValues,
         id: integrityCheckResults.id,
@@ -332,7 +332,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
                           .map((m, i) => ({
                             value: m.model,
-                            label: formValues.selectedModelType ? m.model : `${m.modelspec} - ${m.model}`,
+                            label:
+                              formValues.selectedModelType || !formValues.showPredefinedModelTypes
+                                ? m.model
+                                : `${m.modelspec} - ${m.model}`,
                           }))}
                       />
                     </Form.Group>
