@@ -173,7 +173,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                 name="cohort"
                 value={formValues.cohort}
                 onChange={handleChange}
-                disabled={integrityCheckResults?.id}>
+                disabled={integrityCheckResults?.id}
+              >
                 <option value="Other/Undefined">Other/Undefined</option>
                 {cohorts.map((c) => (
                   <option key={c.Cohort} value={c.Cohort}>
@@ -274,7 +275,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       className="mb-3"
                       name="showPredefinedModelTypes"
                       id="showPredefinedModelTypes"
-                      label="Show Model Types"
+                      label="Use Model Types"
                       onChange={handleChange}
                       checked={formValues.showPredefinedModelTypes}
                     />
@@ -285,7 +286,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         <Form.Select
                           name="selectedModelType"
                           onChange={handleChange}
-                          value={formValues.selectedModelType}>
+                          value={formValues.selectedModelType}
+                        >
                           <option value="">All model types</option>
                           {integrityCheckResults.modelSpecifiers
                             .filter(
@@ -307,7 +309,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                                   <Form.Label>Model Options</Form.Label>
                                   <ModelOptions modelSpecifierName={formValues.selectedModelType} />
                                 </Tooltip>
-                              }>
+                              }
+                            >
                               <span>
                                 View Model Options <i className="bi bi-info-circle"></i>
                               </span>
@@ -327,7 +330,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         defaultOptions
                         options={integrityCheckResults.models
                           .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
-                          .map((m, i) => ({ value: m.model, label: m.model }))}
+                          .map((m, i) => ({
+                            value: m.model,
+                            label: formValues.selectedModelType ? m.model : `${m.modelspec} - ${m.model}`,
+                          }))}
                       />
                     </Form.Group>
 
@@ -367,7 +373,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                                 <Form.Label>Model Options</Form.Label>
                                 <ModelOptions modelSpecifierName={formValues.modelType} />
                               </Tooltip>
-                            }>
+                            }
+                          >
                             <span>
                               View Model Options <i className="bi bi-info-circle"></i>
                             </span>
@@ -383,7 +390,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         name="modelName"
                         onChange={handleChange}
                         value={formValues.modelName}
-                        placeholder="Enter model description"></Form.Control>
+                        placeholder="Enter model description"
+                      ></Form.Control>
                     </Form.Group>
                   </>
                 )}
@@ -411,7 +419,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                               <Tooltip id="showMetabolitesTooltip">
                                 This option applies to Exposures, Outcomes and Adjusted Covariates
                               </Tooltip>
-                            }>
+                            }
+                          >
                             <i className="bi bi-info-circle ms-1"></i>
                           </OverlayTrigger>
                         </>
@@ -484,7 +493,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           name="filterVariable"
                           id="filterVariable"
                           onChange={handleChange}
-                          aria-label="filterVariable">
+                          aria-label="filterVariable"
+                        >
                           <option value="" hidden>
                             No variable chosen
                           </option>
@@ -497,7 +507,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           id="filterOperator"
                           onChange={handleChange}
                           aria-label="filterOperator"
-                          style={{ maxWidth: "80px" }}>
+                          style={{ maxWidth: "80px" }}
+                        >
                           <option>=</option>
                           <option>&lt;</option>
                           <option>&lt;=</option>
@@ -521,7 +532,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Button
                         type="submit"
                         variant="primary"
-                        disabled={!formValues.modelName || !formValues.exposures.length || !formValues.outcomes.length}>
+                        disabled={!formValues.modelName || !formValues.exposures.length || !formValues.outcomes.length}
+                      >
                         Run Model
                       </Button>
                     </div>
