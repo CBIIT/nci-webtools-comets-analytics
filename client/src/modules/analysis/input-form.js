@@ -61,6 +61,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       onSubmitModel({
         ...formValues,
         id: integrityCheckResults.id,
+        selectedModelName: asValue(formValues.selectedModelName),
         options: getOptions(formValues.modelType, true),
         exposures: formValues.exposures.map(asValue),
         outcomes: formValues.outcomes.map(asValue),
@@ -297,7 +298,18 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
                     <Form.Group controlId="selectedModelName" className="mb-3">
                       <Form.Label className="required">Model Name</Form.Label>
-                      <Form.Select
+                      <Select
+                        placeholder="No model chosen"
+                        name="selectedModelName"
+                        value={formValues.selectedModelName}
+                        onChange={(ev) => handleSelectChange("selectedModelName", ev)}
+                        defaultOptions
+                        options={integrityCheckResults.models
+                          .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
+                          .map((m, i) => ({ value: m.model, label: m.model }))}
+                      />
+
+                      {/* <Form.Select
                         name="selectedModelName"
                         value={formValues.selectedModelName}
                         onChange={handleChange}>
@@ -312,7 +324,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                               {m.model}
                             </option>
                           ))}
-                      </Form.Select>
+                      </Form.Select> */}
                     </Form.Group>
 
                     <div className="text-end">
