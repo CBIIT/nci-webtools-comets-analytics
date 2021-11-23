@@ -275,7 +275,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       className="mb-3"
                       name="showPredefinedModelTypes"
                       id="showPredefinedModelTypes"
-                      label="Use Model Types"
+                      label="Use Model Type"
                       onChange={handleChange}
                       checked={formValues.showPredefinedModelTypes}
                     />
@@ -332,10 +332,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
                           .map((m, i) => ({
                             value: m.model,
-                            label:
-                              formValues.selectedModelType || !formValues.showPredefinedModelTypes
-                                ? m.model
-                                : `${m.modelspec} - ${m.model}`,
+                            label: !formValues.showPredefinedModelTypes ? m.model : `${m.modelspec} - ${m.model}`,
                           }))}
                       />
                     </Form.Group>
