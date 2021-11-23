@@ -1,5 +1,10 @@
 import { groupBy, pick, cloneDeep, chunk, uniq, map } from "lodash";
 
+const defaultPlot = {
+  data: [],
+  layout: [],
+};
+
 export function sampleChunks(values, interval) {
   const chunkSize = Math.floor(values?.length / interval) || 1;
   return chunk(values, chunkSize).map((e) => e[0]);
@@ -7,7 +12,7 @@ export function sampleChunks(values, interval) {
 
 export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
   if (!results || !results.heatmap || !results.heatmap.data || !results.heatmap.data.length) {
-    return { data: [], layout: {} };
+    return defaultPlot;
   }
 
   const { xKey, yKey, zKey, sortColumn, pValueMin, pValueMax } = heatmapOptions;
@@ -25,17 +30,10 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
   });
 
   if (!records.length) {
-    return {
-      data: [
-        {
-          x: [],
-          y: [],
-          z: [],
-          type: "heatmap",
-        },
-      ],
-    };
+    return defaultPlot;
   }
+
+  console.log("records", records);
 
   const xCategories = uniq(map(records, xKey));
   const recordsGroupedByY = groupBy(records, yKey);
@@ -49,15 +47,21 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
     })
     .map(([key]) => key);
 
+  console.log({ xCategoriesSorted, yCategoriesSorted });
+
   const values = yCategoriesSorted.map((y) =>
-    xCategoriesSorted.map((x) => records.find((e) => e[xKey] === x && e[yKey] === y)[zKey]),
+    xCategoriesSorted.map((x) => {
+      let record = records.find((e) => e[xKey] === x && e[yKey] === y);
+      return record ? record[zKey] : null;
+    }),
   );
 
   const customValues = yCategoriesSorted.map((y) =>
-    xCategoriesSorted.map((x) => records.find((e) => e[xKey] === x && e[yKey] === y)),
+    xCategoriesSorted.map((x) => {
+      let record = records.find((e) => e[xKey] === x && e[yKey] === y);
+      return record || { pvalue: NaN };
+    }),
   );
-
-  const zKeyLabel = zKey === "corr" ? "Correlation" : "Estimate";
 
   return {
     data: [
@@ -70,13 +74,13 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
         hovertemplate: [
           `<b>Exposure</b>: %{x}`,
           `<b>Outcome</b>: %{y}`,
-          `<b>${zKeyLabel}</b>: %{z}`,
+          `<b>Estimate</b>: %{z}`,
           `<b>P-value</b>: %{customdata.pvalue}`,
           "<extra></extra>",
         ].join("<br>"),
         colorbar: {
           title: {
-            text: zKeyLabel,
+            text: "Estimate",
           },
         },
       },
@@ -99,11 +103,6 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
       yaxis: {
         automargin: true,
       },
-      legend: {
-        title: {
-          text: zKeyLabel,
-        },
-      },
     },
   };
 }
@@ -116,7 +115,7 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) 
     !results.heatmap.dendrogram ||
     !results.heatmap.data.length
   ) {
-    return { data: [], layout: {} };
+    return defaultPlot;
   }
 
   const { name } = modelOptions;
@@ -171,7 +170,14 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) 
                 showlegend: false,
               };
             } else if (t.type === "heatmap") {
-              return props;
+              return {
+                ...props,
+                colorbar: {
+                  title: {
+                    text: "Estimate",
+                  },
+                },
+              };
             }
 
             return null;
@@ -199,7 +205,7 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) 
           },
         },
       }
-    : { data: [], layout: {} };
+    : defaultPlot;
 }
 
 export function getHeatmapPlot2(heatmap, xSort, ySort) {
