@@ -1,5 +1,5 @@
 import { RecoilRoot } from "recoil";
-import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, NavLink } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
@@ -14,22 +14,22 @@ export default function App() {
     {
       route: "/",
       title: "Home",
-      component: Home,
+      element: <Home />,
     },
     {
       route: "/analysis",
       title: "Analysis",
-      component: Analysis,
+      element: <Analysis />,
     },
     // {
     //   route: "/create-input",
     //   title: "Create Input",
-    //   component: CreateInput,
+    //   element: CreateInput,
     // },
     {
       route: "/about",
       title: "About",
-      component: About,
+      element: <About />,
     },
   ];
 
@@ -42,12 +42,7 @@ export default function App() {
             <Navbar.Collapse id="app-navbar">
               <Nav>
                 {links.map((link, index) => (
-                  <NavLink
-                    key={`navlink-${index}`}
-                    activeClassName="active"
-                    className="nav-link"
-                    to={link.route}
-                    exact>
+                  <NavLink key={`navlink-${index}`} activeClassName="active" className="nav-link" to={link.route} exact>
                     {link.title}
                   </NavLink>
                 ))}
@@ -57,14 +52,11 @@ export default function App() {
         </Navbar>
 
         <div id="main-content" className="flex-grow-1">
-          {links.map((link, index) => (
-            <Route
-              exact
-              key={`route-${index}`}
-              path={link.route}
-              component={link.component}
-            />
-          ))}
+          <Routes>
+            {links.map((link, index) => (
+              <Route key={`route-${index}`} path={link.route} element={link.element} />
+            ))}
+          </Routes>
         </div>
       </Router>
     </RecoilRoot>
