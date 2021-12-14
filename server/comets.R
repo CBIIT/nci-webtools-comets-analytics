@@ -27,7 +27,7 @@ ping <- function() {
 #* @get /cohorts
 getCohorts <- function() {
   if (!exists("cohorts")) {
-    dir <- system.file("extdata", package = "COMETS", mustWork = TRUE)
+    dir <- system.file("extdata", package = "RcometsAnalytics", mustWork = TRUE)
     load(file.path(dir, "compileduids.RData"))
   }
   cohorts
