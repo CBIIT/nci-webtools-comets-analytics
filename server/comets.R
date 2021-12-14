@@ -61,7 +61,7 @@ loadFile <- function(req, res) {
     writeBin(inputFile$value, inputFilePath)
 
     # capture errors and warnings from readCOMETSinput
-    results <- callWithHandlers(COMETS::readCOMETSinput, inputFilePath)
+    results <- callWithHandlers(RcometsAnalytics::readCOMETSinput, inputFilePath)
 
     logger$info(paste("Loaded input file: ", inputFile$filename))
 
@@ -130,8 +130,8 @@ runSelectedModel <- function(req, res) {
     inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
 
-    modelData <- COMETS::getModelData(metaboliteData, modlabel = selectedModelName)
-    results <- COMETS::runModel(modelData, metaboliteData, cohort)
+    modelData <- RcometsAnalytics::getModelData(metaboliteData, modlabel = selectedModelName)
+    results <- RcometsAnalytics::runModel(modelData, metaboliteData, cohort)
     logger$info(paste("Ran selected model: ", selectedModelName))
 
     results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
@@ -166,7 +166,7 @@ runCustomModel <- function(req, res) {
     inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
 
-    modelData <- COMETS::getModelData(
+    modelData <- RcometsAnalytics::getModelData(
       metaboliteData,
       modelspec = "Interactive",
       modlabel = modelName,
@@ -177,7 +177,7 @@ runCustomModel <- function(req, res) {
       where = filters
     )
 
-    results <- COMETS::runModel(
+    results <- RcometsAnalytics::runModel(
       modelData,
       metaboliteData,
       cohort,

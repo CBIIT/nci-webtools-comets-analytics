@@ -12,13 +12,13 @@ logger <- createDailyRotatingLogger(
 logger$info("Started COMETS Processor")
 
 runPredefinedModel <- function(cometsInput, modelName, cohort) {
-  modelData <- COMETS::getModelData(
+  modelData <- RcometsAnalytics::getModelData(
     cometsInput,
     modelspec = "Batch",
     modlabel = modelName
   )
 
-  COMETS::runModel(
+  RcometsAnalytics::runModel(
     modelData,
     cometsInput,
     cohort
@@ -64,8 +64,8 @@ messageHandler <- function(message) {
   logger$info(sprintf("Deleted original input file from s3: %s", params$s3FilePath))
 
 
-  cometsInput <- COMETS::readCOMETSinput(inputFilePath)
-  cometsInputSummary <- COMETS::runDescrip(cometsInput)
+  cometsInput <- RcometsAnalytics::readCOMETSinput(inputFilePath)
+  cometsInputSummary <- RcometsAnalytics::runDescrip(cometsInput)
 
   # write original input file (minus unused sheets) to output folder
   workbook <- openxlsx::loadWorkbook(inputFilePath)
@@ -81,7 +81,7 @@ messageHandler <- function(message) {
   )
 
   # write harmonization results to output folder
-  harmonizationFileName <- COMETS::OutputCSVResults(
+  harmonizationFileName <- RcometsAnalytics::OutputCSVResults(
     filename = file.path(outputFolder, "harmonization_"),
     dataf = cometsInput$metab,
     cohort = paste0(cohort, "_")
@@ -89,7 +89,7 @@ messageHandler <- function(message) {
   logger$info(sprintf("Saved harmonization results: %s", harmonizationFileName))
 
   # write input summary to output folder
-  summaryFileName <- COMETS::OutputXLSResults(
+  summaryFileName <- RcometsAnalytics::OutputXLSResults(
     filename = file.path(outputFolder, "summary_"),
     datal = cometsInputSummary,
     cohort = paste0(cohort, "_")
@@ -117,7 +117,7 @@ messageHandler <- function(message) {
     logger$info(sprintf("Ran model: %s", modelName))
 
     if (length(results$errors) == 0) {
-      resultsFile <- COMETS::OutputXLSResults(
+      resultsFile <- RcometsAnalytics::OutputXLSResults(
         filename = file.path(outputFolder, paste0(modelName, "_")),
         datal = results$output,
         cohort = paste0(cohort, "_")
