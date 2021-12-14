@@ -1,4 +1,4 @@
-library(COMETS)
+library(RcometsAnalytics)
 library(future)
 library(jsonlite)
 library(paws)
