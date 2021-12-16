@@ -14,9 +14,7 @@ import { messagesState } from "./integrity-check-results.state";
 export default function IntegrityCheckResults({ results, children = null }) {
   const [messages, setMessages] = useRecoilState(messagesState);
   const removeMessageByIndex = (index) =>
-    setMessages((oldMessages) =>
-      oldMessages.slice(0, index).concat(oldMessages.slice(index + 1))
-    );
+    setMessages((oldMessages) => oldMessages.slice(0, index).concat(oldMessages.slice(index + 1)));
 
   useEffect(() => {
     setMessages([]);
@@ -32,12 +30,8 @@ export default function IntegrityCheckResults({ results, children = null }) {
           body: (
             <>
               <p>
-                The input data file could not be loaded due to the following
-                errors. For further assistance, please contact{" "}
-                <a href="mailto:comets.analytics@gmail.com">
-                  comets.analytics@gmail.com
-                </a>
-                .
+                The input data file could not be loaded due to the following errors. For further assistance, please
+                contact <a href="mailto:comets.analytics@gmail.com">comets.analytics@gmail.com</a>.
               </p>
               <ul className="mb-0">
                 {results.capturedOutput
@@ -132,9 +126,7 @@ export default function IntegrityCheckResults({ results, children = null }) {
         accessor: (record) => record.uidsource.split(";").sort().join(";"),
         Cell: ({ value }) => (
           <details title={value}>
-            <summary className="text-truncate">
-              {value.split(";").length} sources
-            </summary>
+            <summary className="text-truncate">{value.split(";").length} sources</summary>
             <ul>
               {value.split(";").map((v, i) => (
                 <li key={`uidsource-${v}-${i}`} className="text-truncate">
@@ -189,7 +181,7 @@ export default function IntegrityCheckResults({ results, children = null }) {
         filter: "between",
       },
     ],
-    []
+    [],
   );
 
   const defaultColumn = {
@@ -266,7 +258,8 @@ export default function IntegrityCheckResults({ results, children = null }) {
           key={`integrity-check-results-message-${index}`}
           variant={type}
           onClose={() => removeMessageByIndex(index)}
-          dismissible>
+          dismissible
+        >
           {title && <h2 className="h5">{title}</h2>}
           {body}
         </Alert>
@@ -283,45 +276,37 @@ export default function IntegrityCheckResults({ results, children = null }) {
 
           {/* <h2 className="h4 text-primary">Input Data Summary</h2> */}
           <Row>
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6 text-muted">Total Metabolites</h2>
-                  <div className="h3">
-                    {results.summary.input.metabolites.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.input.metabolites.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6 text-muted">Subjects</h2>
-                  <div className="h3">
-                    {results.summary.input.subjects.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.input.subjects.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
 
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6">Subject Covariates</h2>
-                  <div className="h3">
-                    {results.summary.input.subjectCovariates.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.input.subjectCovariates.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
 
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6">Subject Metabolites</h2>
-                  <div className="h3">
-                    {results.summary.input.subjectMetabolites.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.input.subjectMetabolites.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
@@ -347,73 +332,53 @@ export default function IntegrityCheckResults({ results, children = null }) {
           <h2 className="h4 text-primary">Harmonization Summary</h2>
 
           <Row>
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6 text-muted">N Metabolites</h2>
-                  <div className="h3">
-                    {results.summary.metabolites.metabolites.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.metabolites.metabolites.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6 text-muted">N Harmonized</h2>
-                  <div className="h3">
-                    {results.summary.metabolites.harmonized.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.metabolites.harmonized.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
 
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6">N Non-Harmonized</h2>
-                  <div className="h3">
-                    {results.summary.metabolites.nonHarmonized.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.metabolites.nonHarmonized.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
 
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6">N with zero variance</h2>
-                  <div className="h3">
-                    {results.summary.metabolites.zeroVariance.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.metabolites.zeroVariance.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
 
-            <Col md>
-              <Card className="mb-3 shadow-sm">
+            <Col md className="d-flex">
+              <Card className="mb-3 shadow-sm w-100">
                 <Card.Body>
                   <h2 className="h6">N with &gt; 25% at min</h2>
-                  <div className="h3">
-                    {results.summary.metabolites.min25PercentSubjects.toLocaleString()}
-                  </div>
+                  <div className="h3">{results.summary.metabolites.min25PercentSubjects.toLocaleString()}</div>
                 </Card.Body>
               </Card>
             </Col>
           </Row>
 
-          <Plot
-            {...variancePlot}
-            useResizeHandler
-            className="w-100"
-            style={{ height: "400px" }}
-          />
-          <Plot
-            {...missingValuesPlot}
-            useResizeHandler
-            className="w-100"
-            style={{ height: "400px" }}
-          />
+          <Plot {...variancePlot} useResizeHandler className="w-100" style={{ height: "400px" }} />
+          <Plot {...missingValuesPlot} useResizeHandler className="w-100" style={{ height: "400px" }} />
         </>
       )}
     </>
