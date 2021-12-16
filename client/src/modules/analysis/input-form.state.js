@@ -7,7 +7,7 @@ export const formValuesState = atom({
   default: {
     cohort: "Other/Undefined",
     inputFile: null,
-    method: "",
+    method: "allModels",
     selectedModelName: "",
     selectedModelType: "",
     email: "",
