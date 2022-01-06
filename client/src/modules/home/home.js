@@ -12,7 +12,7 @@ export default function Home() {
             <span className="d-inline-block py-4 border-bottom border-light">Welcome to COMETS Analytics</span>
           </h1>
 
-          <p className="lead">Perform consortium-based analyses of metabolomics data</p>
+          <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
           <NavLink className="btn btn-outline-light" to="/analysis">
             Get Started
           </NavLink>
