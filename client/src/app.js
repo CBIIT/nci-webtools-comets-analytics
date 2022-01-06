@@ -48,6 +48,7 @@ export default function App() {
       <Router>
         <Navbar expand="sm" className="navbar-light shadow-sm flex-none-auto">
           <Container>
+            <Navbar.Brand className="d-block d-sm-none fw-semibold">COMETS Analytics</Navbar.Brand>
             <Navbar.Toggle aria-controls="app-navbar" />
             <Navbar.Collapse id="app-navbar">
               <Nav>
