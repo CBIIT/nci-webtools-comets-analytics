@@ -1,4 +1,14 @@
 services:
+  processor:
+    build: 
+      context: "."
+      dockerfile: "docker/backend.dockerfile"
+    expose:
+      - "8000"
+    entrypoint: "npm run start:processor"
+    volumes:
+      - "./server/temp:/server/temp"
+      - "./server/logs:/server/logs"
   backend:
     build: 
       context: "."
