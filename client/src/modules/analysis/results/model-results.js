@@ -3,7 +3,7 @@ import { useRecoilState } from "recoil";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Table from "../../common/table";
-import { defaultColumn, getColumns, downloadResults } from "./model-results.utils";
+import { defaultColumn, getColumns, downloadResults, getSelectionColumn } from "./model-results.utils";
 import { messagesState } from "./model-results.state";
 
 export default function ModelResults({ results, children = "" }) {
@@ -60,6 +60,8 @@ export default function ModelResults({ results, children = "" }) {
     setMessages(newMessages);
   }, [results, setMessages]);
 
+  const columns = [getSelectionColumn((ev) => console.log(ev)), ...getColumns(results.Effects)];
+
   return !results ? (
     children
   ) : (
@@ -69,7 +71,8 @@ export default function ModelResults({ results, children = "" }) {
           key={`model-results-message-${index}`}
           variant={type}
           onClose={() => removeMessageByIndex(index)}
-          dismissible>
+          dismissible
+        >
           {title && <h2 className="h5">{title}</h2>}
           {body}
         </Alert>
@@ -85,9 +88,10 @@ export default function ModelResults({ results, children = "" }) {
             </Button>
           </h2>
           <Table
-            columns={getColumns(results.Effects)}
+            columns={columns}
             data={results.Effects}
             options={{ defaultColumn }}
+            onSelect={(e) => console.log(e)}
             useColumnFilters
           />
         </>
