@@ -8,3 +8,4 @@ server/results
 server/temp
 server/logs
 *.log
+.env
