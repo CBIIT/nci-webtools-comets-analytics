@@ -114,7 +114,10 @@ export default function Table({ columns, data, options, useColumnFilters, onSele
                 {headerGroup.headers.map((column) => (
                   <div
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="th text-truncate d-flex align-items-center h-100"
+                    className={classNames(
+                      "th text-truncate d-flex align-items-center h-100",
+                      column.type === "selection" && "p-2 justify-content-center",
+                    )}
                     role="th"
                   >
                     {column.type === "selection" ? column.render("Tag") : column.render("Header")}
@@ -141,7 +144,12 @@ export default function Table({ columns, data, options, useColumnFilters, onSele
                 <div {...headerGroup.getHeaderGroupProps()} className="tr">
                   {headerGroup.headers.map((column) => (
                     <div {...column.getHeaderProps()} className="td">
-                      <div className="d-flex align-items-center h-100">
+                      <div
+                        className={classNames(
+                          "d-flex align-items-center h-100",
+                          column.type === "selection" && "justify-content-center",
+                        )}
+                      >
                         {column.canFilter
                           ? column.render("Filter")
                           : column.type === "selection"
@@ -164,7 +172,10 @@ export default function Table({ columns, data, options, useColumnFilters, onSele
               return (
                 <div {...row.getRowProps()} className="tr">
                   {row.cells.map((cell) => (
-                    <div {...cell.getCellProps()} className="td">
+                    <div
+                      {...cell.getCellProps()}
+                      className={classNames("td d-flex", cell.column.type === "selection" && "justify-content-center")}
+                    >
                       {cell.render("Cell")}
                       <div
                         {...cell.column.getResizerProps()}
