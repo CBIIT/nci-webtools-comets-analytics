@@ -12,6 +12,10 @@ a,
   font-weight: 500;
 }
 
+[role="tab"] {
+  cursor: pointer;
+}
+
 .disabled,
 [disabled],
 :disabled {
