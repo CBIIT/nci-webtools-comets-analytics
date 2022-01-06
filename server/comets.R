@@ -1,17 +1,21 @@
-library(RcometsAnalytics)
+library(dotenv)
 library(future)
 library(jsonlite)
 library(paws)
+library(RcometsAnalytics)
 
 plan(multisession)
 source("utils.R")
 
-# configure AWS services if needed
-config <- jsonlite::read_json("config.json")
-s3 <- paws::s3(config = getAwsConfig(config))
-sqs <- paws::sqs(config = getAwsConfig(config))
-logger <- createDailyRotatingLogger(
-  file.path(config$logs$folder, "comets-app")
+# configure AWS services as needed
+awsConfig <- getAwsConfig()
+s3 <- paws::s3(config = awsConfig)
+sqs <- paws::sqs(config = awsConfig)
+logger <- createLogger(
+  createConsoleTransport(),
+  createDailyRotatingFileTransport(
+    file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+  )
 )
 
 logger$info("Started COMETS Server")
@@ -52,7 +56,7 @@ loadFile <- function(req, res) {
     id <- plumber::random_cookie_key()
 
     # create temporary session folder
-    sessionFolder <- file.path(config$server$sessionFolder, id)
+    sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
     dir.create(sessionFolder, recursive = T)
 
     # write input file to session folder
@@ -127,7 +131,7 @@ runSelectedModel <- function(req, res) {
     selectedModelType <- sanitize(req$body$selectedModelType)
     selectedModelName <- sanitize(req$body$selectedModelName)
 
-    inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
+    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
 
     modelData <- RcometsAnalytics::getModelData(metaboliteData, modlabel = selectedModelName)
@@ -163,7 +167,7 @@ runCustomModel <- function(req, res) {
     filters <- req$body$filters
     options <- req$body$options
 
-    inputFilePath <- file.path(config$server$sessionFolder, id, "input.rds")
+    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
 
     modelData <- RcometsAnalytics::getModelData(
@@ -207,16 +211,16 @@ runAllModels <- function(req, res) {
   originalFileName <- sanitize(req$body$inputFile)
   email <- req$body$email
 
-  sessionFolder <- file.path(config$server$sessionFolder, id)
+  sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
   inputFilePath <- file.path(sessionFolder, "input.xlsx")
 
   # determine key for s3 object
-  s3FilePath <- paste0(config$s3$inputKeyPrefix, id, "/input.xlsx")
+  s3FilePath <- paste0(Sys.getenv("S3_INPUT_KEY_PREFIX"), id, "/input.xlsx")
 
   # upload input file to s3 bucket
   s3$put_object(
     Body = inputFilePath,
-    Bucket = config$s3$bucket,
+    Bucket = Sys.getenv("S3_BUCKET"),
     Key = s3FilePath
   )
 
@@ -233,7 +237,7 @@ runAllModels <- function(req, res) {
 
   # determine queue url from queue name
   queueUrl <- sqs$get_queue_url(
-    QueueName = config$sqs$queueName
+    QueueName = Sys.getenv("SQS_QUEUE_NAME")
   )$QueueUrl
 
   # enqueue parameters
@@ -244,8 +248,8 @@ runAllModels <- function(req, res) {
     MessageGroupId = plumber::random_cookie_key()
   )
 
-  logger$info(paste("Sent parameters to queue: ", jsonlite::toJSON(params, auto_unbox = T)))
-  logger$info(paste("Queue response: ", jsonlite::toJSON(messageStatus, auto_unbox = T)))
+  logger$info(c("Sent parameters to queue: ", params))
+  logger$info(c("Queue response: ", messageStatus))
 
   list(queue = T)
 }
@@ -292,10 +296,10 @@ runModel <- function(req, res) {
 getBatchResults <- function(req, res) {
   id <- sanitize(req$args$id)
 
-  s3FilePath <- paste0(config$s3$outputKeyPrefix, id, "/output.zip")
+  s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
 
   s3Object <- s3$get_object(
-    Bucket = config$s3$bucket,
+    Bucket = Sys.getenv("S3_BUCKET"),
     Key = s3FilePath
   )
 

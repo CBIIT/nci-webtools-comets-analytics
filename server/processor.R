@@ -1,14 +1,16 @@
 source("utils.R")
 
 # configure AWS services if needed
-config <- jsonlite::read_json("config.json")
-s3 <- paws::s3(config = getAwsConfig(config))
-ses <- paws::ses(config = getAwsConfig(config))
-sqs <- paws::sqs(config = getAwsConfig(config))
-logger <- createDailyRotatingLogger(
-  file.path(config$logs$folder, "comets-processor")
+awsConfig <- getAwsConfig()
+s3 <- paws::s3(config = awsConfig)
+ses <- paws::ses(config = awsConfig)
+sqs <- paws::sqs(config = awsConfig)
+logger <- createLogger(
+  createConsoleTransport(),
+  createDailyRotatingFileTransport(
+    file.path(Sys.getenv("LOG_FOLDER"), "comets-processor")
+  )
 )
-
 logger$info("Started COMETS Processor")
 
 runPredefinedModel <- function(cometsInput, modelName, cohort) {
@@ -43,7 +45,7 @@ messageHandler <- function(message) {
   s3FilePath <- params$s3FilePath
   email <- params$email
 
-  outputFolder <- file.path(config$server$sessionFolder, id, "output")
+  outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output")
   inputFilePath <- file.path(outputFolder, "input.xlsx")
 
   # clear and recreate output folder
@@ -51,14 +53,14 @@ messageHandler <- function(message) {
   dir.create(outputFolder, recursive = T)
 
   s3Object <- s3$get_object(
-    Bucket = config$s3$bucket,
+    Bucket = Sys.getenv("S3_BUCKET"),
     Key = params$s3FilePath
   )
   writeBin(s3Object$Body, inputFilePath)
   logger$info(sprintf("Downloaded input file: %s", inputFilePath))
 
   s3$delete_object(
-    Bucket = config$s3$bucket,
+    Bucket = Sys.getenv("S3_BUCKET"),
     Key = params$s3FilePath
   )
   logger$info(sprintf("Deleted original input file from s3: %s", params$s3FilePath))
@@ -140,12 +142,12 @@ messageHandler <- function(message) {
 
   logger$info(paste("Created output file: ", outputFile))
 
-  s3FilePath <- paste0(config$s3$outputKeyPrefix, id, "/output.zip")
+  s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
 
   # upload output file to s3 bucket
   s3$put_object(
     Body = outputFile,
-    Bucket = config$s3$bucket,
+    Bucket = Sys.getenv("S3_BUCKET"),
     Key = s3FilePath
   )
 
@@ -158,7 +160,7 @@ messageHandler <- function(message) {
   template <- readLines(file.path("email-templates", "user-success.html"))
   templateData <- list(
     originalFileName = params$originalFileName,
-    resultsUrl = paste0(config$email$baseUrl, "/api/batchResults/", id),
+    resultsUrl = paste0(Sys.getenv("EMAIL_BASE_URL"), "/api/batchResults/", id),
     totalProcessingTime = round(sum(unlist(modelResults$processingTime)), 2),
     modelResults = whisker::rowSplit(modelResults)
   )
@@ -168,7 +170,7 @@ messageHandler <- function(message) {
   logger$info(emailBody)
 
   ses$send_email(
-    Source = config$email$sender,
+    Source = Sys.getenv("EMAIL_SENDER"),
     Destination = list(ToAddresses = email),
     Message = list(
       Body = list(
@@ -204,7 +206,7 @@ errorHandler <- function(message, output) {
 
   # send user failure email
   ses$send_email(
-    Source = config$email$sender,
+    Source = Sys.getenv("EMAIL_SENDER"),
     Destination = list(ToAddresses = email),
     Message = list(
       Body = list(
@@ -230,8 +232,8 @@ errorHandler <- function(message, output) {
 
   # send admin failure email
   ses$send_email(
-    Source = config$email$sender,
-    Destination = list(ToAddresses = config$email$admin),
+    Source = Sys.getenv("EMAIL_SENDER"),
+    Destination = list(ToAddresses = Sys.getenv("EMAIL_ADMIN")),
     Message = list(
       Body = list(
         Html = list(
@@ -254,11 +256,11 @@ errorHandler <- function(message, output) {
     )
   )
 
-  logger$info(paste("Sent admin failure email to: ", config$email$admin))
+  logger$info(paste("Sent admin failure email to: ", Sys.getenv("EMAIL_ADMIN")))
 
   callWithHandlers(
     s3$delete_object,
-    Bucket = config$s3$bucket,
+    Bucket = Sys.getenv("S3_BUCKET"),
     Key = s3FilePath
   )
 
@@ -269,11 +271,11 @@ errorHandler <- function(message, output) {
 while (TRUE) {
   receiveMessage(
     sqs = sqs,
-    queueName = config$sqs$queueName,
+    queueName = Sys.getenv("SQS_QUEUE_NAME"),
     messageHandler = messageHandler,
     errorHandler = errorHandler,
     logger = logger,
-    visibilityTimeout = config$sqs$visibilityTimeout
+    visibilityTimeout = as.numeric(Sys.getenv("SQS_VISIBILITY_TIMEOUT"))
   )
-  Sys.sleep(config$sqs$pollInterval)
+  Sys.sleep(as.numeric(Sys.getenv("SQS_POLL_INTERVAL")))
 }
