@@ -262,7 +262,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       </Button>
 
                       <Button type="submit" variant="primary" disabled={!formValues.email}>
-                        Run Model
+                        Run Models
                       </Button>
                     </div>
                   </>
