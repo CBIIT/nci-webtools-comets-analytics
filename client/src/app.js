@@ -9,15 +9,15 @@ import Loader from "./modules/common/loader";
 import ErrorBoundary from "./modules/common/error-boundary";
 import "./styles/main.scss";
 
-// begin fetching modules immediately
-const HomeModule = import("./modules/home/home");
-const AnalysisModule = import("./modules/analysis/analysis");
-const AboutModule = import("./modules/about/about");
+// preload lazy-loaded page components
+const Home = preloadLazyComponent(() => import("./modules/home/home"));
+const Analysis = preloadLazyComponent(() => import("./modules/analysis/analysis"));
+const About = preloadLazyComponent(() => import("./modules/about/about"));
 
-// create lazy-loaded components
-const Home = lazy(() => HomeModule);
-const Analysis = lazy(() => AnalysisModule);
-const About = lazy(() => AboutModule);
+function preloadLazyComponent(factory) {
+  const loader = factory();
+  return lazy(() => loader);
+}
 
 export default function App() {
   const links = [
