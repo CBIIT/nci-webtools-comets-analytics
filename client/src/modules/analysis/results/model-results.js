@@ -60,7 +60,9 @@ export default function ModelResults({ results, children = "" }) {
     setMessages(newMessages);
   }, [results, setMessages]);
 
-  const columns = [getSelectionColumn((ev) => console.log(ev)), ...getColumns(results.Effects)];
+  function handleSelection(props) {
+    console.log(props);
+  }
 
   return !results ? (
     children
@@ -88,7 +90,7 @@ export default function ModelResults({ results, children = "" }) {
             </Button>
           </h2>
           <Table
-            columns={columns}
+            columns={[getSelectionColumn(handleSelection), ...getColumns(results.Effects)]}
             data={results.Effects}
             options={{ defaultColumn }}
             onSelect={(e) => console.log(e)}
