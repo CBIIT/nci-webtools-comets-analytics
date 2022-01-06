@@ -1,5 +1,6 @@
 install.packages(
   c(
+    "dotenv",
     "future",
     "jsonlite",
     "openxlsx",
