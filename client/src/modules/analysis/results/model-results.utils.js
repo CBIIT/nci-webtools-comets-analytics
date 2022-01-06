@@ -1,4 +1,5 @@
-import { RangeFilter, TextFilter } from "../../common/table";
+import Button from "react-bootstrap/Button";
+import { RangeFilter, TextFilter, IndeterminateCheckbox } from "../../common/table";
 import { downloadTables } from "../../../services/download";
 import isNumber from "lodash/isNumber";
 
@@ -12,6 +13,30 @@ export const defaultColumn = {
   minWidth: 50,
   width: 180,
 };
+
+export function getSelectionColumn(onSelect) {
+  return {
+    id: "selection",
+    type: "selection",
+    minWidth: 80,
+    width: 80,
+    Tag: (props) => (
+      <Button variant="light" className="m-0 p-0 border-0" size="sm" onClick={(e) => onSelect(props)}>
+        <i className="bi bi-tags-fill text-primary mr-1" /> TAG
+      </Button>
+    ),
+    Header: ({ getToggleAllRowsSelectedProps }) => (
+      <div className="form-check">
+        <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} className="form-check-input" />
+      </div>
+    ),
+    Cell: ({ row }) => (
+      <div className="form-check">
+        <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} className="form-check-input" />
+      </div>
+    ),
+  };
+}
 
 export function getColumns(table) {
   if (!table || !table.length) return [];
