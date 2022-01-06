@@ -1,12 +1,19 @@
+import { forwardRef, useEffect, useRef } from "react";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Pagination from "react-bootstrap/Pagination";
-import { useTable, useFilters, usePagination, useSortBy, useBlockLayout, useResizeColumns } from "react-table";
+import {
+  useTable,
+  useFilters,
+  usePagination,
+  useSortBy,
+  useBlockLayout,
+  useResizeColumns,
+  useRowSelect,
+} from "react-table";
 import classNames from "classnames";
 
-export function TextFilter({
-  column: { filterValue, setFilter, placeholder, aria },
-}) {
+export function TextFilter({ column: { filterValue, setFilter, placeholder, aria } }) {
   return (
     <Form.Control
       value={filterValue || ""}
@@ -17,12 +24,9 @@ export function TextFilter({
   );
 }
 
-export function RangeFilter({
-  column: { filterValue = [], setFilter, minPlaceholder, maxPlaceholder, aria },
-}) {
+export function RangeFilter({ column: { filterValue = [], setFilter, minPlaceholder, maxPlaceholder, aria } }) {
   const asInputValue = (value) => (typeof value === "number" ? value : "");
-  const getInputValue = ({ target: { value } }) =>
-    value ? parseFloat(value, 10) : undefined;
+  const getInputValue = ({ target: { value } }) => (value ? parseFloat(value, 10) : undefined);
 
   return (
     <InputGroup className="flex-nowrap">
@@ -44,7 +48,22 @@ export function RangeFilter({
   );
 }
 
-export default function Table({ columns, data, options, useColumnFilters }) {
+export const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
+  const defaultRef = useRef();
+  const resolvedRef = ref || defaultRef;
+
+  useEffect(() => {
+    resolvedRef.current.indeterminate = indeterminate;
+  }, [resolvedRef, indeterminate]);
+
+  return (
+    <>
+      <input type="checkbox" ref={resolvedRef} {...rest} />
+    </>
+  );
+});
+
+export default function Table({ columns, data, options, useColumnFilters, onSelect }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -52,7 +71,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
     prepareRow,
     page,
     rows,
-
+    selectedFlatRows,
     canPreviousPage,
     canNextPage,
     pageCount,
@@ -60,7 +79,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize },
+    state: { pageIndex, pageSize, selectedRowIds },
   } = useTable(
     {
       columns,
@@ -71,52 +90,72 @@ export default function Table({ columns, data, options, useColumnFilters }) {
     useSortBy,
     usePagination,
     useBlockLayout,
-    useResizeColumns
+    useResizeColumns,
+    useRowSelect,
   );
+
+  useEffect(() => {
+    if (onSelect) {
+      onSelect(selectedFlatRows);
+    }
+  }, [onSelect, selectedFlatRows]);
 
   return (
     <>
       <div className="table-responsive rounded shadow-sm">
-        <div {...getTableProps()} className="table table-custom table-nowrap table-hover table-bordered table-striped" role="table">
+        <div
+          {...getTableProps()}
+          className="table table-custom table-nowrap table-hover table-bordered table-striped"
+          role="table"
+        >
           <div className="thead table-light text-muted" role="thead">
             {headerGroups.map((headerGroup) => (
               <div {...headerGroup.getHeaderGroupProps()} className="tr border-bottom">
                 {headerGroup.headers.map((column) => (
-                  <div {...column.getHeaderProps(column.getSortByToggleProps())} className="th text-truncate" role="th">
-                    {column.render("Header")}
+                  <div
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className="th text-truncate d-flex align-items-center h-100"
+                    role="th"
+                  >
+                    {column.type === "selection" ? column.render("Tag") : column.render("Header")}
                     {column.isSorted && (
                       <i
                         className={classNames(
                           "bi",
                           "text-primary",
                           "ms-1",
-                          column.isSortedDesc ? "bi-sort-down" : "bi-sort-up"
+                          column.isSortedDesc ? "bi-sort-down" : "bi-sort-up",
                         )}
                       />
                     )}
                     <div
                       {...column.getResizerProps()}
-                      className={classNames('column-resizer', column.isResizing && 'is-resizing')}
+                      className={classNames("column-resizer", column.isResizing && "is-resizing")}
                     />
                   </div>
                 ))}
               </div>
             ))}
-            {useColumnFilters && headerGroups.map((headerGroup) => (
-              <div {...headerGroup.getHeaderGroupProps()} className="tr">
-                {headerGroup.headers.map((column) => (
-                  <div {...column.getHeaderProps()} className="td">
-                    <div>
-                      {column.canFilter ? column.render("Filter") : null}
+            {useColumnFilters &&
+              headerGroups.map((headerGroup) => (
+                <div {...headerGroup.getHeaderGroupProps()} className="tr">
+                  {headerGroup.headers.map((column) => (
+                    <div {...column.getHeaderProps()} className="td">
+                      <div className="d-flex align-items-center h-100">
+                        {column.canFilter
+                          ? column.render("Filter")
+                          : column.type === "selection"
+                          ? column.render("Header")
+                          : null}
+                      </div>
+                      <div
+                        {...column.getResizerProps()}
+                        className={classNames("column-resizer", column.isResizing && "is-resizing")}
+                      />
                     </div>
-                    <div
-                      {...column.getResizerProps()}
-                      className={classNames('column-resizer', column.isResizing && 'is-resizing')}
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
+                  ))}
+                </div>
+              ))}
           </div>
 
           <div {...getTableBodyProps()} className="tbody">
@@ -129,7 +168,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
                       {cell.render("Cell")}
                       <div
                         {...cell.column.getResizerProps()}
-                        className={classNames('column-resizer', cell.column.isResizing && 'is-resizing')}
+                        className={classNames("column-resizer", cell.column.isResizing && "is-resizing")}
                       />
                     </div>
                   ))}
@@ -143,8 +182,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
       <div className="d-flex flex-wrap align-items-center justify-content-between p-3">
         <div className="text-muted">
           Showing rows {(1 + pageIndex * pageSize).toLocaleString()}-
-          {Math.min(rows.length, (pageIndex + 1) * pageSize).toLocaleString()}{" "}
-          of {rows.length.toLocaleString()}
+          {Math.min(rows.length, (pageIndex + 1) * pageSize).toLocaleString()} of {rows.length.toLocaleString()}
         </div>
 
         <div className="d-flex">
@@ -154,7 +192,8 @@ export default function Table({ columns, data, options, useColumnFilters }) {
             name="select-page-size"
             aria-label="Select page size"
             value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value))}>
+            onChange={(e) => setPageSize(Number(e.target.value))}
+          >
             {[10, 25, 50, 100].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 Show {pageSize}
@@ -163,22 +202,16 @@ export default function Table({ columns, data, options, useColumnFilters }) {
           </Form.Control>
 
           <Pagination className="mb-0">
-            <Pagination.First
-              onClick={() => gotoPage(0)}
-              disabled={!canPreviousPage}>
+            <Pagination.First onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
               First
             </Pagination.First>
-            <Pagination.Prev
-              onClick={() => previousPage()}
-              disabled={!canPreviousPage}>
+            <Pagination.Prev onClick={() => previousPage()} disabled={!canPreviousPage}>
               Previous
             </Pagination.Prev>
             <Pagination.Next onClick={() => nextPage()} disabled={!canNextPage}>
               Next
             </Pagination.Next>
-            <Pagination.Last
-              onClick={() => gotoPage(pageCount - 1)}
-              disabled={!canNextPage}>
+            <Pagination.Last onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
               Last
             </Pagination.Last>
           </Pagination>
