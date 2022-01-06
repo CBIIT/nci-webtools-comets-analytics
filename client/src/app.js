@@ -1,13 +1,23 @@
+import { Suspense, lazy } from "react";
 import { RecoilRoot } from "recoil";
 import { BrowserRouter as Router, Route, Routes, NavLink } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
-import Home from "./modules/home/home";
-import About from "./modules/about/about";
-import Analysis from "./modules/analysis/analysis";
-// import CreateInput from "./modules/create-input/create-input";
+import Alert from "react-bootstrap/Alert";
+import Loader from "./modules/common/loader";
+import ErrorBoundary from "./modules/common/error-boundary";
 import "./styles/main.scss";
+
+// begin fetching modules immediately
+const HomeModule = import("./modules/home/home");
+const AnalysisModule = import("./modules/analysis/analysis");
+const AboutModule = import("./modules/about/about");
+
+// create lazy-loaded components
+const Home = lazy(() => HomeModule);
+const Analysis = lazy(() => AnalysisModule);
+const About = lazy(() => AboutModule);
 
 export default function App() {
   const links = [
@@ -42,7 +52,7 @@ export default function App() {
             <Navbar.Collapse id="app-navbar">
               <Nav>
                 {links.map((link, index) => (
-                  <NavLink key={`navlink-${index}`} activeClassName="active" className="nav-link" to={link.route} exact>
+                  <NavLink key={`navlink-${index}`} className="nav-link" to={link.route}>
                     {link.title}
                   </NavLink>
                 ))}
@@ -52,11 +62,22 @@ export default function App() {
         </Navbar>
 
         <div id="main-content" className="flex-grow-1">
-          <Routes>
-            {links.map((link, index) => (
-              <Route key={`route-${index}`} path={link.route} element={link.element} />
-            ))}
-          </Routes>
+          <ErrorBoundary
+            fallback={
+              <Alert variant="danger">
+                An internal error prevented the current page from loading. Please contact the website administrator if
+                this problem persists.
+              </Alert>
+            }
+          >
+            <Suspense fallback={<Loader>Loading Page</Loader>}>
+              <Routes>
+                {links.map((link, index) => (
+                  <Route key={`route-${index}`} path={link.route} element={link.element} />
+                ))}
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </Router>
     </RecoilRoot>
