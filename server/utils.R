@@ -6,16 +6,18 @@ sanitize <- function(str) {
   gsub("[^[:alnum:][:space:]_,-.]+", "_", str)
 }
 
-getAwsConfig <- function(config, ...) {
-  serviceConfig <- list(
-    region = config$aws$region
-  )
+getAwsConfig <- function() {
+  region <- Sys.getenv("AWS_REGION")
+  accessKeyId <- Sys.getenv("AWS_ACCESS_KEY_ID")
+  secretAccessKey <- Sys.getenv("AWS_SECRET_ACCESS_KEY")
 
-  if (all(c("accessKeyId", "secretAccessKey") %in% names(config$aws))) {
+  serviceConfig <- list(region = region)
+
+  if (accessKeyId != "" && secretAccessKey != "") {
     serviceConfig$credentials <- list(
       creds = list(
-        access_key_id = config$aws$accessKeyId,
-        secret_access_key = config$aws$secretAccessKey
+        access_key_id = accessKeyId,
+        secret_access_key = secretAccessKey
       )
     )
   }
@@ -100,35 +102,37 @@ receiveMessage <- function(sqs, queueName, messageHandler, errorHandler, logger,
 
 
 defaultLogFormatter <- function(object) {
-  sprintf(
-    "[%s] [%s] %s",
-    object$logLevel,
-    object$timestamp,
-    jsonlite::toJSON(object$message, auto_unbox = T)
-  )
+  jsonlite::toJSON(object, auto_unbox = T, force = T)
 }
 
-httpLogFormatter <- function(object) {
-  sprintf(
-    "[%s] [%s] %s",
-    object$logLevel,
-    object$timestamp,
-    jsonlite::toJSON(object$message, auto_unbox = T)
-  )
+createConsoleTransport <- function(formatter = defaultLogFormatter) {
+  function(logObject) {
+    formattedMessage <- formatter(logObject)
+    cat(formattedMessage, "\n")
+  }
 }
 
-createDailyRotatingLogger <- function(fileNamePrefix = "app", formatter = defaultLogFormatter) {
-  logMessage <- function(logLevel = "INFO", message) {
+createDailyRotatingFileTransport <- function(fileNamePrefix, formatter = defaultLogFormatter) {
+  function(logObject) {
+    formattedMessage <- formatter(logObject)
     logFileName <- paste(fileNamePrefix, Sys.Date(), "log", sep = ".")
+    write(formattedMessage, file = logFileName, append = T)
+  }
+}
 
-    formattedMessage <- formatter(list(
+createLogger <- function(transports = c(createConsoleTransport())) {
+  logMessage <- function(logLevel = "INFO", message) {
+    logObject <- list(
       logLevel = logLevel,
       timestamp = Sys.time(),
       message = message
-    ))
+    )
 
-    cat(formattedMessage, "\n")
-    write(formattedMessage, file = logFileName, append = T)
+    sapply(transports, function(transport) {
+      transport(logObject)
+    })
+
+    logObject
   }
 
   list(
