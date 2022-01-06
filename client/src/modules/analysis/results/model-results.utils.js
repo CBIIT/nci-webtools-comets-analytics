@@ -18,11 +18,12 @@ export function getSelectionColumn(onSelect) {
   return {
     id: "selection",
     type: "selection",
-    minWidth: 80,
-    width: 80,
+    minWidth: 70,
+    width: 70,
+    maxWidth: 70,
     Tag: (props) => (
-      <Button variant="light" className="m-0 p-0 border-0" size="sm" onClick={(e) => onSelect(props)}>
-        <i className="bi bi-tags-fill text-primary mr-1" /> TAG
+      <Button variant="primary" className="border-0" size="sm" onClick={() => onSelect(props)}>
+        +TAG
       </Button>
     ),
     Header: ({ getToggleAllRowsSelectedProps }) => (
