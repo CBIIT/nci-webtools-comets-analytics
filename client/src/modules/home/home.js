@@ -2,11 +2,12 @@ import { NavLink } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import HomeImage from "./images/home.svg";
 
 export default function Home() {
   return (
     <>
-      <div className="cover-image py-5 mb-4 text-light shadow-sm" style={{ backgroundImage: `url(images/home.jpeg)` }}>
+      <div className="cover-image py-5 mb-4 text-light shadow-sm" style={{ backgroundImage: `url(${HomeImage})` }}>
         <Container>
           <h1 className="display-4 mb-4">
             <span className="d-inline-block py-4 border-bottom border-light">Welcome to COMETS Analytics</span>
