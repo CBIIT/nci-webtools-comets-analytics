@@ -18,15 +18,17 @@ export function getSelectionColumn(onSelect) {
   return {
     id: "selection",
     type: "selection",
-    minWidth: 70,
-    width: 70,
-    maxWidth: 70,
-    Tag: (props) => (
+    headerClassName: "p-2",
+    minWidth: 45,
+    width: 45,
+    maxWidth: 45,
+    Header: (props) => (
       <Button variant="primary" className="border-0" size="sm" onClick={() => onSelect(props)}>
-        +TAG
+        <i className="bi bi-tags-fill text-light" />
+        <span className="visually-hidden">Manage Tags</span>
       </Button>
     ),
-    Header: ({ getToggleAllRowsSelectedProps }) => (
+    SecondaryHeader: ({ getToggleAllRowsSelectedProps }) => (
       <div className="form-check">
         <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} className="form-check-input" />
       </div>
