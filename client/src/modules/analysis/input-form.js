@@ -165,7 +165,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
         <Card.Body>
           <Form onSubmit={submitIntegrityCheck} onReset={reset}>
-            <h2 className="h5 text-primary mb-4">Perform Cohort-specific Analyses</h2>
+            <h2 className="h5 text-primary mb-4">Cohort-Specific Analyses</h2>
 
             <Form.Group controlId="cohort" className="mb-3">
               <Form.Label className="required">COMETS Cohort</Form.Label>
@@ -216,7 +216,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
         <>
           <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
             <Card.Body>
-              <h2 className="h5 text-primary mb-4">Specify Method Of Analyses</h2>
+              <h2 className="h5 text-primary mb-4">Method of Analyses</h2>
 
               <Form onSubmit={submitModel} onReset={reset}>
                 <Form.Group controlId="method" className="mb-3">
@@ -404,7 +404,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
               <Card>
                 <Card.Body>
                   <Form onSubmit={submitModel} onReset={reset}>
-                    <h2 className="h5 text-primary mb-4">Specify Custom Model Parameters</h2>
+                    <h2 className="h5 text-primary mb-4">Custom Model Parameters</h2>
 
                     <Form.Check
                       type="checkbox"
