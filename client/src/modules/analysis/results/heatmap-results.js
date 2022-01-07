@@ -87,7 +87,7 @@ export default function HeatmapResults({ results }) {
           </Col>
           <Col md={4}>
             <Form.Group className="mb-3" controlId="pValueRange">
-              <Form.Label>P-Value</Form.Label>
+              <Form.Label>P-value</Form.Label>
 
               <InputGroup>
                 <Form.Control
