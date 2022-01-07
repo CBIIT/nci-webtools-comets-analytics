@@ -6,10 +6,9 @@ export default function About() {
     <>
       <Container className="my-3">
         <Card className="shadow-sm mb-3">
-          <Card.Header>
-            <h2 className="h4 text-primary mb-0">Accessibility</h2>
-          </Card.Header>
           <Card.Body>
+            <h2 className="h5 text-primary mb-4">Accessibility</h2>
+
             <p>The software can be run two different ways:</p>
 
             <ol>
@@ -40,10 +39,9 @@ export default function About() {
           </Card.Body>
         </Card>
         <Card className="shadow-sm mb-3">
-          <Card.Header>
-            <h2 className="h4 text-primary mb-0">Current Version Functionality</h2>
-          </Card.Header>
           <Card.Body>
+            <h2 className="h5 text-primary mb-4">Current Version Functionality</h2>
+
             <p>
               Current Version is 1.6: Released on 10/14/2019 with analytic module for unadjusted and partial correlation
               analyses. Complete details of the version history are documented in the GitHub repository:{" "}
@@ -68,10 +66,9 @@ export default function About() {
         </Card>
 
         <Card className="shadow-sm mb-3">
-          <Card.Header>
-            <h2 className="h4 text-primary mb-0">Help</h2>
-          </Card.Header>
           <Card.Body>
+            <h2 className="h5 text-primary mb-4">Help</h2>
+
             <p>
               A companion tutorial can be found at{" "}
               <a
@@ -107,10 +104,9 @@ export default function About() {
         </Card>
 
         <Card className="shadow-sm mb-3">
-          <Card.Header>
-            <h2 className="h4 text-primary mb-0">Acknowledgements</h2>
-          </Card.Header>
           <Card.Body>
+            <h2 className="h5 text-primary mb-4">Acknowledgements</h2>
+
             <p>
               We thank the National Cancer Institute (NCI) for supporting the development and expansion of COMETS
               Analytics, the NCI Center for Biomedical Informatics and Information Technology team for developing the
@@ -127,10 +123,9 @@ export default function About() {
         </Card>
 
         <Card className="shadow-sm mb-3">
-          <Card.Header>
-            <h2 className="h4 text-primary mb-0">Citation</h2>
-          </Card.Header>
           <Card.Body>
+            <h2 className="h5 text-primary mb-4">Citation</h2>
+
             <p>Please site the following when using COMETS Analytics:</p>
             <p>
               Temprosa M, Moore SC, Zanetti KA, Appel N, Ruggieri D, Mazzilli KM, Chen KL, Kelly RS, Lasky-Su JA,
