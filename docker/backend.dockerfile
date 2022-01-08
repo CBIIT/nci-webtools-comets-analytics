@@ -17,8 +17,6 @@ RUN dnf -y update \
     R \
  && dnf clean all
 
-ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
-
 RUN mkdir -p /server
 
 WORKDIR /server
