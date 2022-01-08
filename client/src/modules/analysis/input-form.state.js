@@ -1,5 +1,6 @@
 import { atom, selector } from "recoil";
 import { integrityCheckResultsState } from "./analysis.state";
+import { tagsState } from "./results/tag-manager.state";
 import { getCohorts } from "../../services/query";
 
 export const formValuesState = atom({
@@ -41,17 +42,14 @@ export const variablesState = selector({
   key: "inputForm.variablesState",
   get: ({ get }) => {
     const integrityCheckResults = get(integrityCheckResultsState);
+    const tags = get(tagsState);
 
     if (integrityCheckResults && !integrityCheckResults.errors && !integrityCheckResults.error) {
       const asOption = (v) => ({ value: v, label: v });
       const { variables, metabolites } = integrityCheckResults;
-
-      return [{ value: "All metabolites", label: "All metabolites" }].concat(variables.map(asOption)).concat(
-        metabolites.map((m) => ({
-          ...asOption(m.metabid),
-          isMetabolite: true,
-        })),
-      );
+      const variableOptions = [asOption("All metabolites"), ...variables.map(asOption)];
+      const metaboliteOptions = metabolites.map(asOption).map((m) => ({ ...m, isMetabolite: true }));
+      return [...tags, ...variableOptions, ...metaboliteOptions];
     }
 
     return [];
