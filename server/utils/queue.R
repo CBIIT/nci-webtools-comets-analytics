@@ -46,4 +46,3 @@ receiveMessage <- function(sqs, queueName, messageHandler, errorHandler, logger,
     }
   )
 }
-

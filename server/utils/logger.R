@@ -5,26 +5,26 @@ defaultLogFormatter <- function(object) {
 }
 
 shouldLog <- function(minLogLevel = "INFO", messageLogLevel, logLevels = c("", "DEBUG", "INFO", "WARNING", "ERROR", "FATAL")) {
-    which(toupper(messageLogLevel) == logLevels) >= which(toupper(minLogLevel) == logLevels)
+  which(toupper(messageLogLevel) == logLevels) >= which(toupper(minLogLevel) == logLevels)
 }
 
 createConsoleTransport <- function(formatter = defaultLogFormatter, logLevel = Sys.getenv("LOG_LEVEL")) {
   function(logObject) {
     if (shouldLog(logLevel, logObject$logLevel)) {
-        formattedMessage <- formatter(logObject)
-        cat(formattedMessage, "\n")
+      formattedMessage <- formatter(logObject)
+      cat(formattedMessage, "\n")
     }
   }
 }
 
-createDailyRotatingFileTransport <- function(fileNamePrefix, fileNamePostfix="log", formatter = defaultLogFormatter, logLevel = Sys.getenv("LOG_LEVEL")) {
+createDailyRotatingFileTransport <- function(fileNamePrefix, fileNamePostfix = "log", formatter = defaultLogFormatter, logLevel = Sys.getenv("LOG_LEVEL")) {
   function(logObject) {
     if (shouldLog(logLevel, logObject$logLevel)) {
-        formattedMessage <- formatter(logObject)
-        logFolder <- dirname(fileNamePrefix)
-        logFileName <- paste(fileNamePrefix, Sys.Date(), fileNamePostfix, sep = ".")
-        dir.create(logFolder, recursive = T, showWarnings = F)
-        write(formattedMessage, file = logFileName, append = T)
+      formattedMessage <- formatter(logObject)
+      logFolder <- dirname(fileNamePrefix)
+      logFileName <- paste(fileNamePrefix, Sys.Date(), fileNamePostfix, sep = ".")
+      dir.create(logFolder, recursive = T, showWarnings = F)
+      write(formattedMessage, file = logFileName, append = T)
     }
   }
 }
@@ -32,12 +32,12 @@ createDailyRotatingFileTransport <- function(fileNamePrefix, fileNamePostfix="lo
 createLogger <- function(transports = c(createConsoleTransport())) {
   logMessage <- function(logLevel = "INFO", message) {
     logObject <- list(
-        logLevel = logLevel,
-        timestamp = Sys.time(),
-        message = message
+      logLevel = logLevel,
+      timestamp = Sys.time(),
+      message = message
     )
     for (transport in transports) {
-        transport(logObject)
+      transport(logObject)
     }
   }
 
