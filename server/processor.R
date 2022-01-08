@@ -9,7 +9,7 @@ logger <- createLogger(
   transports = c(
     createConsoleTransport(),
     createDailyRotatingFileTransport(
-    file.path(Sys.getenv("LOG_FOLDER"), "comets-processor")
+      file.path(Sys.getenv("LOG_FOLDER"), "comets-processor")
     )
   )
 )
