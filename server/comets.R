@@ -12,9 +12,11 @@ awsConfig <- getAwsConfig()
 s3 <- paws::s3(config = awsConfig)
 sqs <- paws::sqs(config = awsConfig)
 logger <- createLogger(
-  createConsoleTransport(),
-  createDailyRotatingFileTransport(
-    file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+  transports = c(
+    createConsoleTransport(),
+    createDailyRotatingFileTransport(
+      file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+    )
   )
 )
 
