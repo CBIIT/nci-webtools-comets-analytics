@@ -63,7 +63,7 @@ export const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref
   );
 });
 
-export default function Table({ columns, data, options, useColumnFilters, onSelect }) {
+export default function Table({ columns, data, options, useColumnFilters }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -71,7 +71,6 @@ export default function Table({ columns, data, options, useColumnFilters, onSele
     prepareRow,
     page,
     rows,
-    selectedFlatRows,
     canPreviousPage,
     canNextPage,
     pageCount,
@@ -79,7 +78,7 @@ export default function Table({ columns, data, options, useColumnFilters, onSele
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, selectedRowIds },
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
@@ -94,18 +93,12 @@ export default function Table({ columns, data, options, useColumnFilters, onSele
     useRowSelect,
   );
 
-  useEffect(() => {
-    if (onSelect) {
-      onSelect(selectedFlatRows);
-    }
-  }, [onSelect, selectedFlatRows]);
-
   return (
     <>
       <div className="table-responsive rounded shadow-sm">
         <div
           {...getTableProps()}
-          className="table table-custom table-nowrap table-hover table-bordered table-striped"
+          className="table table-custom table-nowrap table-hover table-bordered table-striped d-inline-block"
           role="table"
         >
           <div className="thead table-light text-muted" role="thead">
