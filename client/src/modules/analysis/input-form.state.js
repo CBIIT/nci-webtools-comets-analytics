@@ -55,7 +55,3 @@ export const variablesState = selector({
     return [];
   },
 });
-
-// export const tagsState = selector({
-
-// })
