@@ -128,9 +128,9 @@ createLogger <- function(transports = c(createConsoleTransport())) {
       message = message
     )
 
-    sapply(transports, function(transport) {
+    for (transport in transports) {
       transport(logObject)
-    })
+    }
 
     logObject
   }
