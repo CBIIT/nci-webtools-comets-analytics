@@ -70,10 +70,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
         id: integrityCheckResults.id,
         selectedModelName: asValue(formValues.selectedModelName),
         options: getOptions(formValues.modelType, true),
-        exposures: formValues.exposures.map(asValue),
-        outcomes: formValues.outcomes.map(asValue),
-        adjustedCovariates: formValues.adjustedCovariates.map(asValue),
-        strata: formValues.strata.map(asValue),
+        exposures: formValues.exposures.map(asValue).flat(),
+        outcomes: formValues.outcomes.map(asValue).flat(),
+        adjustedCovariates: formValues.adjustedCovariates.map(asValue).flat(),
+        strata: formValues.strata.map(asValue).flat(),
         filters:
           formValues.filterVariable && formValues.filterOperator && formValues.filterValue
             ? [formValues.filterVariable, formValues.filterOperator, formValues.filterValue].join("")
