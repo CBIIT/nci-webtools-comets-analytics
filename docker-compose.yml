@@ -5,7 +5,7 @@ services:
       dockerfile: "docker/backend.dockerfile"
     expose:
       - "8000"
-    entrypoint: "npm run start:processor"
+    entrypoint: "Rscript processor.R"
     volumes:
       - "./server/temp:/server/temp"
       - "./server/logs:/server/logs"
