@@ -14,7 +14,7 @@ export const defaultColumn = {
   width: 180,
 };
 
-export function getSelectionColumn(onSelect) {
+export function getSelectColumn(onSelect) {
   return {
     id: "selection",
     type: "selection",

@@ -1,13 +1,19 @@
 import { useEffect } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Table from "../../common/table";
-import { defaultColumn, getColumns, downloadResults, getSelectionColumn } from "./model-results.utils";
+import TagManager from "./tag-manager";
+import { defaultColumn, getColumns, getSelectColumn, downloadResults } from "./model-results.utils";
 import { messagesState } from "./model-results.state";
+import { showTagManagerState, newTagLabelState, newTagValuesState } from "./tag-manager.state";
 
 export default function ModelResults({ results, children = "" }) {
   const [messages, setMessages] = useRecoilState(messagesState);
+  const setShowTagManager = useSetRecoilState(showTagManagerState);
+  const setNewTagLabel = useSetRecoilState(newTagLabelState);
+  const setNewTagValues = useSetRecoilState(newTagValuesState);
+
   const removeMessageByIndex = (index) =>
     setMessages((oldMessages) => oldMessages.slice(0, index).concat(oldMessages.slice(index + 1)));
 
@@ -22,21 +28,6 @@ export default function ModelResults({ results, children = "" }) {
         type: "danger",
         title: "Model Error",
         body: <p>{results.message || results.error}</p>,
-      });
-    } else if (results?.Errors_Warnings?.length) {
-      newMessages.push({
-        type: "warning",
-        title: "Model Warnings",
-        body: (
-          <ul className="mb-0">
-            {results.Errors_Warnings.map((warning, i) => (
-              <li key={`warning-${i}`}>
-                {warning.object && <span className="me-1">({warning.object})</span>}
-                {warning.message}
-              </li>
-            ))}
-          </ul>
-        ),
       });
     } else if (results?.queue) {
       newMessages.push({
@@ -55,13 +46,39 @@ export default function ModelResults({ results, children = "" }) {
           </>
         ),
       });
+    } else {
+      if (results?.Errors_Warnings?.length) {
+        newMessages.push({
+          type: "warning",
+          title: "Model Warnings",
+          body: (
+            <ul className="mb-0">
+              {results.Errors_Warnings.map((warning, i) => (
+                <li key={`warning-${i}`}>
+                  {warning.object && <span className="me-1">({warning.object})</span>}
+                  {warning.message}
+                </li>
+              ))}
+            </ul>
+          ),
+        });
+      }
+      newMessages.push({
+        type: "primary",
+        title: "Analyses Successful",
+        body: <p>Please download the results below and submit to the COMETS harmonization group for meta-analysis.</p>,
+      });
     }
 
     setMessages(newMessages);
   }, [results, setMessages]);
 
-  function handleSelection(props) {
-    console.log(props);
+  function handleSelect({ selectedFlatRows, toggleAllRowsSelected }) {
+    const selectedValues = selectedFlatRows.map((row) => row.original.outcomespec);
+    setShowTagManager(true);
+    setNewTagLabel("");
+    setNewTagValues([...selectedValues]);
+    toggleAllRowsSelected(false);
   }
 
   return !results ? (
@@ -90,12 +107,13 @@ export default function ModelResults({ results, children = "" }) {
             </Button>
           </h2>
           <Table
-            columns={[getSelectionColumn(handleSelection), ...getColumns(results.Effects)]}
+            columns={[getSelectColumn(handleSelect), ...getColumns(results.Effects)]}
             data={results.Effects}
             options={{ defaultColumn }}
-            onSelect={(e) => console.log(e)}
+            onSelect={handleSelect}
             useColumnFilters
           />
+          <TagManager />
         </>
       )}
     </>
