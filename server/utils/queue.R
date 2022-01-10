@@ -18,6 +18,7 @@ receiveMessage <- function(sqs, queueName, messageHandler, errorHandler, logger,
         message <- response$Messages[[1]]
 
         messageHandlerTask <- future({
+          shouldLog # inject shouldLog function
           output <- callWithHandlers(messageHandler, message$Body)
 
           if (length(output$errors) > 0) {
