@@ -10,6 +10,7 @@ RUN dnf -y update \
     gcc-c++ \
     httpd \
     make \
+    mod_ssl \
     nodejs \
  && dnf clean all
 
@@ -17,7 +18,7 @@ RUN mkdir /client
 
 WORKDIR /client
 
-COPY client/package*.json /client/
+COPY client/package.json /client/
 
 RUN npm install
 
@@ -27,6 +28,8 @@ RUN npm run build \
  && mv /client/build/* /var/www/html/
 
 # Add custom httpd configuration
+COPY docker/httpd.conf /etc/httpd/conf/httpd.conf
+
 COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
 WORKDIR /var/www/html
