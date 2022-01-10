@@ -26,3 +26,4 @@ services:
       - "8080:80"
     environment: 
       API_HOST: "http://backend:8000"
+      SERVER_NAME: localhost
