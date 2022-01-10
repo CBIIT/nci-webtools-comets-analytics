@@ -55,6 +55,8 @@ loadFile <- function(req, res) {
   # future-scoped blocks only have access to copies of the
   # request and response objects
   future({
+    shouldLog; # inject globals (needed since shouldLog is not in the future scope)
+
     id <- plumber::random_cookie_key()
 
     # create temporary session folder
@@ -69,7 +71,7 @@ loadFile <- function(req, res) {
     # capture errors and warnings from readCOMETSinput
     results <- callWithHandlers(RcometsAnalytics::readCOMETSinput, inputFilePath)
 
-    logger$info(paste("Loaded input file: ", inputFile$filename))
+    logger$info(paste("Loaded input file:", inputFile$filename))
 
     # return errors if present
     if (length(results$errors)) {
@@ -128,6 +130,8 @@ loadFile <- function(req, res) {
 #*
 runSelectedModel <- function(req, res) {
   future({
+    shouldLog; # inject globals (needed since shouldLog is not in the future scope)
+
     id <- sanitize(req$body$id)
     cohort <- sanitize(req$body$cohort)
     selectedModelType <- sanitize(req$body$selectedModelType)
@@ -158,6 +162,8 @@ runSelectedModel <- function(req, res) {
 #*
 runCustomModel <- function(req, res) {
   future({
+    shouldLog; # inject globals (needed since shouldLog is not in the future scope)
+
     id <- sanitize(req$body$id)
     cohort <- sanitize(req$body$cohort)
     modelType <- sanitize(req$body$modelType)
