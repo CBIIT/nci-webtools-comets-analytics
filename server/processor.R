@@ -1,3 +1,10 @@
+library(dotenv)
+library(future)
+library(jsonlite)
+library(paws)
+library(RcometsAnalytics)
+
+plan(multisession)
 source("utils.R")
 
 # configure AWS services if needed
