@@ -10,3 +10,4 @@ server/logs
 *.log
 *.env
 *.env.*
+temp
