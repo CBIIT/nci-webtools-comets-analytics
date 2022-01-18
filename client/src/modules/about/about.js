@@ -41,21 +41,14 @@ export default function About() {
         <Card className="shadow-sm mb-3">
           <Card.Body>
             <h2 className="h5 text-primary mb-4">Current Version Functionality</h2>
-
             <p>
-              Current Version is 1.6: Released on 10/14/2019 with analytic module for unadjusted and partial correlation
-              analyses. Complete details of the version history are documented in the GitHub repository:{" "}
-              <a target="_blank" rel="noopener noreferrer" href="https://github.com/CBIIT/R-cometsAnalytics">
-                https://github.com/CBIIT/R-cometsAnalytics
-              </a>
-              .
+              Current Version 2.0: Analytic module with generalized linear models is deployed and includes logistic and
+              linear regression.
             </p>
-
             <p>
-              Upcoming Version 2.0: Analytic module with generalized linear models is in testing, expected release in
-              2021.{" "}
+              Upcoming Version: survival analyses, conditional regression, and multi-omic pathway analysis functionality
+              are in progress
             </p>
-
             <p>
               Previous releases can be found here:{" "}
               <a target="_blank" rel="noopener noreferrer" href="https://github.com/CBIIT/R-cometsAnalytics/releases">
