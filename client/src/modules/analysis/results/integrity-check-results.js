@@ -247,6 +247,11 @@ export default function IntegrityCheckResults({ results, children = null }) {
     ].join("");
     const filename = `metabolites_${timestamp}.csv`;
     downloadTables(sheets, filename);
+
+    window.gtag("event", "download", {
+      event_category: "results",
+      event_label: "harmonized metabolites",
+    });
   }
 
   if (!results) return children;

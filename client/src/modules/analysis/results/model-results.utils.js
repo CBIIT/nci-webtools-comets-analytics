@@ -87,4 +87,9 @@ export function downloadResults(results, filename) {
   const modelName = results.options?.name?.replace(/\s+/g, "_");
   filename = filename || `${modelName}_${timestamp}.xlsx`;
   downloadTables(sheets, filename);
+
+  window.gtag("event", "download", {
+    event_category: "results",
+    event_label: "model output",
+  });
 }

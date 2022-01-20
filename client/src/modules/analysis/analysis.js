@@ -30,6 +30,10 @@ export default function Analysis() {
     try {
       setLoading(true);
       setIntegrityCheckResults(await getIntegrityCheckResults(params));
+      window.gtag("event", "select", {
+        event_category: "cohort",
+        event_label: params.cohort,
+      });
     } catch (error) {
       setIntegrityCheckResults(error);
       console.error("handleSubmitIntegrityCheck", error);
@@ -44,6 +48,18 @@ export default function Analysis() {
       setLoading(true);
       resetHeatmapOptions();
       setModelResults(await getModelResults(params));
+
+      const modelLabel =
+        {
+          allModels: "all",
+          selectedModel: params.selectedModelName,
+          customModel: params.modelName,
+        }[params.method] || "custom";
+
+      window.gtag("event", "run", {
+        event_category: "model",
+        event_label: modelLabel,
+      });
     } catch (error) {
       setModelResults(error);
       console.error("handleSubmitModel", error);
@@ -76,7 +92,8 @@ export default function Analysis() {
                   An internal error prevented the input form from loading. Please contact the website administrator if
                   this problem persists.
                 </Alert>
-              }>
+              }
+            >
               <Suspense fallback={<Loader>Loading Form</Loader>}>
                 <InputForm
                   onSubmitIntegrityCheck={handleSubmitIntegrityCheck}

@@ -196,7 +196,17 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
               />
               <Form.Text>
                 <i className="bi bi-download me-1"></i>
-                <a href="files/cometsInputAge.xlsx">Download Sample Input</a>
+                <a
+                  href="files/cometsInputAge.xlsx"
+                  onClick={(ev) =>
+                    window.gtag("event", "download", {
+                      event_category: "file",
+                      event_label: "sample input",
+                    })
+                  }
+                >
+                  Download Sample Input
+                </a>
               </Form.Text>
             </Form.Group>
 
