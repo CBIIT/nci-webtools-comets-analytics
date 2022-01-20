@@ -18,6 +18,6 @@ remotes::install_bioc("Biobase")
 
 remotes::install_github(
   "CBIIT/R-cometsAnalytics/RPackageSource",
-  ref = "v2.0.0-dev",
+  ref = "master",
   upgrade = "never"
 )
