@@ -68,12 +68,6 @@ messageHandler <- function(message) {
   writeBin(s3Object$Body, inputFilePath)
   logger$info(sprintf("Downloaded input file: %s", inputFilePath))
 
-  s3$delete_object(
-    Bucket = Sys.getenv("S3_BUCKET"),
-    Key = params$s3FilePath
-  )
-  logger$info(sprintf("Deleted original input file from s3: %s", params$s3FilePath))
-
 
   cometsInput <- RcometsAnalytics::readCOMETSinput(inputFilePath)
   cometsInputSummary <- RcometsAnalytics::runDescrip(cometsInput)
@@ -161,6 +155,12 @@ messageHandler <- function(message) {
   )
 
   logger$info(paste("Uploaded output file to s3: ", s3FilePath))
+
+  s3$delete_object(
+    Bucket = Sys.getenv("S3_BUCKET"),
+    Key = params$s3FilePath
+  )
+  logger$info(sprintf("Deleted original input file from s3: %s", params$s3FilePath))
 
   unlink(outputFolder, recursive = T)
   logger$info(paste("Deleted local results: ", outputFolder))
