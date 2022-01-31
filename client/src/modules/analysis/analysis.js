@@ -32,7 +32,7 @@ export default function Analysis() {
       setIntegrityCheckResults(await getIntegrityCheckResults(params));
       window.gtag("event", "select", {
         event_category: "cohort",
-        event_label: params.cohort,
+        event_label: params.get("cohort"),
       });
     } catch (error) {
       setIntegrityCheckResults(error);
