@@ -1,3 +1,3 @@
 export default function CreateInput() {
-  return 'CreateInput';
+  return "CreateInput";
 }

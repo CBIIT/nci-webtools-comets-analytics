@@ -6,7 +6,6 @@ export const correlationSummaryColumns = [
     accessor: "run",
     Filter: TextFilter,
     width: 120,
-
   },
   {
     id: "cohort",
@@ -92,7 +91,7 @@ export const correlationSummaryColumns = [
     id: "model_function",
     accessor: "model_function",
     Filter: TextFilter,
-  }
+  },
 ];
 
 export const correlationEffectsColumns = [
@@ -122,12 +121,12 @@ export const correlationEffectsColumns = [
     id: "corr",
     accessor: "corr",
     Filter: RangeFilter,
-    filter: "between"
+    filter: "between",
   },
   {
     id: "pvalue",
     accessor: "pvalue",
     Filter: RangeFilter,
-    filter: "between"
-  }
-]
+    filter: "between",
+  },
+];

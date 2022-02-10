@@ -1,6 +1,5 @@
-import Plotly from 'plotly.js/dist/plotly';
-import createPlotlyComponent from 'react-plotly.js/factory';
-
+import Plotly from "plotly.js/dist/plotly";
+import createPlotlyComponent from "react-plotly.js/factory";
 
 console.log(Plotly);
 
@@ -14,6 +13,5 @@ console.log(Plotly);
 //   }
 //   return result;
 // }
-
 
 export default createPlotlyComponent(Plotly);

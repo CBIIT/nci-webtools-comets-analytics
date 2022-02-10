@@ -5,11 +5,7 @@ export default function ObjectList({ className = "", obj = {} }) {
         <li key={`option-${key}-${value}`}>
           <span className="fw-semibold me-1">{key}:</span>
           <span style={{ whiteSpace: "pre" }}>
-            {value !== null && typeof value === "object" ? (
-              <ObjectList obj={value} />
-            ) : (
-              String(value)
-            )}
+            {value !== null && typeof value === "object" ? <ObjectList obj={value} /> : String(value)}
           </span>
         </li>
       ))}

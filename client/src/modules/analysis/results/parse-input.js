@@ -33,22 +33,17 @@ export function parseList(listString) {
 }
 
 export function parseModelSpecifiers(modelOptionRows) {
-  const optionRowsGroupedByModelSpecifier = groupBy(
-    modelOptionRows,
-    "modelspec"
-  );
+  const optionRowsGroupedByModelSpecifier = groupBy(modelOptionRows, "modelspec");
   let modelSpecifierOptions = [];
 
-  for (const [modelSpecifier, optionRows] of Object.entries(
-    optionRowsGroupedByModelSpecifier
-  )) {
+  for (const [modelSpecifier, optionRows] of Object.entries(optionRowsGroupedByModelSpecifier)) {
     // determine model function (lm, glm, or correlation)
     const model = optionRows.find((row) => row["function"])?.function;
 
     // determine model options (specific to model function)
     const modelOptions = zipObject(
       optionRows.map((o) => o.option),
-      optionRows.map((o) => parseValue(o.value))
+      optionRows.map((o) => parseValue(o.value)),
     );
 
     // remove empty entries
