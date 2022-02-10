@@ -48,7 +48,7 @@ export const variablesState = selector({
       const asOption = (v) => ({ value: v, label: v });
       const { variables, metabolites } = integrityCheckResults;
       const variableOptions = [asOption("All metabolites"), ...variables.map(asOption)];
-      const metaboliteOptions = metabolites.map(asOption).map((m) => ({ ...m, isMetabolite: true }));
+      const metaboliteOptions = metabolites.map((m) => ({ ...asOption(m.metabid), isMetabolite: true }));
       return [...tags, ...variableOptions, ...metaboliteOptions];
     }
 
