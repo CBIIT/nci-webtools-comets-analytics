@@ -41,7 +41,7 @@ export default function ModelResults({ results, children = "" }) {
             </p>
             <p>
               Please note: Depending on model complexity and queue length it could be up to a day before you receive
-              your results
+              your results. Please check your spam folder if you do not receive your results within 24 hours.
             </p>
           </>
         ),
