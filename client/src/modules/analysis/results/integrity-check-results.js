@@ -195,6 +195,18 @@ export default function IntegrityCheckResults({ results, children = null }) {
     width: 180,
   };
 
+  const defaultConfig = {
+    displayModeBar: true,
+    toImageButtonOptions: {
+      format: "svg",
+      filename: "plot_export",
+      height: 1000,
+      width: 2000,
+      scale: 1,
+    },
+    displaylogo: false,
+  };
+
   const variancePlot = {
     data: [
       {
@@ -211,6 +223,7 @@ export default function IntegrityCheckResults({ results, children = null }) {
         title: "Frequency",
       },
     },
+    config: defaultConfig,
   };
 
   const missingValuesPlot = {
@@ -229,6 +242,7 @@ export default function IntegrityCheckResults({ results, children = null }) {
         title: "Frequency",
       },
     },
+    config: defaultConfig,
   };
 
   function downloadResults() {

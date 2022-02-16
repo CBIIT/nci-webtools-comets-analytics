@@ -5,6 +5,18 @@ const defaultPlot = {
   layout: [],
 };
 
+const defaultConfig = {
+  displayModeBar: true,
+  toImageButtonOptions: {
+    format: "svg",
+    filename: "plot_export",
+    height: 1600,
+    width: 1600,
+    scale: 1,
+  },
+  displaylogo: false,
+};
+
 export function sampleChunks(values, interval) {
   const chunkSize = Math.floor(values?.length / interval) || 1;
   return chunk(values, chunkSize).map((e) => e[0]);
@@ -104,6 +116,7 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
         automargin: true,
       },
     },
+    config: defaultConfig,
   };
 }
 
@@ -204,6 +217,7 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) 
             ticktext: sampleChunks(hcluster.layout.yaxis2.ticktext, defaultInterval),
           },
         },
+        config: defaultConfig,
       }
     : defaultPlot;
 }
