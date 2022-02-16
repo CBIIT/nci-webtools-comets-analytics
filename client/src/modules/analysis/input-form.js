@@ -285,14 +285,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       className="mb-3"
                       name="showPredefinedModelTypes"
                       id="showPredefinedModelTypes"
-                      label="Use Model Type"
+                      label="Use Model Type Filter"
                       onChange={handleChange}
                       checked={formValues.showPredefinedModelTypes}
                     />
 
                     {formValues.showPredefinedModelTypes && (
                       <Form.Group controlId="selectedModelType" className="mb-3">
-                        <Form.Label>Model Type</Form.Label>
+                        <Form.Label>Model Type Filter</Form.Label>
                         <Form.Select
                           name="selectedModelType"
                           onChange={handleChange}
@@ -331,7 +331,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                     )}
 
                     <Form.Group controlId="selectedModelName" className="mb-3">
-                      <Form.Label className="required">Model Name</Form.Label>
+                      <Form.Label className="required">Model</Form.Label>
                       <Select
                         placeholder="No model chosen"
                         name="selectedModelName"
