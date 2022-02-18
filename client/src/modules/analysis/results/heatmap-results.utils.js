@@ -185,6 +185,18 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) 
             } else if (t.type === "heatmap") {
               return {
                 ...props,
+                text: props.y.map((y, yIndex) =>
+                  props.x.map((x, xIndex) => {
+                    const xCategory = hcluster.layout.xaxis.categoryarray[x - 1];
+                    const yCategory = hcluster.layout.yaxis2.categoryarray[y - 1];
+                    const zValue = props.z[yIndex][xIndex];
+                    return [
+                      `<b>Exposure</b>: ${xCategory}`,
+                      `<b>Outcome</b>: ${yCategory}`,
+                      `<b>Estimate</b>: ${zValue}`,
+                    ].join("<br>");
+                  }),
+                ),
                 colorbar: {
                   title: {
                     text: "Estimate",
