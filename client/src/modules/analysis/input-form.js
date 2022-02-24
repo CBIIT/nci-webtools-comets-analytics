@@ -511,7 +511,9 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                             No variable chosen
                           </option>
                           {integrityCheckResults.variables.map((v) => (
-                            <option value={v}>{v}</option>
+                            <option value={v} key={`variable-${v}`}>
+                              {v}
+                            </option>
                           ))}
                         </Form.Select>
                         <Form.Select
