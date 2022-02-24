@@ -29,8 +29,8 @@
   "homepage": "https://github.com/CBIIT/nci-webtools-comets-analytics.git#readme",
   "devDependencies": {
     "husky": "^7.0.4",
-    "lint-staged": "^11.2.6",
-    "prettier": "^2.4.1"
+    "lint-staged": "^12.3.4",
+    "prettier": "^2.5.1"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
@@ -39,15 +39,8 @@
   },
   "prettier": {
     "printWidth": 120,
-    "tabWidth": 2,
-    "useTabs": false,
-    "semi": true,
     "quoteProps": "consistent",
-    "trailingComma": "all",
-    "bracketSpacing": true,
-    "arrowParens": "always",
-    "htmlWhitespaceSensitivity": "css",
-    "singleQuote": false,
-    "jsxBracketSameLine": true
+    "bracketSameLine": true,
+    "htmlWhitespaceSensitivity": "css"
   }
 }
