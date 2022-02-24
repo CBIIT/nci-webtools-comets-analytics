@@ -83,7 +83,6 @@ export function downloadResults(results, filename) {
     pad(d.getMinutes()),
     pad(d.getSeconds()),
   ].join("");
-  console.log("download", results);
   const modelName = results.options?.name?.replace(/\s+/g, "_");
   filename = filename || `${modelName}_${timestamp}.xlsx`;
   downloadTables(sheets, filename);

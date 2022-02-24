@@ -45,8 +45,6 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
     return defaultPlot;
   }
 
-  console.log("records", records);
-
   const xCategories = uniq(map(records, xKey));
   const recordsGroupedByY = groupBy(records, yKey);
   const xCategoriesSorted = cloneDeep(xCategories).sort();
@@ -58,8 +56,6 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
       return recordA && recordB ? recordA[zKey] - recordB[zKey] : 0;
     })
     .map(([key]) => key);
-
-  console.log({ xCategoriesSorted, yCategoriesSorted });
 
   const values = yCategoriesSorted.map((y) =>
     xCategoriesSorted.map((x) => {

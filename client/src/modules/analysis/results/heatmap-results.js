@@ -18,8 +18,6 @@ export default function HeatmapResults({ results }) {
   );
 
   useEffect(() => {
-    console.log("results");
-    console.log(results);
     let newHeatmapOptions = cloneDeep(defaultHeatmapOptions);
 
     if (results?.options) {
