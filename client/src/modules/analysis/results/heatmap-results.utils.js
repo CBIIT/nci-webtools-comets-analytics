@@ -61,14 +61,14 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
     xCategoriesSorted.map((x) => {
       let record = records.find((e) => e[xKey] === x && e[yKey] === y);
       return record ? record[zKey] : null;
-    }),
+    })
   );
 
   const customValues = yCategoriesSorted.map((y) =>
     xCategoriesSorted.map((x) => {
       let record = records.find((e) => e[xKey] === x && e[yKey] === y);
       return record || { pvalue: NaN };
-    }),
+    })
   );
 
   return {
@@ -191,7 +191,7 @@ export function getHeatmapDendrogramPlot(results, heatmapOptions, modelOptions) 
                       `<b>Outcome</b>: ${yCategory}`,
                       `<b>Estimate</b>: ${zValue}`,
                     ].join("<br>");
-                  }),
+                  })
                 ),
                 colorbar: {
                   title: {

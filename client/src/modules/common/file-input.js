@@ -18,12 +18,12 @@ const FileInput = forwardRef(
       as: Component = "input",
       ...props
     },
-    ref,
+    ref
   ) => {
     const { controlId } = useContext(FormContext);
 
     return <input type="file"></input>;
-  },
+  }
 );
 
 export default FileInput;

@@ -142,7 +142,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     options = omitBy(options, isNull);
     options["model.options"] = omitBy(
       options["model.options"],
-      (value, key) => isNull(value) || options.hasOwnProperty(key),
+      (value, key) => isNull(value) || options.hasOwnProperty(key)
     );
 
     return options;
@@ -173,8 +173,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                 name="cohort"
                 value={formValues.cohort}
                 onChange={handleChange}
-                disabled={integrityCheckResults?.id}
-              >
+                disabled={integrityCheckResults?.id}>
                 <option value="Other/Undefined">Other/Undefined</option>
                 {cohorts.map((c) => (
                   <option key={c.Cohort} value={c.Cohort}>
@@ -203,8 +202,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       event_category: "file",
                       event_label: "sample input",
                     })
-                  }
-                >
+                  }>
                   Download Sample Input
                 </a>
               </Form.Text>
@@ -297,14 +295,13 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           <Form.Select
                             name="selectedModelType"
                             onChange={handleChange}
-                            value={formValues.selectedModelType}
-                          >
+                            value={formValues.selectedModelType}>
                             <option value="">All model types</option>
                             {integrityCheckResults.modelTypes
                               .filter(
                                 (modelType) =>
                                   modelType.model &&
-                                  integrityCheckResults.models.find((m) => m.model_type === modelType.name),
+                                  integrityCheckResults.models.find((m) => m.model_type === modelType.name)
                               )
                               .map((modelType, i) => (
                                 <option value={modelType.name} key={`selected-model-type-${i}`}>
@@ -320,8 +317,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                                     <Form.Label>Model Options</Form.Label>
                                     <ModelOptions modelTypeName={formValues.selectedModelType} />
                                   </Tooltip>
-                                }
-                              >
+                                }>
                                 <span>
                                   View Model Options <i className="bi bi-info-circle"></i>
                                 </span>
@@ -341,7 +337,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           defaultOptions
                           options={integrityCheckResults.models
                             .filter(
-                              (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type,
+                              (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type
                             )
                             .map((m, i) => ({
                               value: m.model,
@@ -385,8 +381,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                                 <Form.Label>Model Options</Form.Label>
                                 <ModelOptions modelTypeName={formValues.modelType} />
                               </Tooltip>
-                            }
-                          >
+                            }>
                             <span>
                               View Model Options <i className="bi bi-info-circle"></i>
                             </span>
@@ -402,8 +397,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         name="modelName"
                         onChange={handleChange}
                         value={formValues.modelName}
-                        placeholder="Enter model description"
-                      ></Form.Control>
+                        placeholder="Enter model description"></Form.Control>
                     </Form.Group>
                   </div>
                 )}
@@ -431,8 +425,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                               <Tooltip id="showMetabolitesTooltip">
                                 This option applies to Exposures, Outcomes and Adjusted Covariates
                               </Tooltip>
-                            }
-                          >
+                            }>
                             <i className="bi bi-info-circle ms-1"></i>
                           </OverlayTrigger>
                         </>
@@ -505,8 +498,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           name="filterVariable"
                           id="filterVariable"
                           onChange={handleChange}
-                          aria-label="filterVariable"
-                        >
+                          aria-label="filterVariable">
                           <option value="" hidden>
                             No variable chosen
                           </option>
@@ -521,8 +513,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           id="filterOperator"
                           onChange={handleChange}
                           aria-label="filterOperator"
-                          style={{ maxWidth: "80px" }}
-                        >
+                          style={{ maxWidth: "80px" }}>
                           <option>=</option>
                           <option>&lt;</option>
                           <option>&lt;=</option>
@@ -546,8 +537,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Button
                         type="submit"
                         variant="primary"
-                        disabled={!formValues.modelName || !formValues.exposures.length || !formValues.outcomes.length}
-                      >
+                        disabled={!formValues.modelName || !formValues.exposures.length || !formValues.outcomes.length}>
                         Run Model
                       </Button>
                     </div>

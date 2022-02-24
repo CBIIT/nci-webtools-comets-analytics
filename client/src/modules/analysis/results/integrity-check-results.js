@@ -155,8 +155,7 @@ export default function IntegrityCheckResults({ results, children = null }) {
           key={`integrity-check-results-message-${index}`}
           variant={type}
           onClose={() => removeMessageByIndex(index)}
-          dismissible
-        >
+          dismissible>
           {title && <h2 className="h5">{title}</h2>}
           {body}
         </Alert>

@@ -90,7 +90,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
     usePagination,
     useBlockLayout,
     useResizeColumns,
-    useRowSelect,
+    useRowSelect
   );
 
   return (
@@ -99,8 +99,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
         <div
           {...getTableProps()}
           className="table table-custom table-nowrap table-hover table-bordered table-striped d-inline-block"
-          role="table"
-        >
+          role="table">
           <div className="thead table-light text-muted" role="rowgroup">
             {headerGroups.map((headerGroup) => (
               <div {...headerGroup.getHeaderGroupProps()} className="tr border-bottom" role="row">
@@ -108,8 +107,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
                   <div
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     className={classNames("th text-truncate d-flex align-items-center h-100", column.headerClassName)}
-                    role="cell"
-                  >
+                    role="cell">
                     {column.render("Header")}
                     {column.isSorted && (
                       <i
@@ -117,7 +115,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
                           "bi",
                           "text-primary",
                           "ms-1",
-                          column.isSortedDesc ? "bi-sort-down" : "bi-sort-up",
+                          column.isSortedDesc ? "bi-sort-down" : "bi-sort-up"
                         )}
                       />
                     )}
@@ -182,8 +180,7 @@ export default function Table({ columns, data, options, useColumnFilters }) {
             name="select-page-size"
             aria-label="Select page size"
             value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value))}
-          >
+            onChange={(e) => setPageSize(Number(e.target.value))}>
             {[10, 25, 50, 100].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 Show {pageSize}

@@ -36,16 +36,14 @@ export default function Home() {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://dceg.cancer.gov/about/staff-directory/moore-steven"
-              >
+                href="https://dceg.cancer.gov/about/staff-directory/moore-steven">
                 Steve Moore
               </a>{" "}
               (Division of Cancer Epidemiology and Genetics, National Cancer Institute), and{" "}
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://publichealth.gwu.edu/departments/biostatistics-and-bioinformatics/marinella-temprosa"
-              >
+                href="https://publichealth.gwu.edu/departments/biostatistics-and-bioinformatics/marinella-temprosa">
                 Marinella Temprosa
               </a>{" "}
               (Dept. of Biostatistics and Bioinformatics, Milken Institute School of Public Health, George Washington
@@ -61,8 +59,7 @@ export default function Home() {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://epi.grants.cancer.gov/comets/interest-groups.html"
-              >
+                href="https://epi.grants.cancer.gov/comets/interest-groups.html">
                 COMETS Data Infrastructure Working Group
               </a>{" "}
               and other working groups.

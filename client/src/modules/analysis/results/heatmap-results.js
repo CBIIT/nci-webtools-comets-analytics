@@ -14,7 +14,7 @@ export default function HeatmapResults({ results }) {
   const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
   const mergeHeatmapOptions = useCallback(
     (value) => setHeatmapOptions({ ...heatmapOptions, ...value }),
-    [heatmapOptions, setHeatmapOptions],
+    [heatmapOptions, setHeatmapOptions]
   );
 
   useEffect(() => {
@@ -60,8 +60,7 @@ export default function HeatmapResults({ results }) {
                 name="sortRow"
                 value={heatmapOptions.sortRow}
                 onChange={handleChange}
-                disabled={heatmapOptions.showDendrogram}
-              >
+                disabled={heatmapOptions.showDendrogram}>
                 <option>All participants (no stratification)</option>
               </Form.Select>
             </Form.Group>
@@ -73,8 +72,7 @@ export default function HeatmapResults({ results }) {
                 name="sortColumn"
                 value={heatmapOptions.sortColumn}
                 onChange={handleChange}
-                disabled={heatmapOptions.showDendrogram}
-              >
+                disabled={heatmapOptions.showDendrogram}>
                 {xCategoriesSorted.map((label) => (
                   <option value={label} key={label}>
                     {label}
@@ -137,8 +135,7 @@ export default function HeatmapResults({ results }) {
               <>
                 Show Hierarchical Clustering
                 <OverlayTrigger
-                  overlay={<Tooltip id="showMetabolitesTooltip">Requires at least 2 exposures and outcomes</Tooltip>}
-                >
+                  overlay={<Tooltip id="showMetabolitesTooltip">Requires at least 2 exposures and outcomes</Tooltip>}>
                   <i className="bi bi-info-circle ms-1" />
                 </OverlayTrigger>
               </>

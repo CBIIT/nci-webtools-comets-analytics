@@ -92,8 +92,7 @@ export default function Analysis() {
                   An internal error prevented the input form from loading. Please contact the website administrator if
                   this problem persists.
                 </Alert>
-              }
-            >
+              }>
               <Suspense fallback={<Loader>Loading Form</Loader>}>
                 <InputForm
                   onSubmitIntegrityCheck={handleSubmitIntegrityCheck}

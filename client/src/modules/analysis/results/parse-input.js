@@ -43,7 +43,7 @@ export function parseModelTypes(modelOptionRows) {
     // determine model options (specific to model function)
     const modelOptions = zipObject(
       optionRows.map((o) => o.option),
-      optionRows.map((o) => parseValue(o.value)),
+      optionRows.map((o) => parseValue(o.value))
     );
 
     // remove empty entries

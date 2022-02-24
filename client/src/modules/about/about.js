@@ -67,8 +67,7 @@ export default function About() {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/"
-              >
+                href="https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/">
                 https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/
               </a>
               . A presentation of the software, its implementation and vision can be found{" "}

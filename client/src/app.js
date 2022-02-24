@@ -69,8 +69,7 @@ export default function App() {
                 An internal error prevented the current page from loading. Please contact the website administrator if
                 this problem persists.
               </Alert>
-            }
-          >
+            }>
             <Suspense fallback={<Loader>Loading Page</Loader>}>
               <Routes>
                 {links.map((link, index) => (
