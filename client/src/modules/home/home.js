@@ -74,8 +74,8 @@ export default function Home() {
               </a>{" "}
             </p>
             <p>
-              Go to the <NavLink to="/analysis">Analysis tab</NavLink> to get started, or to the{" "}
-              <NavLink to="/about">About tab</NavLink> to learn more!
+              Go to the <NavLink to="/analysis">Analysis page</NavLink> to get started, or to the{" "}
+              <NavLink to="/about">About page</NavLink> to learn more!
             </p>
           </Col>
         </Row>
