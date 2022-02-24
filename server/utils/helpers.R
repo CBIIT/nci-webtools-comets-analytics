@@ -1,6 +1,6 @@
 
 sanitize <- function(str) {
-  gsub("[^[:alnum:][:space:]_,-.]+", "_", str)
+  gsub("[^[:alnum:][:space:]_,-.]+", "", str)
 }
 
 callWithHandlers <- function(func, ...) {
