@@ -1,4 +1,4 @@
-import { parseModelSpecifiers } from "../modules/analysis/results/parse-input";
+import { parseModelTypes } from "../modules/analysis/results/parse-input";
 
 export async function getCohorts() {
   const response = await fetch("api/cohorts");
@@ -11,7 +11,7 @@ export async function getIntegrityCheckResults(params) {
     body: params,
   });
   const results = await response.json();
-  results.modelSpecifiers = parseModelSpecifiers(results.options);
+  results.modelTypes = parseModelTypes(results.options);
   return results;
 }
 

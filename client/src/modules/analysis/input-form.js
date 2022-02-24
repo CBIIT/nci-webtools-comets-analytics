@@ -105,12 +105,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
   }
 
-  function getModelSpecifier(modelSpecifierName) {
-    return integrityCheckResults?.modelSpecifiers?.find((spec) => spec?.name === modelSpecifierName);
+  function getModelType(modelTypeName) {
+    return integrityCheckResults?.modelTypes?.find((modelType) => modelType?.name === modelTypeName);
   }
 
-  function getOptions(modelSpecifierName, includeGlobalOptions = false) {
-    const modelSpecifier = getModelSpecifier(modelSpecifierName);
+  function getOptions(modelTypeName, includeGlobalOptions = false) {
+    const modelSpecifier = getModelType(modelTypeName);
     let options = modelSpecifier
       ? {
           "model": modelSpecifier.model,
@@ -121,8 +121,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
         };
 
     if (includeGlobalOptions) {
-      const modelChecksSpecifier = getModelSpecifier("ModelChecks") || {};
-      const modelOutputSpecifier = getModelSpecifier("ModelOutput") || {};
+      const modelChecksSpecifier = getModelType("ModelChecks") || {};
+      const modelOutputSpecifier = getModelType("ModelOutput") || {};
 
       options = {
         ...options,
@@ -131,7 +131,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       };
     }
 
-    // override global options if they are specified in the model specifier
+    // override global options if they are specified in the model type
     for (const key in options["model.options"]) {
       if (/^(check|max|output)\./i.test(key)) {
         options[key] = options["model.options"][key];
@@ -148,8 +148,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     return options;
   }
 
-  function ModelOptions({ modelSpecifierName }) {
-    const modelSpecifier = getModelSpecifier(modelSpecifierName);
+  function ModelOptions({ modelTypeName }) {
+    const modelSpecifier = getModelType(modelTypeName);
     if (!modelSpecifier) return null;
 
     const modelOptions = {
@@ -300,15 +300,15 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                             value={formValues.selectedModelType}
                           >
                             <option value="">All model types</option>
-                            {integrityCheckResults.modelSpecifiers
+                            {integrityCheckResults.modelTypes
                               .filter(
-                                (specifier) =>
-                                  specifier.model &&
-                                  integrityCheckResults.models.find((m) => m.modelspec == specifier.name),
+                                (modelType) =>
+                                  modelType.model &&
+                                  integrityCheckResults.models.find((m) => m.model_type === modelType.name),
                               )
-                              .map((specifier, i) => (
-                                <option value={specifier.name} key={`selected-model-type-${i}`}>
-                                  {specifier.name}
+                              .map((modelType, i) => (
+                                <option value={modelType.name} key={`selected-model-type-${i}`}>
+                                  {modelType.name}
                                 </option>
                               ))}
                           </Form.Select>
@@ -318,7 +318,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                                 overlay={
                                   <Tooltip id="modelTypeTooltip">
                                     <Form.Label>Model Options</Form.Label>
-                                    <ModelOptions modelSpecifierName={formValues.selectedModelType} />
+                                    <ModelOptions modelTypeName={formValues.selectedModelType} />
                                   </Tooltip>
                                 }
                               >
@@ -340,10 +340,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           onChange={(ev) => handleSelectChange("selectedModelName", ev)}
                           defaultOptions
                           options={integrityCheckResults.models
-                            .filter((m) => !formValues.selectedModelType || formValues.selectedModelType == m.modelspec)
+                            .filter(
+                              (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type,
+                            )
                             .map((m, i) => ({
                               value: m.model,
-                              label: !formValues.showPredefinedModelTypes ? m.model : `${m.modelspec} - ${m.model}`,
+                              label: !formValues.showPredefinedModelTypes ? m.model : `${m.model_type} - ${m.model}`,
                             }))}
                         />
                       </Form.Group>
@@ -367,11 +369,11 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Form.Label>Model Type</Form.Label>
                       <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
                         <option value="">None - Use default model options</option>
-                        {integrityCheckResults.modelSpecifiers
-                          .filter((specifier) => specifier.model)
-                          .map((specifier, i) => (
-                            <option value={specifier.name} key={`model-specifier-${i}`}>
-                              {specifier.name}
+                        {integrityCheckResults.modelTypes
+                          .filter((modelType) => modelType.model)
+                          .map((modelType, i) => (
+                            <option value={modelType.name} key={`model-type-${i}`}>
+                              {modelType.name}
                             </option>
                           ))}
                       </Form.Select>
@@ -381,7 +383,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                             overlay={
                               <Tooltip id="modelTypeTooltip">
                                 <Form.Label>Model Options</Form.Label>
-                                <ModelOptions modelSpecifierName={formValues.modelType} />
+                                <ModelOptions modelTypeName={formValues.modelType} />
                               </Tooltip>
                             }
                           >

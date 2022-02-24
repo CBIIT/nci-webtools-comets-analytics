@@ -32,13 +32,13 @@ export function parseList(listString) {
     }, {});
 }
 
-export function parseModelSpecifiers(modelOptionRows) {
-  const optionRowsGroupedByModelSpecifier = groupBy(modelOptionRows, "modelspec");
-  let modelSpecifierOptions = [];
+export function parseModelTypes(modelOptionRows) {
+  let modelTypes = [];
+  const modelTypeGroups = groupBy(modelOptionRows, "model_type");
 
-  for (const [modelSpecifier, optionRows] of Object.entries(optionRowsGroupedByModelSpecifier)) {
+  for (const [modelType, optionRows] of Object.entries(modelTypeGroups)) {
     // determine model function (lm, glm, or correlation)
-    const model = optionRows.find((row) => row["function"])?.function;
+    const modelFunction = optionRows.find((row) => row["function"])?.function;
 
     // determine model options (specific to model function)
     const modelOptions = zipObject(
@@ -50,13 +50,13 @@ export function parseModelSpecifiers(modelOptionRows) {
     delete modelOptions[""];
 
     // append model function and model options to list
-    modelSpecifierOptions.push({
-      name: modelSpecifier,
-      model,
+    modelTypes.push({
+      name: modelType,
+      model: modelFunction,
       modelOptions,
     });
   }
 
   // note that ModelChecks and ModelOutput options are applied globally
-  return modelSpecifierOptions;
+  return modelTypes;
 }
