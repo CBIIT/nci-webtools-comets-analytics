@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { useRecoilState } from "recoil";
-import { cloneDeep, uniq, map, merge } from "lodash";
+import { cloneDeep, uniq, map } from "lodash";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";

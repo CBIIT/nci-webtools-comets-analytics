@@ -33,9 +33,9 @@ export function getHeatmapPlot(results, heatmapOptions, modelOptions) {
   let records = (cloneDeep(results?.Effects) || []).filter(({ pvalue }) => {
     if (pValueMin !== "" && pValueMax !== "" && !isNaN(pValueMin) && !isNaN(pValueMax)) {
       return +pvalue >= +pValueMin && pvalue <= +pValueMax;
-    } else if (pValueMin != "" && !isNaN(+pValueMin)) {
+    } else if (pValueMin !== "" && !isNaN(+pValueMin)) {
       return +pvalue >= +pValueMin;
-    } else if (pValueMax != "" && !isNaN(+pValueMax)) {
+    } else if (pValueMax !== "" && !isNaN(+pValueMax)) {
       return +pvalue <= +pValueMax;
     }
     return true;

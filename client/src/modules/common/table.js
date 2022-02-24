@@ -101,14 +101,14 @@ export default function Table({ columns, data, options, useColumnFilters }) {
           className="table table-custom table-nowrap table-hover table-bordered table-striped d-inline-block"
           role="table"
         >
-          <div className="thead table-light text-muted" role="thead">
+          <div className="thead table-light text-muted" role="rowgroup">
             {headerGroups.map((headerGroup) => (
-              <div {...headerGroup.getHeaderGroupProps()} className="tr border-bottom">
+              <div {...headerGroup.getHeaderGroupProps()} className="tr border-bottom" role="row">
                 {headerGroup.headers.map((column) => (
                   <div
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     className={classNames("th text-truncate d-flex align-items-center h-100", column.headerClassName)}
-                    role="th"
+                    role="cell"
                   >
                     {column.render("Header")}
                     {column.isSorted && (
@@ -131,9 +131,9 @@ export default function Table({ columns, data, options, useColumnFilters }) {
             ))}
             {useColumnFilters &&
               headerGroups.map((headerGroup) => (
-                <div {...headerGroup.getHeaderGroupProps()} className="tr">
+                <div {...headerGroup.getHeaderGroupProps()} className="tr" role="row">
                   {headerGroup.headers.map((column) => (
-                    <div {...column.getHeaderProps()} className="td">
+                    <div {...column.getHeaderProps()} className="td" role="cell">
                       <div className="d-flex align-items-center h-100">
                         {column.SecondaryHeader ? column.render("SecondaryHeader") : null}
                         {column.canFilter ? column.render("Filter") : null}
@@ -148,13 +148,13 @@ export default function Table({ columns, data, options, useColumnFilters }) {
               ))}
           </div>
 
-          <div {...getTableBodyProps()} className="tbody">
+          <div {...getTableBodyProps()} className="tbody" role="rowgroup">
             {page.map((row) => {
               prepareRow(row);
               return (
-                <div {...row.getRowProps()} className="tr">
+                <div {...row.getRowProps()} className="tr" role="row">
                   {row.cells.map((cell) => (
-                    <div {...cell.getCellProps()} className="td">
+                    <div {...cell.getCellProps()} className="td" role="cell">
                       {cell.render("Cell")}
                       <div
                         {...cell.column.getResizerProps()}

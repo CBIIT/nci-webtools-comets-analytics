@@ -1,11 +1,10 @@
-import { useMemo, useEffect } from "react";
+import { useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Plot from "../../common/plot";
-import Table, { RangeFilter, TextFilter } from "../../common/table";
 import { downloadTables } from "../../../services/download";
 import { pluralCount } from "../../../services/text";
 import { useRecoilState } from "recoil";
@@ -73,127 +72,6 @@ export default function IntegrityCheckResults({ results, children = null }) {
 
     setMessages(newMessages);
   }, [results, setMessages]);
-
-  const columns = useMemo(
-    () => [
-      {
-        id: "metabid",
-        accessor: "metabid",
-        Filter: TextFilter,
-      },
-      {
-        id: "metabolite_name",
-        accessor: "metabolite_name",
-        Filter: TextFilter,
-      },
-      {
-        id: "super_pathway",
-        accessor: "super_pathway",
-        Filter: TextFilter,
-      },
-      {
-        id: "sub_pathway",
-        accessor: "sub_pathway",
-        Filter: TextFilter,
-      },
-      {
-        id: "comp_id.cohort",
-        accessor: (record) => record["comp_id.cohort"],
-        Filter: TextFilter,
-      },
-      {
-        id: "platform",
-        accessor: "platform",
-        Filter: TextFilter,
-      },
-      {
-        id: "pubchem",
-        accessor: "pubchem",
-        Filter: TextFilter,
-      },
-      {
-        id: "hmdb_id.cohort",
-        accessor: (record) => record["hmdb_id.cohort"],
-        Filter: TextFilter,
-      },
-      {
-        id: "uid_01",
-        accessor: "uid_01",
-        Filter: TextFilter,
-      },
-      {
-        id: "uidsource",
-        accessor: (record) => record.uidsource.split(";").sort().join(";"),
-        Cell: ({ value }) => (
-          <details title={value}>
-            <summary className="text-truncate">{value.split(";").length} sources</summary>
-            <ul>
-              {value.split(";").map((v, i) => (
-                <li key={`uidsource-${v}-${i}`} className="text-truncate">
-                  {v}
-                </li>
-              ))}
-            </ul>
-          </details>
-        ),
-        Filter: TextFilter,
-      },
-      {
-        id: "main_class",
-        accessor: "main_class",
-        Filter: TextFilter,
-      },
-      {
-        id: "chemical_id",
-        accessor: "chemical_id",
-        Filter: TextFilter,
-      },
-      {
-        id: "comp_id.comets",
-        accessor: (record) => record["comp_id.comets"],
-        Filter: TextFilter,
-      },
-      {
-        id: "hmdb_id.comets",
-        accessor: (record) => record["hmdb_id.comets"],
-        Filter: TextFilter,
-      },
-      {
-        id: "biochemical",
-        accessor: "biochemical",
-        Filter: TextFilter,
-      },
-      {
-        id: "comp_id",
-        accessor: "comp_id",
-        Filter: TextFilter,
-      },
-      {
-        id: "var",
-        accessor: "var",
-        Filter: RangeFilter,
-        filter: "between",
-      },
-      {
-        id: "num.min",
-        accessor: (record) => record["num.min"],
-        Filter: RangeFilter,
-        filter: "between",
-      },
-    ],
-    [],
-  );
-
-  const defaultColumn = {
-    Header: ({ column }) => <span title={column.id}>{column.id}</span>,
-    Cell: ({ value }) => (
-      <div title={value} className="text-truncate">
-        {value}
-      </div>
-    ),
-    minWidth: 50,
-    width: 180,
-  };
 
   const defaultConfig = {
     displayModeBar: true,
@@ -330,23 +208,6 @@ export default function IntegrityCheckResults({ results, children = null }) {
               </Card>
             </Col>
           </Row>
-
-          {/* <table className="table">
-        <thead className="table-light text-muted text-uppercase small">
-          <tr>
-            <th>Metabolites sheet</th>	
-            <th>Subject data sheet</th>
-            <th>Subject metabolites sheet</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{results.summary.input.metabolites} metabolites</td>
-            <td>{results.summary.input.subjects} subjects with {results.summary.input.subjectCovariates} covariates</td>
-            <td>{results.summary.input.subjects} subjects with {results.summary.input.subjectMetabolites}  metabolites</td>
-          </tr>
-        </tbody>
-      </table> */}
 
           <h2 className="h4 text-primary">Harmonization Summary</h2>
 

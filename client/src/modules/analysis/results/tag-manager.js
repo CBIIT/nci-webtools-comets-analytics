@@ -3,7 +3,6 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
-import Select from "react-select";
 import { showTagManagerState, tagsState, newTagLabelState, newTagValuesState } from "./tag-manager.state";
 import { pluralCount } from "../../../services/text";
 
@@ -21,7 +20,7 @@ export default function TagManager() {
         alreadyExists: !!tags.find((tag) => tag.label === newTagLabel),
       },
       newTagValues: {
-        isEmpty: !newTagValues || newTagValues.length == 0,
+        isEmpty: !newTagValues || newTagValues.length === 0,
       },
     };
 
@@ -100,7 +99,7 @@ export default function TagManager() {
           </Form>
         )}
 
-        {newTagValues.length == 0 && (
+        {newTagValues.length === 0 && (
           <div className="table-responsive rounded shadow-sm">
             <Table hover striped className="table-custom">
               <thead className="table-light text-muted">

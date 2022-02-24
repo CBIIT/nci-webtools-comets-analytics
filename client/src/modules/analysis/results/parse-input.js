@@ -24,9 +24,9 @@ export function parseList(listString) {
     .match(/list\((.*)\)/)[1]
     .split(",")
     .reduce((list, item) => {
-      const [_, name, value] = item.trim().split(/(.+)=(.+)/);
-      const rName = name.trim();
-      const rValue = parseValue(value);
+      const parts = item.trim().split(/(.+)=(.+)/);
+      const rName = parts[1].trim();
+      const rValue = parseValue(parts[2]);
       list[rName] = rValue;
       return list;
     }, {});
