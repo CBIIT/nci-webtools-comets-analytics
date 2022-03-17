@@ -16,6 +16,7 @@ export const formValuesState = atom({
     modelName: "Unadjusted",
     showMetabolites: false,
     showPredefinedModelTypes: false,
+    showCustomModelTypes: false,
     exposures: [],
     outcomes: [{ label: "All metabolites", value: "All metabolites" }],
     adjustedCovariates: [],

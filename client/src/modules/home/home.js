@@ -15,17 +15,17 @@ export default function Home() {
 
           <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
           <NavLink className="btn btn-outline-light" to="/analysis">
-            Get Started
+            Perform Analysis
           </NavLink>
         </Container>
       </div>
 
       <Container className="mb-4">
         <Row>
-          <Col md={4}>
+          {/* <Col md={4}>
             <h2 className="text-primary">Introduction</h2>
-          </Col>
-          <Col md={8}>
+          </Col> */}
+          <Col md={8} className="offset-md-2">
             <p>
               COMETS Analytics supports and streamlines consortium-based analyses of metabolomics data. The software is
               continuously being developed and maintained by{" "}
@@ -76,6 +76,9 @@ export default function Home() {
             <p>
               Go to the <NavLink to="/analysis">Analysis page</NavLink> to get started, or to the{" "}
               <NavLink to="/about">About page</NavLink> to learn more!
+            </p>
+            <p>
+              Questions or comments? Contact us via <a href="mailto:comets.analytics@gmail.com">email</a>.
             </p>
           </Col>
         </Row>

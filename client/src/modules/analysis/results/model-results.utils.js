@@ -1,4 +1,6 @@
 import Button from "react-bootstrap/Button";
+import Tooltip from "react-bootstrap/Tooltip";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { RangeFilter, TextFilter, IndeterminateCheckbox } from "../../common/table";
 import { downloadTables } from "../../../services/download";
 import isNumber from "lodash/isNumber";
@@ -23,10 +25,22 @@ export function getSelectColumn(onSelect) {
     width: 45,
     maxWidth: 45,
     Header: (props) => (
-      <Button variant="primary" className="border-0" size="sm" onClick={() => onSelect(props)}>
-        <i className="bi bi-tags-fill text-light" />
-        <span className="visually-hidden">Manage Tags</span>
-      </Button>
+      <OverlayTrigger
+        overlay={
+          <Tooltip id="tagManagerTooltip">
+            <span>Use tagging to create a list of outcomes for analysis.</span>
+          </Tooltip>
+        }>
+        <Button
+          variant="primary"
+          className="border-0"
+          size="sm"
+          onClick={() => onSelect(props)}
+          title="Use tagging to create a list of outcomes for analysis">
+          <i className="bi bi-tags-fill text-light" />
+          <span className="visually-hidden">Manage Tags</span>
+        </Button>
+      </OverlayTrigger>
     ),
     SecondaryHeader: ({ getToggleAllRowsSelectedProps }) => (
       <div className="form-check">

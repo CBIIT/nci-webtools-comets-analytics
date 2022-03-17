@@ -65,14 +65,22 @@ export default function TagManager() {
   return (
     <Modal show={showTagManager} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title className="text-primary">Manage Tags</Modal.Title>
+        <Modal.Title className="text-primary">Outcomes Tag</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {newTagValues.length > 0 && (
           <Form onSubmit={createTag} className="mb-3">
             {/* <pre>{JSON.stringify({newTagLabel, newTagValues, validationState}, null, 2)}</pre> */}
+
+            <Form.Group controlId="values" className="mb-3">
+              <Form.Label>Selected Outcomes</Form.Label>
+              <Form.Text className="d-block overflow-auto" style={{ maxHeight: "300px" }}>
+                {newTagValues.join(", ")}
+              </Form.Text>
+            </Form.Group>
+
             <Form.Group controlId="newTagLabel" className="mb-3">
-              <Form.Label className="required">Label</Form.Label>
+              <Form.Label className="required">Tag Name</Form.Label>
               <Form.Control
                 type="text"
                 name="newTagLabel"
@@ -82,13 +90,6 @@ export default function TagManager() {
               {validationState.newTagLabel.alreadyExists && (
                 <Form.Text className="text-danger">Please provide a unique label.</Form.Text>
               )}
-            </Form.Group>
-
-            <Form.Group controlId="values" className="mb-3">
-              <Form.Label>{pluralCount(newTagValues.length, "Outcome")}</Form.Label>
-              <Form.Text className="d-block overflow-auto" style={{ maxHeight: "300px" }}>
-                {newTagValues.join(", ")}
-              </Form.Text>
             </Form.Group>
 
             <div className="text-end">

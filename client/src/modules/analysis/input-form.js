@@ -39,6 +39,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       });
     }
 
+    if (name === "showCustomModelTypes") {
+      mergeFormValues({
+        modelType: "",
+      });
+    }
+
     if (name === "selectedModelType") {
       mergeFormValues({ selectedModelName: null });
     }
@@ -279,15 +285,27 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                 {formValues.method === "selectedModel" && (
                   <>
                     <div className="border p-3 mb-3">
-                      <Form.Check
-                        type="checkbox"
-                        className="mb-3"
-                        name="showPredefinedModelTypes"
-                        id="showPredefinedModelTypes"
-                        label="Use Model Type Filter"
-                        onChange={handleChange}
-                        checked={formValues.showPredefinedModelTypes}
-                      />
+                      <OverlayTrigger
+                        overlay={
+                          <Tooltip id="showPredefinedModelTypesTooltip">
+                            <span>When checked, only models of the selected Model Type can be selected below.</span>
+                          </Tooltip>
+                        }>
+                        <Form.Group controlId="showPredefinedModelTypes" className="d-inline-block">
+                          <Form.Check
+                            type="checkbox"
+                            className="mb-3"
+                            name="showPredefinedModelTypes"
+                            label={
+                              <>
+                                Use Model Type<i className="bi bi-info-circle ms-1"></i>
+                              </>
+                            }
+                            onChange={handleChange}
+                            checked={formValues.showPredefinedModelTypes}
+                          />
+                        </Form.Group>
+                      </OverlayTrigger>
 
                       {formValues.showPredefinedModelTypes && (
                         <Form.Group controlId="selectedModelType" className="mb-3">
@@ -361,34 +379,58 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
                 {formValues.method === "customModel" && (
                   <div className="border p-3 mb-3">
-                    <Form.Group controlId="modelType" className="mb-3">
-                      <Form.Label>Model Type</Form.Label>
-                      <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
-                        <option value="">None - Use default model options</option>
-                        {integrityCheckResults.modelTypes
-                          .filter((modelType) => modelType.model)
-                          .map((modelType, i) => (
-                            <option value={modelType.name} key={`model-type-${i}`}>
-                              {modelType.name}
-                            </option>
-                          ))}
-                      </Form.Select>
-                      {formValues.modelType && (
-                        <Form.Text>
-                          <OverlayTrigger
-                            overlay={
-                              <Tooltip id="modelTypeTooltip">
-                                <Form.Label>Model Options</Form.Label>
-                                <ModelOptions modelTypeName={formValues.modelType} />
-                              </Tooltip>
-                            }>
-                            <span>
-                              View Model Options <i className="bi bi-info-circle"></i>
-                            </span>
-                          </OverlayTrigger>
-                        </Form.Text>
-                      )}
-                    </Form.Group>
+                    <OverlayTrigger
+                      overlay={
+                        <Tooltip id="showCustomModelTypesTooltip">
+                          <span>When checked, Model Type will be used to run model.</span>
+                        </Tooltip>
+                      }>
+                      <Form.Group controlId="showCustomModelTypes" className="d-inline-block">
+                        <Form.Check
+                          type="checkbox"
+                          className="mb-3"
+                          name="showCustomModelTypes"
+                          label={
+                            <>
+                              Use Model Type<i className="bi bi-info-circle ms-1"></i>
+                            </>
+                          }
+                          onChange={handleChange}
+                          checked={formValues.showCustomModelTypes}
+                        />
+                      </Form.Group>
+                    </OverlayTrigger>
+
+                    {formValues.showCustomModelTypes && (
+                      <Form.Group controlId="modelType" className="mb-3">
+                        <Form.Label>Model Type</Form.Label>
+                        <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
+                          <option value="">None - Use default model options</option>
+                          {integrityCheckResults.modelTypes
+                            .filter((modelType) => modelType.model)
+                            .map((modelType, i) => (
+                              <option value={modelType.name} key={`model-type-${i}`}>
+                                {modelType.name}
+                              </option>
+                            ))}
+                        </Form.Select>
+                        {formValues.modelType && (
+                          <Form.Text>
+                            <OverlayTrigger
+                              overlay={
+                                <Tooltip id="modelTypeTooltip">
+                                  <Form.Label>Model Options</Form.Label>
+                                  <ModelOptions modelTypeName={formValues.modelType} />
+                                </Tooltip>
+                              }>
+                              <span>
+                                View Model Options <i className="bi bi-info-circle"></i>
+                              </span>
+                            </OverlayTrigger>
+                          </Form.Text>
+                        )}
+                      </Form.Group>
+                    )}
 
                     <Form.Group controlId="modelName" className="mb-3">
                       <Form.Label className="required">Model Name</Form.Label>
@@ -412,27 +454,27 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                   <Form onSubmit={submitModel} onReset={reset}>
                     <h2 className="h5 text-primary mb-4">Custom Model Parameters</h2>
 
-                    <Form.Check
-                      type="checkbox"
-                      className="mb-3"
-                      name="showMetabolites"
-                      id="showMetabolites"
-                      label={
-                        <>
-                          Show Individual Metabolites
-                          <OverlayTrigger
-                            overlay={
-                              <Tooltip id="showMetabolitesTooltip">
-                                This option applies to Exposures, Outcomes and Adjusted Covariates
-                              </Tooltip>
-                            }>
-                            <i className="bi bi-info-circle ms-1"></i>
-                          </OverlayTrigger>
-                        </>
-                      }
-                      onChange={handleChange}
-                      checked={formValues.showMetabolites}
-                    />
+                    <OverlayTrigger
+                      overlay={
+                        <Tooltip id="showMetabolitesTooltip">
+                          This option applies to Exposures, Outcomes and Adjusted Covariates
+                        </Tooltip>
+                      }>
+                      <Form.Group controlId="showMetabolites" className="d-inline-block">
+                        <Form.Check
+                          type="checkbox"
+                          className="mb-3"
+                          name="showMetabolites"
+                          label={
+                            <>
+                              Show Individual Metabolites<i className="bi bi-info-circle ms-1"></i>
+                            </>
+                          }
+                          onChange={handleChange}
+                          checked={formValues.showMetabolites}
+                        />
+                      </Form.Group>
+                    </OverlayTrigger>
 
                     <Form.Group controlId="exposures" className="mb-3">
                       <Form.Label className="required">Exposures</Form.Label>
