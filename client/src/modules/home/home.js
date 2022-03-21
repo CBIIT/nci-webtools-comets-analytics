@@ -27,8 +27,8 @@ export default function Home() {
           </Col> */}
           <Col md={8} className="offset-md-2">
             <p>
-              COMETS Analytics supports and streamlines consortium-based analyses of metabolomics data. The software is
-              continuously being developed and maintained by{" "}
+              COMETS Analytics supports and streamlines consortium-based analyses of metabolomics data. The software
+              maintenance and development is being led by{" "}
               <a target="_blank" rel="noopener noreferrer" href="https://ncats.nih.gov/staff/mathee">
                 Ewy Mathé
               </a>{" "}
@@ -39,7 +39,7 @@ export default function Home() {
                 href="https://dceg.cancer.gov/about/staff-directory/moore-steven">
                 Steve Moore
               </a>{" "}
-              (Division of Cancer Epidemiology and Genetics, National Cancer Institute), and{" "}
+              (Division of Cancer Epidemiology and Genetics, National Cancer Institute),{" "}
               <a
                 target="_blank"
                 rel="noopener noreferrer"
@@ -47,32 +47,41 @@ export default function Home() {
                 Marinella Temprosa
               </a>{" "}
               (Dept. of Biostatistics and Bioinformatics, Milken Institute School of Public Health, George Washington
-              University), with web interface support from NCI's{" "}
+              University), with web interface support from Kailing Chen and Brian Park at NCI's{" "}
               <a target="_blank" rel="noopener noreferrer" href="http://cbiit.nci.nih.gov/">
-                CBIIT
+                Center for Biomedical Informatics &amp; Information Technology
               </a>{" "}
-              and R package development support from{" "}
+              and R package development support from Bill Wheeler at NCI’s{" "}
               <a target="_blank" rel="noopener noreferrer" href="https://www.imsweb.com/services/">
-                IMS
-              </a>
-              . Constructive feedback is provided by the{" "}
+                Information Management Services, Inc.
+              </a>{" "}
+              <a target="_blank" rel="noopener noreferrer" href="https://epi.grants.cancer.gov/staff/zanetti.html">
+                Krista Zanetti
+              </a>{" "}
+              (Division of Cancer Control and Population Sciences, National Cancer Institute) provides project
+              management and overall oversight. Constructive feedback is regularly provided by the{" "}
               <a
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://epi.grants.cancer.gov/comets/interest-groups.html">
                 COMETS Data Infrastructure Working Group
               </a>{" "}
-              and other working groups.
+              and other working groups. All feedback is welcome though so please contact us at{" "}
+              <a href="mailto:comets.analytics@gmail.com">comets.analytics@gmail.com</a>. This projected is supported by
+              the NCI and NCATS.
             </p>
+
             <p>
               COMETS Analytics was designed to simplify meta-analysis at the consortia level. Users prepare data input,
               and then the software takes care of checking the data integrity, performs data analyses securely, and
               aggregates results in a standardized format. Further details on the vision for implementing the software
-              and the current features available can be found{" "}
-              <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?reload=9&v=dWJ_fdibnms">
-                here.
-              </a>{" "}
+              and the current features available can be found here and in our most{" "}
+              <a target="_blank" rel="noopener noreferrer" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8897993/">
+                recent publication
+              </a>
+              .
             </p>
+
             <p>
               Go to the <NavLink to="/analysis">Analysis page</NavLink> to get started, or to the{" "}
               <NavLink to="/about">About page</NavLink> to learn more!
