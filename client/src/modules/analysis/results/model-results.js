@@ -66,7 +66,7 @@ export default function ModelResults({ results, children = "" }) {
       newMessages.push({
         type: "primary",
         title: "Analyses Successful",
-        body: <p>Please download the results below and submit to the COMETS harmonization group for meta-analysis.</p>,
+        body: <p>Please download the results below and submit to the lead analyst conducting the meta-analysis.</p>,
       });
     }
 
