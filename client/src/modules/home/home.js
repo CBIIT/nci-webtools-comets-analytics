@@ -7,25 +7,24 @@ import HomeImage from "./images/home.svg";
 export default function Home() {
   return (
     <>
-      <div className="cover-image py-5 mb-4 text-light shadow-sm" style={{ backgroundImage: `url(${HomeImage})` }}>
+      <div className="cover-image py-5 text-light mb-4 shadow-sm" style={{ backgroundImage: `url(${HomeImage})` }}>
         <Container>
           <h1 className="display-4 mb-4">
             <span className="d-inline-block py-4 border-bottom border-light">Welcome to COMETS Analytics</span>
           </h1>
 
-          <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
-          <NavLink className="btn btn-outline-light" to="/analysis">
-            Perform Analysis
-          </NavLink>
+          <div className="mb-5">
+            <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
+            <NavLink className="btn btn-outline-light" to="/analysis">
+              Perform Analysis
+            </NavLink>
+          </div>
         </Container>
       </div>
 
       <Container className="mb-4">
-        <Row>
-          {/* <Col md={4}>
-            <h2 className="text-primary">Introduction</h2>
-          </Col> */}
-          <Col md={8} className="offset-md-2">
+        <Row className="justify-content-center mb-4">
+          <Col md={8}>
             <p>
               COMETS Analytics supports and streamlines consortium-based analyses of metabolomics data. The software
               maintenance and development is being led by{" "}
@@ -75,9 +74,9 @@ export default function Home() {
               COMETS Analytics was designed to simplify meta-analysis at the consortia level. Users prepare data input,
               and then the software takes care of checking the data integrity, performs data analyses securely, and
               aggregates results in a standardized format. Further details on the vision for implementing the software
-              and the current features available can be found here and in our most{" "}
+              and the current features available can be found here and in our{" "}
               <a target="_blank" rel="noopener noreferrer" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8897993/">
-                recent publication
+                most recent publication
               </a>
               .
             </p>
@@ -89,6 +88,33 @@ export default function Home() {
             <p>
               Questions or comments? Contact us via <a href="mailto:comets.analytics@gmail.com">email</a>.
             </p>
+
+            <div className="my-4">
+              <h2 className="h3 text-primary">What's New</h2>
+              <h3 className="h5 text-primary">COMETS Analytics v2.0 is released!</h3>
+
+              <p>
+                New features include:
+                <ul>
+                  <li>Support for running generalized linear models</li>
+                  <li>Consolidated output files (Excel)</li>
+                  <li>
+                    New user-controlled options, defined in input file, for changing model default options (through
+                    ‘model_type’)
+                  </li>
+                </ul>
+              </p>
+              <p>
+                Check out the R Package{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://github.com/CBIIT/R-cometsAnalytics/blob/master/RPackageSource/NEWS">
+                  NEWS
+                </a>{" "}
+                for more information.
+              </p>
+            </div>
           </Col>
         </Row>
       </Container>
