@@ -9,16 +9,20 @@ export default function Home() {
     <>
       <div className="cover-image py-5 text-light mb-4 shadow-sm" style={{ backgroundImage: `url(${HomeImage})` }}>
         <Container>
-          <h1 className="display-4 mb-4">
-            <span className="d-inline-block py-4 border-bottom border-light">Welcome to COMETS Analytics</span>
-          </h1>
+          <Row className="justify-content-center mb-4">
+            <Col md={8}>
+              <h1 className="display-4 mb-4">
+                <span className="d-inline-block py-4 border-bottom border-light">Welcome to COMETS Analytics</span>
+              </h1>
 
-          <div className="mb-5">
-            <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
-            <NavLink className="btn btn-outline-light" to="/analysis">
-              Perform Analysis
-            </NavLink>
-          </div>
+              <div>
+                <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
+                <NavLink className="btn btn-outline-light" to="/analysis">
+                  Perform Analysis
+                </NavLink>
+              </div>
+            </Col>
+          </Row>
         </Container>
       </div>
 
