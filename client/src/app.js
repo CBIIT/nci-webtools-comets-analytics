@@ -46,11 +46,11 @@ export default function App() {
   return (
     <RecoilRoot>
       <Router>
-        <Navbar expand="sm" className="navbar-light shadow-sm flex-none-auto">
+        <Navbar expand="sm" variant="dark" bg="orange" className="shadow-sm flex-none-auto">
           <Container>
             <Navbar.Brand className="d-block d-sm-none fw-semibold">COMETS Analytics</Navbar.Brand>
             <Navbar.Toggle aria-controls="app-navbar" />
-            <Navbar.Collapse id="app-navbar">
+            <Navbar.Collapse id="app-navbar" className="justify-content-center">
               <Nav>
                 {links.map((link, index) => (
                   <NavLink key={`navlink-${index}`} className="nav-link" to={link.route}>
