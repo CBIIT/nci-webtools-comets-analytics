@@ -88,10 +88,16 @@ export default function Home() {
             <p>
               Questions or comments? Contact us via <a href="mailto:comets.analytics@gmail.com">email</a>.
             </p>
+          </Col>
+        </Row>
+      </Container>
 
-            <div className="my-4">
-              <h2 className="h3 text-primary">What's New</h2>
-              <h3 className="h5 text-primary">COMETS Analytics v2.0 is released!</h3>
+      <div className="bg-primary-light py-4">
+        <Container>
+          <Row className="justify-content-center">
+            <Col md={5}>
+              <h2 className="h3 text-primary text-center mb-2">What's New at COMETS Analytics</h2>
+              <h3 className="h5 text-center mb-4">COMETS Analytics v2.0 is released!</h3>
 
               <p>
                 New features include:
@@ -114,10 +120,10 @@ export default function Home() {
                 </a>{" "}
                 for more information.
               </p>
-            </div>
-          </Col>
-        </Row>
-      </Container>
+            </Col>
+          </Row>
+        </Container>
+      </div>
     </>
   );
 }
