@@ -58,6 +58,17 @@ a,
   }
 }
 
+.navbar-dark.bg-orange {
+  .navbar-nav .nav-link {
+    color: $light;
+
+    &.active {
+      color: $dark;
+      background-color: $yellow;
+    }
+  }
+}
+
 .nav-tabs .nav-link {
   @include nav-link;
 }
