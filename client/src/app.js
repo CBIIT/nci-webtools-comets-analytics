@@ -53,7 +53,7 @@ export default function App() {
             <Navbar.Collapse id="app-navbar" className="justify-content-center">
               <Nav>
                 {links.map((link, index) => (
-                  <NavLink key={`navlink-${index}`} className="nav-link text-uppercase fw-bold" to={link.route}>
+                  <NavLink key={`navlink-${index}`} className="nav-link text-uppercase fw-bold px-3" to={link.route}>
                     {link.title}
                   </NavLink>
                 ))}
