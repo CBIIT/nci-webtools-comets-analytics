@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMETS Results</title>
+</head>
+
+<body>
+    <p>Dear COMETS user,</p>
+    <p>We've finished running your file: {{ originalFileName }}</p>
+    <p>The results of your batch data run are available through the following link. Any additional information (warnings, errors, etc.) are included below.</p>
+    <p><a href="{{ resultsUrl }}">{{ resultsUrl }}</a></p>
+    <p>This link will be valid for the next seven days.</p>
+    <p>The following models were run and took a total processing time of {{ totalProcessingTime }} seconds.</p> 
+    
+    {{#modelResults}} 
+        <p>
+            <strong>{{ modelName }}</strong> 
+
+            {{#hasErrors}}
+                (failed, see below)
+            {{/hasErrors}}
+
+            {{^hasErrors}}
+                ({{ processingTime }} seconds)
+            {{/hasErrors}}
+        </p>
+        <div style="margin-left: 20px"> 
+            {{#hasWarnings}} 
+                <p>Warnings: </p> <ul> {{{warnings}}} </ul>
+            {{/hasWarnings}} 
+
+            {{#hasErrors}} 
+                <p>Errors: </p> <ul> {{{errors}}} </ul> 
+            {{/hasErrors}}
+        </div> 
+    {{/modelResults}} 
+    
+    <p>Respectfully,</p>
+    <p>COMETS Web Tool</p>
+</body>
+
+</html>

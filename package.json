@@ -1,21 +1,46 @@
 {
-  "name": "comets",
-  "version": "1.0.0",
+  "name": "nci-webtools-comets-analytics",
+  "version": "2.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server/server.R",
   "scripts": {
-    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
-    "test:e2e": "mocha -R xunit -O output=tests/e2e.xml tests/end-to-end/*test.js",
-    "test:integration": "echo TODO: Implement integration tests",
-    "test:unit": "echo TODO: Implement integration tests"
+    "prepare": "husky install",
+    "install:server": "cd server && Rscript install.R",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm run test",
+    "test:server": "cd server && Rscript test.R",
+    "start:client": "cd client && npm start",
+    "start:server": "cd server && Rscript server.R",
+    "start:processor": "cd server && Rscript processor.R",
+    "build:client": "cd client && npm run build",
+    "format": "npm run format:client && npm run format:server",
+    "format:client": "prettier --write client",
+    "format:server": "Rscript -e \"styler::style_dir('server')\""
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CBIIT/nci-webtools-comets-analytics.git"
+  },
+  "author": "park-brian",
   "license": "ISC",
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "request": "^2.88.0",
-    "selenium-webdriver": "^4.0.0-alpha.1"
+  "bugs": {
+    "url": "https://github.com/CBIIT/nci-webtools-comets-analytics.git/issues"
   },
-  "dependencies": {}
+  "homepage": "https://github.com/CBIIT/nci-webtools-comets-analytics.git#readme",
+  "devDependencies": {
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.7",
+    "prettier": "^2.6.1"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "printWidth": 120,
+    "quoteProps": "consistent",
+    "bracketSameLine": true,
+    "htmlWhitespaceSensitivity": "css"
+  }
 }
