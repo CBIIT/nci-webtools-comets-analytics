@@ -324,7 +324,7 @@ getHeatmap <- function(effects, modelClass = "correlation") {
   y <- "outcomespec"
   z <- "corr"
 
-  if (modelClass %in% c("lm", "glm")) {
+  if (length(modelClass) && modelClass %in% c("lm", "glm")) {
     z <- "estimate"
   }
 
