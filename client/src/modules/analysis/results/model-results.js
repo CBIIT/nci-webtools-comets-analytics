@@ -99,7 +99,7 @@ export default function ModelResults({ results, children = "" }) {
       {!results.error && !results.queue && (
         <>
           <h2 className="h4 text-primary d-flex justify-content-between align-items-baseline">
-            {results.options.type || "Correlation"} - {results.options.name}
+            {results.options.type || "Model Results"} - {results.options.name}
             <Button variant="primary" size="sm" onClick={(ev) => downloadResults(results)}>
               <i className="bi bi-download me-1" />
               Download Results
