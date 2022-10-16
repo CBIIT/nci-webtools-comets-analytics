@@ -5,7 +5,7 @@ export const defaultHeatmapOptions = {
   sortRow: "",
   xKey: "term",
   yKey: "outcomespec",
-  zKey: "corr",
+  zKey: "estimate",
   showAnnotations: false,
   showDendrogram: false,
   pValueMin: "",
