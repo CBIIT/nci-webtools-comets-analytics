@@ -101,17 +101,12 @@ export default function Home() {
           <Row className="justify-content-center">
             <Col md={5}>
               <h2 className="h3 text-primary text-center mb-2">What's New at COMETS Analytics</h2>
-              <h3 className="h5 text-center mb-4">COMETS Analytics v2.0 is released!</h3>
+              <h3 className="h5 text-center mb-4">COMETS Analytics v2.1 is released!</h3>
 
               <p>
                 New features include:
                 <ul>
-                  <li>Support for running generalized linear models</li>
-                  <li>Consolidated output files (Excel)</li>
-                  <li>
-                    New user-controlled options, defined in input file, for changing model default options (through
-                    ‘model_type’)
-                  </li>
+                  <li>Support for running survival and and conditional logistic models</li>
                 </ul>
               </p>
               <p>
