@@ -144,7 +144,7 @@ runSelectedModel <- function(req, res) {
     results <- RcometsAnalytics::runModel(modelData, metaboliteData, cohort)
     logger$info(paste("Ran selected model: ", selectedModelName))
 
-    results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
+    results$heatmap <- getHeatmap(results$Effects)
     results$options <- modelData$options
     results$options$name <- selectedModelName
     results$options$type <- selectedModelType
@@ -173,6 +173,8 @@ runCustomModel <- function(req, res) {
     adjustedCovariates <- req$body$adjustedCovariates
     strata <- req$body$strata
     filters <- req$body$filters
+    time <- req$body$time
+    group <- req$body$group
     options <- req$body$options
 
     inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
@@ -186,6 +188,8 @@ runCustomModel <- function(req, res) {
       outcomes = as.character(outcomes),
       adjvars = as.character(adjustedCovariates),
       strvars = as.character(strata),
+      timevar = as.character(time),
+      groupvar = as.character(group),
       where = filters
     )
 
@@ -197,7 +201,7 @@ runCustomModel <- function(req, res) {
     )
     logger$info(paste("Ran custom model: ", modelName))
 
-    results$heatmap <- getHeatmap(results$Effects, options$model)
+    results$heatmap <- getHeatmap(results$Effects)
     results$options <- options
     results$options$name <- modelName
     results$options$type <- modelType
@@ -316,17 +320,12 @@ getBatchResults <- function(req, res) {
 }
 
 
-getHeatmap <- function(effects, modelClass = "correlation") {
+getHeatmap <- function(effects) {
   heatmap <- list()
 
-  # by default, z should be for correlation results
   x <- "term"
   y <- "outcomespec"
-  z <- "corr"
-
-  if (length(modelClass) && modelClass %in% c("lm", "glm")) {
-    z <- "estimate"
-  }
+  z <- "estimate"
 
   heatmap$data <- effects |>
     dplyr::select(all_of(x), all_of(y), all_of(z)) |>
