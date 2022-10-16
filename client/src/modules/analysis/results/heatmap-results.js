@@ -17,23 +17,6 @@ export default function HeatmapResults({ results }) {
     [heatmapOptions, setHeatmapOptions]
   );
 
-  useEffect(() => {
-    let newHeatmapOptions = cloneDeep(defaultHeatmapOptions);
-
-    if (results?.options) {
-      const model = results.options["model"];
-      const modelOptions = results.options["model.options"];
-
-      if (model === "correlation") {
-        newHeatmapOptions.zKey = "corr";
-      } else if (model === "lm" || (model === "glm" && modelOptions.family === "gaussian")) {
-        newHeatmapOptions.zKey = "estimate";
-      }
-    }
-
-    setHeatmapOptions(newHeatmapOptions);
-  }, [results, setHeatmapOptions]);
-
   const { xKey } = heatmapOptions;
   const records = cloneDeep(results?.Effects) || [];
   const xCategories = uniq(map(records, xKey));
