@@ -9,7 +9,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import ObjectList from "../common/object-list";
 import { isNull, omitBy } from "lodash";
-import { cohortsState, formValuesState, variablesState } from "./input-form.state";
+import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
 export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onReset }) {
@@ -19,6 +19,9 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
   const [formValues, setFormValues] = useRecoilState(formValuesState);
   const resetFormValues = useResetRecoilState(formValuesState);
   const mergeFormValues = (values) => setFormValues((oldFormValues) => ({ ...oldFormValues, ...values }));
+  const nonMetaboliteVariables = variables.filter(
+    (variable) => !variable.isMetabolite && variable.value !== "All metabolites"
+  );
   const inputFileRef = useRef(null);
 
   function handleChange(event) {
@@ -47,6 +50,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
     if (name === "selectedModelType") {
       mergeFormValues({ selectedModelName: null });
+    }
+
+    if (name === "modelType") {
+      mergeFormValues(defaultCustomModelOptions);
     }
 
     mergeFormValues({ [name]: value });
@@ -84,6 +91,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
           formValues.filterVariable && formValues.filterOperator && formValues.filterValue
             ? [formValues.filterVariable, formValues.filterOperator, formValues.filterValue].join("")
             : null,
+        time: asValue(formValues.time),
+        group: asValue(formValues.group),
       });
     }
   }
@@ -569,6 +578,32 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           aria-label="filterValue"
                         />
                       </InputGroup>
+                    </Form.Group>
+
+                    <Form.Group controlId="time" className="mb-3">
+                      <Form.Label>Time</Form.Label>
+                      <Select
+                        placeholder="No time variable chosen"
+                        name="time"
+                        value={formValues.time}
+                        onChange={(ev) => handleSelectChange("time", ev)}
+                        options={nonMetaboliteVariables}
+                        closeMenuOnSelect={true}
+                        isClearable
+                      />
+                    </Form.Group>
+
+                    <Form.Group controlId="group" className="mb-3">
+                      <Form.Label>Group</Form.Label>
+                      <Select
+                        placeholder="No group variable chosen"
+                        name="group"
+                        value={formValues.group}
+                        onChange={(ev) => handleSelectChange("group", ev)}
+                        options={nonMetaboliteVariables}
+                        closeMenuOnSelect={true}
+                        isClearable
+                      />
                     </Form.Group>
 
                     <div className="text-end">
