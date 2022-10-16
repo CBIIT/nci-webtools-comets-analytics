@@ -1,17 +1,12 @@
-FROM quay.io/centos/centos:stream8
+FROM public.ecr.aws/amazonlinux/amazonlinux:2022
 
 RUN dnf -y update \
- && dnf -y install \
-    dnf-plugins-core \
-    epel-release \
-    glibc-langpack-en \
- && dnf -y module enable nodejs:14 \
  && dnf -y install \
     gcc-c++ \
     httpd \
     make \
-    mod_ssl \
     nodejs \
+    npm \
  && dnf clean all
 
 RUN mkdir /client
@@ -27,9 +22,6 @@ COPY client /client/
 RUN npm run build \
  && mv /client/build/* /var/www/html/
 
-# Add custom httpd configuration
-COPY docker/httpd.conf /etc/httpd/conf/httpd.conf
-
 COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
 WORKDIR /var/www/html
@@ -38,4 +30,4 @@ EXPOSE 80
 EXPOSE 443
 
 CMD rm -rf /run/httpd/* /tmp/httpd* \
- && exec /usr/sbin/apachectl -DFOREGROUND
+ && exec /usr/sbin/httpd -DFOREGROUND
