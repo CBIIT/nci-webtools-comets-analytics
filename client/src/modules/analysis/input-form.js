@@ -19,6 +19,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
   const [formValues, setFormValues] = useRecoilState(formValuesState);
   const resetFormValues = useResetRecoilState(formValuesState);
   const mergeFormValues = (values) => setFormValues((oldFormValues) => ({ ...oldFormValues, ...values }));
+  const selectedModelType = getModelType(formValues.modelType);
   const nonMetaboliteVariables = variables.filter(
     (variable) => !variable.isMetabolite && variable.value !== "All metabolites"
   );
@@ -580,31 +581,35 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       </InputGroup>
                     </Form.Group>
 
-                    <Form.Group controlId="time" className="mb-3">
-                      <Form.Label>Time</Form.Label>
-                      <Select
-                        placeholder="No time variable chosen"
-                        name="time"
-                        value={formValues.time}
-                        onChange={(ev) => handleSelectChange("time", ev)}
-                        options={nonMetaboliteVariables}
-                        closeMenuOnSelect={true}
-                        isClearable
-                      />
-                    </Form.Group>
+                    {selectedModelType?.model === "coxph" && (
+                      <Form.Group controlId="time" className="mb-3">
+                        <Form.Label>Time</Form.Label>
+                        <Select
+                          placeholder="No time variable chosen"
+                          name="time"
+                          value={formValues.time}
+                          onChange={(ev) => handleSelectChange("time", ev)}
+                          options={nonMetaboliteVariables}
+                          closeMenuOnSelect={true}
+                          isClearable
+                        />
+                      </Form.Group>
+                    )}
 
-                    <Form.Group controlId="group" className="mb-3">
-                      <Form.Label>Group</Form.Label>
-                      <Select
-                        placeholder="No group variable chosen"
-                        name="group"
-                        value={formValues.group}
-                        onChange={(ev) => handleSelectChange("group", ev)}
-                        options={nonMetaboliteVariables}
-                        closeMenuOnSelect={true}
-                        isClearable
-                      />
-                    </Form.Group>
+                    {selectedModelType?.model === "clogit" && (
+                      <Form.Group controlId="group" className="mb-3">
+                        <Form.Label>Group</Form.Label>
+                        <Select
+                          placeholder="No group variable chosen"
+                          name="group"
+                          value={formValues.group}
+                          onChange={(ev) => handleSelectChange("group", ev)}
+                          options={nonMetaboliteVariables}
+                          closeMenuOnSelect={true}
+                          isClearable
+                        />
+                      </Form.Group>
+                    )}
 
                     <div className="text-end">
                       <Button type="reset" variant="danger-outline" className="me-1">
