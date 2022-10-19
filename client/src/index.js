@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { reportWebVitals, sendToGoogleAnalytics } from "./reportWebVitals";
 import App from "./app";
 
