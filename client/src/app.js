@@ -50,7 +50,7 @@ export default function App() {
           <Container>
             <Navbar.Brand className="d-block d-sm-none fw-semibold">COMETS Analytics</Navbar.Brand>
             <Navbar.Toggle aria-controls="app-navbar" />
-            <Navbar.Collapse id="app-navbar" className="justify-content-center">
+            <Navbar.Collapse id="app-navbar">
               <Nav>
                 {links.map((link, index) => (
                   <NavLink
