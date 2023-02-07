@@ -127,14 +127,18 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
   function getOptions(modelTypeName, includeGlobalOptions = false) {
     const modelSpecifier = getModelType(modelTypeName);
-    let options = modelSpecifier
-      ? {
-          "model": modelSpecifier.model,
-          "model.options": modelSpecifier.modelOptions,
-        }
-      : {
-          model: "correlation",
-        };
+    let options =
+      modelTypeName && modelSpecifier
+        ? {
+            "model": modelSpecifier.model,
+            "model.options": modelSpecifier.modelOptions,
+          }
+        : {
+            "model": "correlation",
+            "model.options": {
+              method: "pearson",
+            },
+          };
 
     if (includeGlobalOptions) {
       const modelChecksSpecifier = getModelType("ModelChecks") || {};
