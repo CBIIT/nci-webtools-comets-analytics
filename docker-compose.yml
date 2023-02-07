@@ -3,8 +3,6 @@ services:
     build: 
       context: "."
       dockerfile: "docker/backend.dockerfile"
-    expose:
-      - "8000"
     entrypoint: "Rscript processor.R"
     volumes:
       - "./server/temp:/server/temp"
@@ -19,6 +17,8 @@ services:
         COMETS_R_PACKAGE_REF: "v2.1.0-dev"
     expose:
       - "8000"
+    ports: 
+      - "8000:8000"
     volumes:
       - "./server/temp:/server/temp"
       - "./server/logs:/server/logs"
