@@ -419,7 +419,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Form.Group controlId="modelType" className="mb-3">
                         <Form.Label>Model Type</Form.Label>
                         <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
-                          <option value="">None - Use default model options</option>
+                          <option value="">None - Use default Pearson correlation model</option>
                           {integrityCheckResults.modelTypes
                             .filter((modelType) => modelType.model)
                             .map((modelType, i) => (
