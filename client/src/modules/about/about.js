@@ -106,9 +106,11 @@ export default function About() {
               providing feedback so we can continuously ameliorate the software.
             </p>
             <p>
-              Web application Development Team: Kailing Chen, Ewy Mathé, Steve Moore, Brian Park, and Ella Temprosa.
+              Web Application Development Team: Kailing Chen, Ewy Mathé, Steve Moore, Brian Park, and Ella Temprosa.
             </p>
             <p>Metabolite Harmonization Team: Dave Ruggieri and Steve Moore.</p>
+
+            <p>Project Management Team: Abha Arora and Kelly Crotty</p>
 
             <p>A special thanks as well to the Broader COMETS Data Infrastructure Group.</p>
           </Card.Body>
