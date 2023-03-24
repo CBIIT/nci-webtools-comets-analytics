@@ -77,6 +77,7 @@ export function getColumns(table) {
     return {
       id: columnName,
       accessor: (record) => record[columnName],
+      sortType: isNumericColumn ? "basic" : "alphanumeric",
       ...columnFilter,
       ...columnWidth,
     };
