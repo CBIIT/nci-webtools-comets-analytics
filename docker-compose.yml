@@ -14,7 +14,7 @@ services:
       context: "."
       dockerfile: "docker/backend.dockerfile"
       args:
-        COMETS_R_PACKAGE_REF: "v2.1.0-dev"
+        COMETS_R_PACKAGE_REF: "comets_2.1.0_20230126"
     expose:
       - "8000"
     ports: 
