@@ -4,7 +4,7 @@ import { tagsState } from "./results/tag-manager.state";
 import { getCohorts } from "../../services/query";
 
 export const defaultCustomModelOptions = {
-  modelName: "Unadjusted",
+  modelName: "correlation - pearson",
   showMetabolites: false,
   exposures: [],
   outcomes: [{ label: "All metabolites", value: "All metabolites" }],
@@ -42,7 +42,14 @@ export const formValuesState = atom({
 
 export const cohortsState = selector({
   key: "inputForm.cohortsState",
-  get: getCohorts,
+  get: async () => {
+    try {
+      return await getCohorts();
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
 });
 
 export const variablesState = selector({
