@@ -54,7 +54,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
 
     if (name === "modelType") {
-      mergeFormValues(defaultCustomModelOptions);
+      const options = getOptions(value);
+      const modelName = [options.model, ...Object.values(options["model.options"])].filter(Boolean).join(" - ");
+      mergeFormValues({
+        ...defaultCustomModelOptions,
+        modelName,
+      });
     }
 
     mergeFormValues({ [name]: value });
