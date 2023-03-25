@@ -35,7 +35,8 @@ COPY server/renv.lock ./
 RUN R -e "\
     options(Ncpus=parallel::detectCores()); \
     install.packages('renv', repos = 'https://cloud.r-project.org/'); \
-    renv::init();"
+    renv::init(bare = T); \
+    renv::restore(); "
 
 COPY server ./
 
@@ -48,8 +49,6 @@ ARG COMETS_R_PACKAGE_REF=master
 # renv::restore() is used a second time to relink dependencies from cache
 # since they are overwritten by the previous copy command
 RUN R -e "\
-   options(Ncpus=parallel::detectCores()); \
-   renv::restore(); \
    renv::install('${COMETS_R_PACKAGE_URL}@${COMETS_R_PACKAGE_REF}'); \
    renv::snapshot();"
 
