@@ -17,3 +17,26 @@ getAwsConfig <- function() {
 
   serviceConfig
 }
+
+sendEmail <- function(sesv2, from, to, subject, body) {
+  sesv2$send_email(
+    FromEmailAddress = from,
+    Destination = list(
+      ToAddresses = to
+    ),
+    Content = list(
+      Simple = list(
+        Subject = list(
+          Data = subject,
+          Charset = "UTF-8"
+        ),
+        Body = list(
+          Html = list(
+            Data = body,
+            Charset = "UTF-8"
+          )
+        )
+      )
+    )
+  )
+}
