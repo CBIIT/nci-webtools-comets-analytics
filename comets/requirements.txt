@@ -1,7 +1,0 @@
-boto3
-jinja2
-requests
-r_functions
-mod_wsgi
-pyper
-flask
