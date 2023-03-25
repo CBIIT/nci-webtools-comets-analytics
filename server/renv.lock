@@ -168,7 +168,7 @@
       "RemoteUsername": "CBIIT",
       "RemoteRepo": "R-cometsAnalytics",
       "RemoteSubdir": "RPackageSource",
-      "RemoteRef": "master",
+      "RemoteRef": "comets_2.1.0_20230126",
       "RemoteSha": "3dfe4210f35fd8d9f96d22718de3ef92e20b276d",
       "Requirements": [
         "MASS",
@@ -189,7 +189,7 @@
         "survival",
         "tidyr"
       ],
-      "Hash": "326d671b8ee3089835d55412bb37d33a"
+      "Hash": "8bbe7763218013563ba530157d5d43c8"
     },
     "Rcpp": {
       "Package": "Rcpp",
