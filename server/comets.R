@@ -9,8 +9,6 @@ source("utils.R")
 
 # configure AWS services as needed
 awsConfig <- getAwsConfig()
-s3 <- paws::s3(config = awsConfig)
-sqs <- paws::sqs(config = awsConfig)
 logger <- createLogger(
   transports = c(
     createConsoleTransport(),
@@ -219,6 +217,8 @@ runCustomModel <- function(req, res) {
 #*
 runAllModels <- function(req, res) {
   future({
+    shouldLog # inject globals (needed since shouldLog is not in the future scope)
+
     s3 <- paws::s3(config = awsConfig)
     sqs <- paws::sqs(config = awsConfig)
 
@@ -311,6 +311,7 @@ runModel <- function(req, res) {
 #* @serializer contentType list(type="application/octet-stream")
 #*
 getBatchResults <- function(req, res) {
+  s3 <- paws::s3(config = awsConfig)
   id <- sanitize(req$args$id)
 
   s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
