@@ -6,7 +6,11 @@ async function parseResponse(response) {
   try {
     data = JSON.parse(text);
   } catch (error) {
-    data = { error: text };
+    // attempt to parse as html if json parsing fails (domparser treats plain strings as body text)
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "text/html");
+    const body = doc?.documentElement?.innerText || data;
+    data = { error: body };
   }
   if (!response.ok) {
     throw new Error(data);
