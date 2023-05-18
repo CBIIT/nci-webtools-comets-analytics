@@ -46,8 +46,6 @@ ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
 ARG COMETS_R_PACKAGE_REF=master
 
 # install version of COMETS specified by tag
-# renv::restore() is used a second time to relink dependencies from cache
-# since they are overwritten by the previous copy command
 RUN R -e "\
    renv::install('${COMETS_R_PACKAGE_URL}@${COMETS_R_PACKAGE_REF}'); \
    renv::snapshot();"
