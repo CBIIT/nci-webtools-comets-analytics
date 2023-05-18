@@ -1,8 +1,22 @@
 import { parseModelTypes } from "../modules/analysis/results/parse-input";
 
+async function parseResponse(response) {
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    data = { error: text };
+  }
+  if (!response.ok) {
+    throw new Error(data);
+  }
+  return data;
+}
+
 export async function getCohorts() {
   const response = await fetch("api/cohorts");
-  return await response.json();
+  return await parseResponse(response);
 }
 
 export async function getIntegrityCheckResults(params) {
@@ -10,7 +24,7 @@ export async function getIntegrityCheckResults(params) {
     method: "POST",
     body: params,
   });
-  const results = await response.json();
+  const results = await parseResponse(response);
   results.modelTypes = parseModelTypes(results.options);
   return results;
 }
@@ -21,5 +35,5 @@ export async function getModelResults(params) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),
   });
-  return await response.json();
+  return await parseResponse(response);
 }
