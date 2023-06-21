@@ -1,16 +1,14 @@
 library(dotenv)
-library(future)
 library(jsonlite)
 library(paws)
 library(RcometsAnalytics)
 
-plan(multisession)
 source("utils.R")
 
 # configure AWS services if needed
 awsConfig <- getAwsConfig()
 s3 <- paws::s3(config = awsConfig)
-ses <- paws::ses(config = awsConfig)
+ses <- paws::sesv2(config = awsConfig)
 sqs <- paws::sqs(config = awsConfig)
 logger <- createLogger(
   transports = c(
@@ -68,7 +66,6 @@ messageHandler <- function(message) {
   writeBin(s3Object$Body, inputFilePath)
   logger$info(sprintf("Downloaded input file: %s", inputFilePath))
 
-
   cometsInput <- RcometsAnalytics::readCOMETSinput(inputFilePath)
   cometsInputSummary <- RcometsAnalytics::runDescrip(cometsInput)
 
@@ -124,7 +121,7 @@ messageHandler <- function(message) {
     if (length(results$errors) == 0) {
       resultsFile <- RcometsAnalytics::OutputXLSResults(
         filename = file.path(outputFolder, paste0(modelName, "_")),
-        datal = results$output,
+        datal = fromJSON(toJSON(results$output, force=T)), # hack to coerce non-serializable objects to dataframes
         cohort = paste0(cohort, "_")
       )
       logger$info(sprintf("Saved model results: %s", resultsFile))
@@ -178,31 +175,22 @@ messageHandler <- function(message) {
   emailBody <- whisker::whisker.render(template, templateData)
   logger$info(emailBody)
 
-  ses$send_email(
-    Source = Sys.getenv("EMAIL_SENDER"),
-    Destination = list(ToAddresses = email),
-    Message = list(
-      Body = list(
-        Html = list(
-          Charset = "UTF-8",
-          Data = emailBody
-        )
-      ),
-      Subject = list(
-        Charset = "UTF-8",
-        Data = emailSubject
-      )
-    ),
+  sendEmail(
+    sesv2 = ses,
+    from = Sys.getenv("EMAIL_SENDER"),
+    to = email,
+    subject = emailSubject,
+    body = emailBody
   )
-
   logger$info(paste("Sent user success email to: ", email))
-
   unname(modelResults)
+
+  TRUE
 }
 
 errorHandler <- function(message, output) {
+  logger$error(output$errors)
   params <- jsonlite::fromJSON(message)
-
   id <- sanitize(params$id)
   cohort <- sanitize(params$cohort)
   originalFileName <- params$originalFileName
@@ -214,53 +202,34 @@ errorHandler <- function(message, output) {
   capturedOutput <- output$capturedOutput
 
   # send user failure email
-  ses$send_email(
-    Source = Sys.getenv("EMAIL_SENDER"),
-    Destination = list(ToAddresses = email),
-    Message = list(
-      Body = list(
-        Html = list(
-          Charset = "UTF-8",
-          Data = whisker::whisker.render(
-            readLines(file.path("email-templates", "user-failure.html")),
-            list(
-              originalFileName = originalFileName
-            )
-          )
-        )
-      ),
-      Subject = list(
-        Charset = "UTF-8",
-        Data = "COMETS Analytics Batch Results - Error"
+  sendEmail(
+    sesv2 = ses,
+    from = Sys.getenv("EMAIL_SENDER"),
+    to = email,
+    subject = "COMETS Analytics Batch Results - Error",
+    body = whisker::whisker.render(
+      readLines(file.path("email-templates", "user-failure.html")),
+      list(
+        originalFileName = originalFileName
       )
     )
   )
 
   logger$info(paste("Sent user failure email to: ", email))
 
-
   # send admin failure email
-  ses$send_email(
-    Source = Sys.getenv("EMAIL_SENDER"),
-    Destination = list(ToAddresses = Sys.getenv("EMAIL_ADMIN")),
-    Message = list(
-      Body = list(
-        Html = list(
-          Charset = "UTF-8",
-          Data = whisker::whisker.render(
-            readLines(file.path("email-templates", "admin-failure.html")),
-            list(
-              originalFileName = originalFileName,
-              email = email,
-              cohort = cohort,
-              error = paste0(errors, collapse = "", sep = "")
-            )
-          )
-        )
-      ),
-      Subject = list(
-        Charset = "UTF-8",
-        Data = "COMETS Analytics Batch Results - Error"
+  sendEmail(
+    sesv2 = ses,
+    from = Sys.getenv("EMAIL_SENDER"),
+    to = Sys.getenv("EMAIL_ADMIN"),
+    subject = "COMETS Analytics Batch Results - Error",
+    body = whisker::whisker.render(
+      readLines(file.path("email-templates", "admin-failure.html")),
+      list(
+        originalFileName = originalFileName,
+        email = email,
+        cohort = cohort,
+        error = paste0(errors, collapse = "", sep = "")
       )
     )
   )

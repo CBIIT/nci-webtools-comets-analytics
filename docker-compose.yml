@@ -3,21 +3,27 @@ services:
     build: 
       context: "."
       dockerfile: "docker/backend.dockerfile"
-    expose:
-      - "8000"
     entrypoint: "Rscript processor.R"
     volumes:
       - "./server/temp:/server/temp"
       - "./server/logs:/server/logs"
+    env_file:
+      - server/.env      
   backend:
     build: 
       context: "."
       dockerfile: "docker/backend.dockerfile"
+      args:
+        COMETS_R_PACKAGE_REF: "comets_2.1.0_20230126"
     expose:
       - "8000"
+    ports: 
+      - "8000:8000"
     volumes:
       - "./server/temp:/server/temp"
       - "./server/logs:/server/logs"
+    env_file:
+      - server/.env
   frontend:
     build:
       context: "."
@@ -27,3 +33,5 @@ services:
     environment: 
       API_HOST: "http://backend:8000"
       SERVER_NAME: localhost
+
+

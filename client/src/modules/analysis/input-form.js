@@ -9,7 +9,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import ObjectList from "../common/object-list";
 import { isNull, omitBy } from "lodash";
-import { cohortsState, formValuesState, variablesState } from "./input-form.state";
+import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
 export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onReset }) {
@@ -19,6 +19,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
   const [formValues, setFormValues] = useRecoilState(formValuesState);
   const resetFormValues = useResetRecoilState(formValuesState);
   const mergeFormValues = (values) => setFormValues((oldFormValues) => ({ ...oldFormValues, ...values }));
+  const selectedModelType = getModelType(formValues.modelType);
+  const nonMetaboliteVariables = variables.filter(
+    (variable) => !variable.isMetabolite && variable.value !== "All metabolites"
+  );
   const inputFileRef = useRef(null);
 
   function handleChange(event) {
@@ -47,6 +51,15 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
     if (name === "selectedModelType") {
       mergeFormValues({ selectedModelName: null });
+    }
+
+    if (name === "modelType") {
+      const options = getOptions(value);
+      const modelName = [options.model, ...Object.values(options["model.options"])].filter(Boolean).join(" - ");
+      mergeFormValues({
+        ...defaultCustomModelOptions,
+        modelName,
+      });
     }
 
     mergeFormValues({ [name]: value });
@@ -84,6 +97,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
           formValues.filterVariable && formValues.filterOperator && formValues.filterValue
             ? [formValues.filterVariable, formValues.filterOperator, formValues.filterValue].join("")
             : null,
+        time: asValue(formValues.time),
+        group: asValue(formValues.group),
       });
     }
   }
@@ -117,14 +132,18 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
   function getOptions(modelTypeName, includeGlobalOptions = false) {
     const modelSpecifier = getModelType(modelTypeName);
-    let options = modelSpecifier
-      ? {
-          "model": modelSpecifier.model,
-          "model.options": modelSpecifier.modelOptions,
-        }
-      : {
-          model: "correlation",
-        };
+    let options =
+      modelTypeName && modelSpecifier
+        ? {
+            "model": modelSpecifier.model,
+            "model.options": modelSpecifier.modelOptions,
+          }
+        : {
+            "model": "correlation",
+            "model.options": {
+              method: "pearson",
+            },
+          };
 
     if (includeGlobalOptions) {
       const modelChecksSpecifier = getModelType("ModelChecks") || {};
@@ -405,7 +424,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Form.Group controlId="modelType" className="mb-3">
                         <Form.Label>Model Type</Form.Label>
                         <Form.Select name="modelType" onChange={handleChange} value={formValues.modelType}>
-                          <option value="">None - Use default model options</option>
+                          <option value="">None - Use default Pearson correlation model</option>
                           {integrityCheckResults.modelTypes
                             .filter((modelType) => modelType.model)
                             .map((modelType, i) => (
@@ -570,6 +589,36 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         />
                       </InputGroup>
                     </Form.Group>
+
+                    {selectedModelType?.model === "coxph" && (
+                      <Form.Group controlId="time" className="mb-3">
+                        <Form.Label>Time</Form.Label>
+                        <Select
+                          placeholder="No time variable chosen"
+                          name="time"
+                          value={formValues.time}
+                          onChange={(ev) => handleSelectChange("time", ev)}
+                          options={nonMetaboliteVariables}
+                          closeMenuOnSelect={true}
+                          isClearable
+                        />
+                      </Form.Group>
+                    )}
+
+                    {selectedModelType?.model === "clogit" && (
+                      <Form.Group controlId="group" className="mb-3">
+                        <Form.Label>Group</Form.Label>
+                        <Select
+                          placeholder="No group variable chosen"
+                          name="group"
+                          value={formValues.group}
+                          onChange={(ev) => handleSelectChange("group", ev)}
+                          options={nonMetaboliteVariables}
+                          closeMenuOnSelect={true}
+                          isClearable
+                        />
+                      </Form.Group>
+                    )}
 
                     <div className="text-end">
                       <Button type="reset" variant="danger-outline" className="me-1">

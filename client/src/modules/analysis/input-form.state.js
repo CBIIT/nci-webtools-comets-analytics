@@ -3,6 +3,27 @@ import { integrityCheckResultsState } from "./analysis.state";
 import { tagsState } from "./results/tag-manager.state";
 import { getCohorts } from "../../services/query";
 
+export const defaultCustomModelOptions = {
+  modelName: "correlation - pearson",
+  showMetabolites: false,
+  exposures: [],
+  outcomes: [{ label: "All metabolites", value: "All metabolites" }],
+  adjustedCovariates: [],
+  strata: [],
+  filterVariable: "",
+  filterOperator: "",
+  filterValue: "",
+  filters: [
+    {
+      variable: "",
+      operator: "",
+      value: "",
+    },
+  ],
+  time: "",
+  group: "",
+};
+
 export const formValuesState = atom({
   key: "inputForm.formValuesState",
   default: {
@@ -13,30 +34,22 @@ export const formValuesState = atom({
     selectedModelType: "",
     email: "",
     modelType: "",
-    modelName: "Unadjusted",
-    showMetabolites: false,
     showPredefinedModelTypes: false,
     showCustomModelTypes: false,
-    exposures: [],
-    outcomes: [{ label: "All metabolites", value: "All metabolites" }],
-    adjustedCovariates: [],
-    strata: [],
-    filterVariable: "",
-    filterOperator: "",
-    filterValue: "",
-    filters: [
-      {
-        variable: "",
-        operator: "",
-        value: "",
-      },
-    ],
+    ...defaultCustomModelOptions,
   },
 });
 
 export const cohortsState = selector({
   key: "inputForm.cohortsState",
-  get: getCohorts,
+  get: async () => {
+    try {
+      return await getCohorts();
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
 });
 
 export const variablesState = selector({

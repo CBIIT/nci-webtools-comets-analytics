@@ -1,0 +1,15 @@
+Type: project
+Description: COMETS Analytics server
+Depends:
+  dotenv,
+  future,
+  jsonlite,
+  openxlsx,
+  paws,
+  plumber,
+  whisker,
+  zip,
+  Biobase,
+  RcometsAnalytics
+Suggests:
+  styler

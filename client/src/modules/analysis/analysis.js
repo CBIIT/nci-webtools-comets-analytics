@@ -35,7 +35,9 @@ export default function Analysis() {
         event_label: params.get("cohort"),
       });
     } catch (error) {
-      setIntegrityCheckResults(error);
+      setIntegrityCheckResults({
+        errors: String(error),
+      });
       console.error("handleSubmitIntegrityCheck", error);
     } finally {
       setLoading(false);
@@ -61,7 +63,9 @@ export default function Analysis() {
         event_label: modelLabel,
       });
     } catch (error) {
-      setModelResults(error);
+      setModelResults({
+        error: String(error),
+      });
       console.error("handleSubmitModel", error);
     } finally {
       setLoading(false);

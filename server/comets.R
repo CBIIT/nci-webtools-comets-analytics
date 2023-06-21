@@ -9,8 +9,6 @@ source("utils.R")
 
 # configure AWS services as needed
 awsConfig <- getAwsConfig()
-s3 <- paws::s3(config = awsConfig)
-sqs <- paws::sqs(config = awsConfig)
 logger <- createLogger(
   transports = c(
     createConsoleTransport(),
@@ -144,7 +142,7 @@ runSelectedModel <- function(req, res) {
     results <- RcometsAnalytics::runModel(modelData, metaboliteData, cohort)
     logger$info(paste("Ran selected model: ", selectedModelName))
 
-    results$heatmap <- getHeatmap(results$Effects, modelClass = modelData$options$model)
+    results$heatmap <- getHeatmap(results$Effects)
     results$options <- modelData$options
     results$options$name <- selectedModelName
     results$options$type <- selectedModelType
@@ -173,6 +171,8 @@ runCustomModel <- function(req, res) {
     adjustedCovariates <- req$body$adjustedCovariates
     strata <- req$body$strata
     filters <- req$body$filters
+    time <- req$body$time
+    group <- req$body$group
     options <- req$body$options
 
     inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
@@ -186,6 +186,8 @@ runCustomModel <- function(req, res) {
       outcomes = as.character(outcomes),
       adjvars = as.character(adjustedCovariates),
       strvars = as.character(strata),
+      timevar = as.character(time),
+      groupvar = as.character(group),
       where = filters
     )
 
@@ -197,7 +199,7 @@ runCustomModel <- function(req, res) {
     )
     logger$info(paste("Ran custom model: ", modelName))
 
-    results$heatmap <- getHeatmap(results$Effects, options$model)
+    results$heatmap <- getHeatmap(results$Effects)
     results$options <- options
     results$options$name <- modelName
     results$options$type <- modelType
@@ -214,52 +216,59 @@ runCustomModel <- function(req, res) {
 #* @serializer unboxedJSON list(force=T, na="null")
 #*
 runAllModels <- function(req, res) {
-  id <- sanitize(req$body$id)
-  cohort <- sanitize(req$body$cohort)
-  originalFileName <- sanitize(req$body$inputFile)
-  email <- req$body$email
+  future({
+    shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
-  sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
-  inputFilePath <- file.path(sessionFolder, "input.xlsx")
+    s3 <- paws::s3(config = awsConfig)
+    sqs <- paws::sqs(config = awsConfig)
 
-  # determine key for s3 object
-  s3FilePath <- paste0(Sys.getenv("S3_INPUT_KEY_PREFIX"), id, "/input.xlsx")
+    id <- sanitize(req$body$id)
+    cohort <- sanitize(req$body$cohort)
+    originalFileName <- sanitize(req$body$inputFile)
+    email <- req$body$email
 
-  # upload input file to s3 bucket
-  s3$put_object(
-    Body = inputFilePath,
-    Bucket = Sys.getenv("S3_BUCKET"),
-    Key = s3FilePath
-  )
+    sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
+    inputFilePath <- file.path(sessionFolder, "input.xlsx")
 
-  logger$info(paste("Uploaded input file to s3: ", s3FilePath))
+    # determine key for s3 object
+    s3FilePath <- paste0(Sys.getenv("S3_INPUT_KEY_PREFIX"), id, "/input.xlsx")
 
-  # create parameters for queue
-  params <- list(
-    id = id,
-    cohort = cohort,
-    s3FilePath = s3FilePath,
-    originalFileName = originalFileName,
-    email = email
-  )
+    # upload input file to s3 bucket
+    s3$put_object(
+      Body = inputFilePath,
+      Bucket = Sys.getenv("S3_BUCKET"),
+      Key = s3FilePath
+    )
 
-  # determine queue url from queue name
-  queueUrl <- sqs$get_queue_url(
-    QueueName = Sys.getenv("SQS_QUEUE_NAME")
-  )$QueueUrl
+    logger$info(paste("Uploaded input file to s3: ", s3FilePath))
 
-  # enqueue parameters
-  messageStatus <- sqs$send_message(
-    QueueUrl = queueUrl,
-    MessageBody = jsonlite::toJSON(params, auto_unbox = T),
-    MessageDeduplicationId = plumber::random_cookie_key(),
-    MessageGroupId = plumber::random_cookie_key()
-  )
+    # create parameters for queue
+    params <- list(
+      id = id,
+      cohort = cohort,
+      s3FilePath = s3FilePath,
+      originalFileName = originalFileName,
+      email = email
+    )
 
-  logger$info(c("Sent parameters to queue: ", params))
-  logger$info(c("Queue response: ", messageStatus))
+    # determine queue url from queue name
+    queueUrl <- sqs$get_queue_url(
+      QueueName = Sys.getenv("SQS_QUEUE_NAME")
+    )$QueueUrl
 
-  list(queue = T)
+    # enqueue parameters
+    messageStatus <- sqs$send_message(
+      QueueUrl = queueUrl,
+      MessageBody = jsonlite::toJSON(params, auto_unbox = T),
+      MessageDeduplicationId = plumber::random_cookie_key(),
+      MessageGroupId = plumber::random_cookie_key()
+    )
+
+    logger$info(c("Sent parameters to queue: ", params))
+    logger$info(c("Queue response: ", messageStatus))
+
+    list(queue = T)
+  })
 }
 
 #* Runs a model
@@ -289,7 +298,7 @@ runModel <- function(req, res) {
     return(runAllModels(req, res))
   }
 
-  res$status <- 500
+  res$status <- 400
   list(
     error = "Invalid method specified"
   )
@@ -302,6 +311,7 @@ runModel <- function(req, res) {
 #* @serializer contentType list(type="application/octet-stream")
 #*
 getBatchResults <- function(req, res) {
+  s3 <- paws::s3(config = awsConfig)
   id <- sanitize(req$args$id)
 
   s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
@@ -316,17 +326,12 @@ getBatchResults <- function(req, res) {
 }
 
 
-getHeatmap <- function(effects, modelClass = "correlation") {
+getHeatmap <- function(effects) {
   heatmap <- list()
 
-  # by default, z should be for correlation results
   x <- "term"
   y <- "outcomespec"
-  z <- "corr"
-
-  if (length(modelClass) && modelClass %in% c("lm", "glm")) {
-    z <- "estimate"
-  }
+  z <- "estimate"
 
   heatmap$data <- effects |>
     dplyr::select(all_of(x), all_of(y), all_of(z)) |>
