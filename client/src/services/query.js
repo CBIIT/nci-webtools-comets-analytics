@@ -13,7 +13,8 @@ async function parseResponse(response) {
     data = { error: body };
   }
   if (!response.ok) {
-    throw new Error(data);
+    const message = data.error || data.message || JSON.stringify(data) || text;
+    throw new Error(message);
   }
   return data;
 }
