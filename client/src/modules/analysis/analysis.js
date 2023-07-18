@@ -64,7 +64,7 @@ export default function Analysis() {
       });
     } catch (error) {
       setModelResults({
-        error: String(error),
+        error: error.message || String(error),
       });
       console.error("handleSubmitModel", error);
     } finally {
