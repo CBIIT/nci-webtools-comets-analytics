@@ -75,6 +75,19 @@
       ],
       "Hash": "a7fca16a50b6ef7771b49d636dd54b57"
     },
+    "BiocVersion": {
+      "Package": "BiocVersion",
+      "Version": "3.14.0",
+      "Source": "Bioconductor",
+      "git_url": "https://git.bioconductor.org/packages/BiocVersion",
+      "git_branch": "master",
+      "git_last_commit": "aa56d93",
+      "git_last_commit_date": "2021-05-19",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "e57437f82a5c13263a9cf442b9796ba3"
+    },
     "ISwR": {
       "Package": "ISwR",
       "Version": "2.0-8",
@@ -161,15 +174,15 @@
     },
     "RcometsAnalytics": {
       "Package": "RcometsAnalytics",
-      "Version": "2.0.7.0",
+      "Version": "2.1.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "CBIIT",
       "RemoteRepo": "R-cometsAnalytics",
       "RemoteSubdir": "RPackageSource",
-      "RemoteRef": "comets_2.1.0_20230126",
-      "RemoteSha": "3dfe4210f35fd8d9f96d22718de3ef92e20b276d",
+      "RemoteRef": "master",
+      "RemoteSha": "e1e939ee87483409c58db7efc2e63a98db39a6f3",
       "Requirements": [
         "MASS",
         "R",
@@ -189,7 +202,7 @@
         "survival",
         "tidyr"
       ],
-      "Hash": "8bbe7763218013563ba530157d5d43c8"
+      "Hash": "44e3acce6fc54183cb0f4c9ccb5aac8e"
     },
     "Rcpp": {
       "Package": "Rcpp",
