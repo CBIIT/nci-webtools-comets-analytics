@@ -15,12 +15,12 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 
 ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
-ENV LIBSODIUM_VERSION=1.0.18
+ENV LIBSODIUM_VERSION=1.0.19
 
 RUN cd /tmp \
- && curl -O https://download.libsodium.org/libsodium/releases/libsodium-${LIBSODIUM_VERSION}.tar.gz \
+ && curl -L -O https://github.com/jedisct1/libsodium/releases/download/${LIBSODIUM_VERSION}-RELEASE/libsodium-${LIBSODIUM_VERSION}.tar.gz \
  && tar -xzf libsodium-${LIBSODIUM_VERSION}.tar.gz \
- && cd libsodium-${LIBSODIUM_VERSION} \
+ && cd libsodium-stable \
  && ./configure \
  && make \
  && make check \
@@ -43,7 +43,7 @@ COPY server ./
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
 
 # can be a tag, branch, or commit sha - used to invalidate build cache
-ARG COMETS_R_PACKAGE_REF=master
+ARG COMETS_R_PACKAGE_REF=v3.0-dev
 
 # install version of COMETS specified by tag
 RUN R -e "\
