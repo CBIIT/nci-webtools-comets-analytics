@@ -14,7 +14,8 @@ services:
       context: "."
       dockerfile: "docker/backend.dockerfile"
       args:
-        COMETS_R_PACKAGE_REF: "comets_2.1.0_20230126"
+        COMETS_R_PACKAGE_REF: "v3.0-dev"
+        GITHUB_PAT: $GITHUB_PAT
     expose:
       - "8000"
     ports: 
