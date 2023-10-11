@@ -119,9 +119,16 @@ messageHandler <- function(message) {
     logger$info(sprintf("Ran model: %s", modelName))
 
     if (length(results$errors) == 0) {
+      logger$info(sprintf("Processing time: %s", processingTime))
       resultsFile <- RcometsAnalytics::OutputXLSResults(
         filename = file.path(outputFolder, paste0(modelName, "_")),
-        datal = fromJSON(toJSON(results$output, force=T)), # hack to coerce non-serializable objects to dataframes
+        datal = list(
+          ModelSummary = results$output$ModelSummary,
+          Effects = results$output$Effects,
+          Errors_Warnings = results$output$Errors_Warnings,
+          Table1 = results$output$Table1,
+          Info = results$output$Info
+        ),
         cohort = paste0(cohort, "_")
       )
       logger$info(sprintf("Saved model results: %s", resultsFile))
