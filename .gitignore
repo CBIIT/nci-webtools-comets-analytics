@@ -11,3 +11,4 @@ server/logs
 *.env
 *.env.*
 temp
+.DS_Store
