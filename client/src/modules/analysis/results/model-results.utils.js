@@ -85,7 +85,7 @@ export function getColumns(table) {
 }
 
 export function downloadResults(results, filename) {
-  const sheetNames = ["ModelSummary", "Effects", "Errors_Warnings"];
+  const sheetNames = ["ModelSummary", "Effects", "Errors_Warnings", "Table1", "Info", "options"];
   const sheets = sheetNames.map((name) => ({ name, data: results[name] }));
   const d = new Date();
   const pad = (e) => String(e).padStart(2, "0");
