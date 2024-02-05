@@ -8,24 +8,23 @@ RUN dnf -y update \
    libjpeg-turbo-devel \
    libxml2-devel \
    openssl-devel \
-   R \
    v8-devel \
    mariadb-connector-c-devel \
+   libsodium \
+   libsodium-devel \
+   R-core-devel \
+   readline-devel \
+   libXt-devel  \
    && dnf clean all
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
-
-ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-
-ENV LIBSODIUM_VERSION=1.0.19
+ENV R_VERSION=4.3.2
 
 RUN cd /tmp \
-   && curl -L -O https://github.com/jedisct1/libsodium/releases/download/${LIBSODIUM_VERSION}-RELEASE/libsodium-${LIBSODIUM_VERSION}.tar.gz \
-   && tar -xzf libsodium-${LIBSODIUM_VERSION}.tar.gz \
-   && cd libsodium-stable \
+   && curl -O https://cran.rstudio.com/src/base/R-4/R-${R_VERSION}.tar.gz \
+   && tar -xzvf R-${R_VERSION}.tar.gz \
+   && cd R-${R_VERSION} \
    && ./configure \
    && make \
-   && make check \
    && make install
 
 RUN mkdir -p /server
