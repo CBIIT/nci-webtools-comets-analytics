@@ -34,7 +34,7 @@
   "Packages": {
     "Biobase": {
       "Package": "Biobase",
-      "Version": "2.54.0",
+      "Version": "2.62.0",
       "Source": "Bioconductor",
       "Requirements": [
         "BiocGenerics",
@@ -42,7 +42,7 @@
         "methods",
         "utils"
       ],
-      "Hash": "767057b0e2897e2a43b59718be888ccd"
+      "Hash": "38252a34e82d3ff6bb46b4e2252d2dce"
     },
     "BiocFileCache": {
       "Package": "BiocFileCache",
@@ -65,7 +65,7 @@
     },
     "BiocGenerics": {
       "Package": "BiocGenerics",
-      "Version": "0.40.0",
+      "Version": "0.48.1",
       "Source": "Bioconductor",
       "Requirements": [
         "R",
@@ -74,7 +74,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "ddc1d29bbe66aaef34b0d17620b61a69"
+      "Hash": "e34278c65d7dffcc08f737bf0944ca9a"
     },
     "BiocManager": {
       "Package": "BiocManager",
