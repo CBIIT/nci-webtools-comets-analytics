@@ -30,7 +30,8 @@ runPredefinedModel <- function(cometsInput, modelName, cohort) {
   RcometsAnalytics::runModel(
     modelData,
     cometsInput,
-    cohort
+    cohort,
+    writeTofile = T
   )
 }
 

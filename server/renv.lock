@@ -329,7 +329,7 @@
     },
     "RcometsAnalytics": {
       "Package": "RcometsAnalytics",
-      "Version": "2.9.0.16",
+      "Version": "2.9.0.19",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
@@ -337,7 +337,7 @@
       "RemoteRepo": "R-cometsAnalytics",
       "RemoteSubdir": "RPackageSource",
       "RemoteRef": "v3.0-dev",
-      "RemoteSha": "bf1edc478a1d877ee5d5919b650f43bd72c36e6f",
+      "RemoteSha": "40bf254efc1fa7d1b26cf5c3bd11fa2d5752856a",
       "Requirements": [
         "MASS",
         "R",
@@ -358,7 +358,7 @@
         "survival",
         "tidyr"
       ],
-      "Hash": "2449ecc5131a254f6e2288d9eed66159"
+      "Hash": "e0344f8ef56b5d72b869284655d3558d"
     },
     "Rcpp": {
       "Package": "Rcpp",
