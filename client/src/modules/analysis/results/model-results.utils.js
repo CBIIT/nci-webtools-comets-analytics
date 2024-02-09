@@ -85,7 +85,9 @@ export function getColumns(table) {
 }
 
 export function downloadResults(results, filename) {
-  const sheetNames = ["ModelSummary", "Effects", "Errors_Warnings", "Table1", "Info"];
+  const sheetNames = ["ModelSummary", "Effects", "ChemEnrich", "Errors_Warnings", "Table1", "Info"].filter(
+    (sheet) => results[sheet]
+  );
   const sheets = sheetNames.map((name) => ({ name, data: results[name] }));
   const d = new Date();
   const pad = (e) => String(e).padStart(2, "0");
@@ -93,13 +95,14 @@ export function downloadResults(results, filename) {
     d.getFullYear(),
     pad(d.getMonth() + 1),
     pad(d.getDate()),
-    "_",
-    pad(d.getHours()),
-    pad(d.getMinutes()),
-    pad(d.getSeconds()),
+    // "_",
+    // pad(d.getHours()),
+    // pad(d.getMinutes()),
+    // pad(d.getSeconds()),
   ].join("");
   const modelName = results.options?.name?.replace(/\s+/g, "_");
-  filename = filename || `${modelName}_${timestamp}.xlsx`;
+  const cohort = results.Info?.filter((e) => e.name === "cohort")[0]?.value?.replace(/\s+/g, "_");
+  filename = filename || `${modelName}_${cohort}_${timestamp}.xlsx`;
   downloadTables(sheets, filename);
 
   window.gtag("event", "download", {
