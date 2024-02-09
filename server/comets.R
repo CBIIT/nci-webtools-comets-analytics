@@ -139,7 +139,7 @@ runSelectedModel <- function(req, res) {
     metaboliteData <- readRDS(inputFilePath)
 
     modelData <- RcometsAnalytics::getModelData(metaboliteData, modlabel = selectedModelName)
-    results <- RcometsAnalytics::runModel(modelData, metaboliteData, cohort, writeTofile = T)
+    results <- RcometsAnalytics::runModel(modelData, metaboliteData, cohort)
     logger$info(paste("Ran selected model: ", selectedModelName))
 
     results$heatmap <- getHeatmap(results$Effects)
@@ -195,8 +195,7 @@ runCustomModel <- function(req, res) {
       modelData,
       metaboliteData,
       cohort,
-      op = options,
-      writeTofile = T
+      op = options
     )
     logger$info(paste("Ran custom model: ", modelName))
 
