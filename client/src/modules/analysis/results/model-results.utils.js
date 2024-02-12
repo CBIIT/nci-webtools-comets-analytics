@@ -99,7 +99,7 @@ export function downloadResults(results, filename) {
     // pad(d.getHours()),
     // pad(d.getMinutes()),
     // pad(d.getSeconds()),
-  ].join("");
+  ].join("-");
   const modelName = results.options?.name?.replace(/\s+/g, "_");
   const cohort = results.Info?.filter((e) => e.name === "cohort")[0]?.value?.replace(/\s+/g, "_");
   filename = filename || `${modelName}__${cohort}__${timestamp}.xlsx`;
