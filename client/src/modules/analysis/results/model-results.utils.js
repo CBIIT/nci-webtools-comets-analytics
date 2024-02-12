@@ -102,7 +102,7 @@ export function downloadResults(results, filename) {
   ].join("");
   const modelName = results.options?.name?.replace(/\s+/g, "_");
   const cohort = results.Info?.filter((e) => e.name === "cohort")[0]?.value?.replace(/\s+/g, "_");
-  filename = filename || `${modelName}_${cohort}_${timestamp}.xlsx`;
+  filename = filename || `${modelName}__${cohort}__${timestamp}.xlsx`;
   downloadTables(sheets, filename);
 
   window.gtag("event", "download", {
