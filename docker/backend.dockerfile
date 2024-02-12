@@ -15,6 +15,7 @@ RUN dnf -y update \
    R-core-devel \
    readline-devel \
    libXt-devel  \
+   cairo-devel \
    && dnf clean all
 
 ENV R_VERSION=4.3.2
