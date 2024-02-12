@@ -25,7 +25,6 @@ RUN cd /tmp \
    && tar -xzvf R-${R_VERSION}.tar.gz \
    && cd R-${R_VERSION} \
    && ./configure \
-   --prefix=$HOME/R \
    && make \
    && make install
 
