@@ -109,18 +109,18 @@
     },
     "DBI": {
       "Package": "DBI",
-      "Version": "1.2.1",
+      "Version": "1.2.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "9b4993e98e0e19da84c168460c032fef"
+      "Hash": "164809cd72e1d5160b4cb3aa57f510fe"
     },
     "DT": {
       "Package": "DT",
-      "Version": "0.31",
+      "Version": "0.32",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -133,7 +133,7 @@
         "magrittr",
         "promises"
       ],
-      "Hash": "77b5189f5272ae2b21e3ac2175ad107c"
+      "Hash": "0d3ab8abbb0c3e3daa47d4dc8e17bbae"
     },
     "ISwR": {
       "Package": "ISwR",
@@ -306,7 +306,7 @@
       "RemoteUsername": "ncats",
       "RemoteRepo": "RAMP-DB",
       "RemoteRef": "sqlite",
-      "RemoteSha": "65ccc89fffcd9e662f6ecc02d828ca44ba58f5eb",
+      "RemoteSha": "4cec70e50e05201664a6e6b66eb6f6e6ec6f96df",
       "Requirements": [
         "BiocFileCache",
         "DBI",
@@ -337,11 +337,11 @@
         "visNetwork",
         "xtable"
       ],
-      "Hash": "204982e3b3a0cebe0bb5dbd7cc537eb6"
+      "Hash": "3985ee8a17537c60dbd0652b2d8f4aa6"
     },
     "RcometsAnalytics": {
       "Package": "RcometsAnalytics",
-      "Version": "2.9.0.19",
+      "Version": "2.9.0.24",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
@@ -349,11 +349,10 @@
       "RemoteRepo": "R-cometsAnalytics",
       "RemoteSubdir": "RPackageSource",
       "RemoteRef": "v3.0-dev",
-      "RemoteSha": "40bf254efc1fa7d1b26cf5c3bd11fa2d5752856a",
+      "RemoteSha": "60020b25447f10386faf4338d2e81cf3b11ddb79",
       "Requirements": [
         "MASS",
         "R",
-        "RaMP",
         "broom",
         "caret",
         "data.table",
@@ -370,7 +369,7 @@
         "survival",
         "tidyr"
       ],
-      "Hash": "e0344f8ef56b5d72b869284655d3558d"
+      "Hash": "4d03ed565ccfd676b76233af6646e9f0"
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -429,7 +428,7 @@
     },
     "V8": {
       "Package": "V8",
-      "Version": "4.4.1",
+      "Version": "4.4.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -438,7 +437,7 @@
         "jsonlite",
         "utils"
       ],
-      "Hash": "435359b59b8a9b8f9235135da471ea3c"
+      "Hash": "ca98390ad1cef2a5a609597b49d3d042"
     },
     "XML": {
       "Package": "XML",
@@ -544,6 +543,18 @@
         "vctrs"
       ],
       "Hash": "40415719b5a479b87949f3aa0aee737c"
+    },
+    "boot": {
+      "Package": "boot",
+      "Version": "1.3-28.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "stats"
+      ],
+      "Hash": "9a052fbcbe97a98ceb18dbfd30ebd96e"
     },
     "broom": {
       "Package": "broom",
@@ -748,10 +759,10 @@
     },
     "commonmark": {
       "Package": "commonmark",
-      "Version": "1.9.0",
+      "Version": "1.9.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "d691c61bff84bd63c383874d2d0c3307"
+      "Hash": "5d8225445acb167abf7797de48b2ee3c"
     },
     "corpcor": {
       "Package": "corpcor",
@@ -2255,7 +2266,7 @@
     },
     "quantmod": {
       "Package": "quantmod",
-      "Version": "0.4.25",
+      "Version": "0.4.26",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2267,7 +2278,7 @@
         "xts",
         "zoo"
       ],
-      "Hash": "d64914f80e2e0bec895a2c5740b21040"
+      "Hash": "59321b609790f8ccf92145810e4dd507"
     },
     "rappdirs": {
       "Package": "rappdirs",
@@ -2643,6 +2654,19 @@
         "R"
       ],
       "Hash": "5f5a7629f956619d519205ec475fe647"
+    },
+    "spatial": {
+      "Package": "spatial",
+      "Version": "7.3-17",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "stats",
+        "utils"
+      ],
+      "Hash": "1229a01b4ec059e9f2396724f2ec9010"
     },
     "stringi": {
       "Package": "stringi",

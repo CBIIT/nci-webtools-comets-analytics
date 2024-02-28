@@ -24,7 +24,7 @@ RUN cd /tmp \
    && curl -O https://cran.rstudio.com/src/base/R-4/R-${R_VERSION}.tar.gz \
    && tar -xzvf R-${R_VERSION}.tar.gz \
    && cd R-${R_VERSION} \
-   && ./configure \
+   && ./configure --with-libpng=yes --enable-R-shlib \
    && make \
    && make install
 
@@ -32,12 +32,21 @@ RUN mkdir -p /server
 
 WORKDIR /server
 
+# install R packages with renv
 COPY server/renv.lock ./
+COPY server/.Rprofile ./
+COPY server/renv/activate.R ./renv/
+COPY server/renv/settings.dcf ./renv/
+
+# copy renv cache if available
+ENV RENV_PATHS_CACHE=/server/renv/cache
+RUN mkdir ${RENV_PATHS_CACHE}
+ARG R_RENV_CACHE_HOST=/renvCach[e]
+COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
 
 RUN R -e "\
    options(Ncpus=parallel::detectCores()); \
    install.packages('renv', repos = 'https://cloud.r-project.org/'); \
-   renv::init(bare = T); \
    renv::restore(); \
    renv::snapshot();"
 

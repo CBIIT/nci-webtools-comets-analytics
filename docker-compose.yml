@@ -2,6 +2,8 @@ services:
   processor:
     build: 
       context: "."
+      args:
+        - R_RENV_CACHE_HOST=./server/renv/cache
       dockerfile: "docker/backend.dockerfile"
     entrypoint: "Rscript processor.R"
     volumes:
@@ -12,6 +14,8 @@ services:
   backend:
     build: 
       context: "."
+      args:
+        - R_RENV_CACHE_HOST=./server/renv/cache
       dockerfile: "docker/backend.dockerfile"
     expose:
       - "8000"
