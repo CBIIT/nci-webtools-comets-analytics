@@ -47,6 +47,7 @@ COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
 RUN R -e "\
    options(Ncpus=parallel::detectCores()); \
    install.packages('renv', repos = 'https://cloud.r-project.org/'); \
+   renv::init(bare = T); \
    renv::restore(); \
    renv::snapshot();"
 
