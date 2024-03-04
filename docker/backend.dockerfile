@@ -50,6 +50,15 @@ RUN R -e "\
    renv::restore(); \
    renv::snapshot();"
 
+# can be a tag, branch, or commit sha - used to invalidate build cache
+ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
+ARG COMETS_R_PACKAGE_REF=v3.0-dev
+
+# install version of COMETS specified by tag
+RUN R -e "\
+   renv::install('${COMETS_R_PACKAGE_URL}@${COMETS_R_PACKAGE_REF}'); \
+   renv::snapshot();"
+
 COPY server ./
 
 ENV TZ=America/New_York

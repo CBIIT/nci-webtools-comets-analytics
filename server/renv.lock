@@ -339,38 +339,6 @@
       ],
       "Hash": "3985ee8a17537c60dbd0652b2d8f4aa6"
     },
-    "RcometsAnalytics": {
-      "Package": "RcometsAnalytics",
-      "Version": "2.9.0.24",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "CBIIT",
-      "RemoteRepo": "R-cometsAnalytics",
-      "RemoteSubdir": "RPackageSource",
-      "RemoteRef": "v3.0-dev",
-      "RemoteSha": "60020b25447f10386faf4338d2e81cf3b11ddb79",
-      "Requirements": [
-        "MASS",
-        "R",
-        "broom",
-        "caret",
-        "data.table",
-        "dplyr",
-        "heatmaply",
-        "plotly",
-        "plyr",
-        "ppcor",
-        "psych",
-        "readxl",
-        "rio",
-        "stringr",
-        "subselect",
-        "survival",
-        "tidyr"
-      ],
-      "Hash": "4d03ed565ccfd676b76233af6646e9f0"
-    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.11",
