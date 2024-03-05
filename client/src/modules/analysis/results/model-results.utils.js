@@ -84,7 +84,26 @@ export function getColumns(table) {
   });
 }
 
-export function downloadResults(results, filename) {
+export function downloadResults(data, filename) {
+  let results = data;
+  // Add placeholder columns for empty sheets
+  if (data?.Errors_Warnings) {
+    results = {
+      ...data,
+      Errors_Warnings: data.Errors_Warnings?.length
+        ? data.Errors_Warnings
+        : [
+            {
+              type: "",
+              object: "",
+              message: "",
+              stratavar: "",
+              strata: "",
+            },
+          ],
+    };
+  }
+
   const sheetNames = ["ModelSummary", "Effects", "ChemEnrich", "Errors_Warnings", "Table1", "Info"].filter(
     (sheet) => results[sheet]
   );
