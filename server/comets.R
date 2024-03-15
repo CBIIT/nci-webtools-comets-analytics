@@ -21,7 +21,7 @@ logger <- createLogger(
 logger$info("Started COMETS Server")
 
 #* Returns COMETS status
-#* @get /ping
+#* @get /ping/
 #* @serializer unboxedJSON
 ping <- function() {
   TRUE
@@ -219,9 +219,6 @@ runAllModels <- function(req, res) {
   future({
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
-    s3 <- paws::s3(config = awsConfig)
-    sqs <- paws::sqs(config = awsConfig)
-
     id <- sanitize(req$body$id)
     cohort <- sanitize(req$body$cohort)
     originalFileName <- sanitize(req$body$inputFile)
@@ -229,43 +226,43 @@ runAllModels <- function(req, res) {
 
     sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
     inputFilePath <- file.path(sessionFolder, "input.xlsx")
+    paramsFilePath <- file.path(sessionFolder, "params.json")
 
-    # determine key for s3 object
-    s3FilePath <- paste0(Sys.getenv("S3_INPUT_KEY_PREFIX"), id, "/input.xlsx")
-
-    # upload input file to s3 bucket
-    s3$put_object(
-      Body = inputFilePath,
-      Bucket = Sys.getenv("S3_BUCKET"),
-      Key = s3FilePath
-    )
-
-    logger$info(paste("Uploaded input file to s3: ", s3FilePath))
-
-    # create parameters for queue
     params <- list(
       id = id,
       cohort = cohort,
-      s3FilePath = s3FilePath,
       originalFileName = originalFileName,
       email = email
     )
+    write_json(params, paramsFilePath)
 
-    # determine queue url from queue name
-    queueUrl <- sqs$get_queue_url(
-      QueueName = Sys.getenv("SQS_QUEUE_NAME")
-    )$QueueUrl
-
-    # enqueue parameters
-    messageStatus <- sqs$send_message(
-      QueueUrl = queueUrl,
-      MessageBody = jsonlite::toJSON(params, auto_unbox = T),
-      MessageDeduplicationId = plumber::random_cookie_key(),
-      MessageGroupId = plumber::random_cookie_key()
-    )
-
-    logger$info(c("Sent parameters to queue: ", params))
-    logger$info(c("Queue response: ", messageStatus))
+    workerType <- Sys.getenv("WORKER_TYPE")
+    logger$debug(workerType)
+    if (workerType == "fargate") {
+      svc <- ecs()
+      svc$run_task(
+        cluster = Sys.getenv("ECS_CLUSTER"),
+        count = 1,
+        launchType = "FARGATE",
+        networkConfiguration = list(
+          awsvpcConfiguration = list(
+            securityGroups = as.list(unlist(strsplit(Sys.getenv("SECURITY_GROUP_IDS"), ","))),
+            subnets = as.list(unlist(strsplit(Sys.getenv("SUBNET_IDS"), ",")))
+          )
+        ),
+        taskDefinition:Sys.getenv("WORKER_TASK_NAME"),
+        overrides = list(
+          containerOverrides = list(
+            list(
+              name = "worker",
+              command = list("Rscript", "worker.R", id)
+            )
+          )
+        )
+      )
+    } else {
+      system(paste0("Rscript worker.R ", id), wait = FALSE)
+    }
 
     list(queue = T)
   })
@@ -311,18 +308,10 @@ runModel <- function(req, res) {
 #* @serializer contentType list(type="application/octet-stream")
 #*
 getBatchResults <- function(req, res) {
-  s3 <- paws::s3(config = awsConfig)
   id <- sanitize(req$args$id)
-
-  s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
-
-  s3Object <- s3$get_object(
-    Bucket = Sys.getenv("S3_BUCKET"),
-    Key = s3FilePath
-  )
-
+  outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
   res$setHeader("Content-Disposition", 'attachment; filename="comets_results.zip"')
-  s3Object$Body
+  include_file(outputFile)
 }
 
 
