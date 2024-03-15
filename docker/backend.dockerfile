@@ -16,6 +16,7 @@ RUN dnf -y update \
    readline-devel \
    libXt-devel  \
    cairo-devel \
+   rsync \
    && dnf clean all
 
 ENV R_VERSION=4.3.2
