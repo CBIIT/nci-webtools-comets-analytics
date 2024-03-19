@@ -44,12 +44,7 @@ ENV RENV_PATHS_CACHE=/server/renv/cache
 RUN mkdir ${RENV_PATHS_CACHE}
 ARG R_RENV_CACHE_HOST=/renvCach[e]
 COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
-
-RUN R -e "\
-   options(Ncpus=parallel::detectCores()); \
-   install.packages('renv', repos = 'https://cloud.r-project.org/'); \
-   renv::restore(); \
-   renv::snapshot();"
+RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
 # can be a tag, branch, or commit sha - used to invalidate build cache
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
