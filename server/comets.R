@@ -250,7 +250,7 @@ runAllModels <- function(req, res) {
             subnets = as.list(unlist(strsplit(Sys.getenv("SUBNET_IDS"), ",")))
           )
         ),
-        taskDefinition:Sys.getenv("WORKER_TASK_NAME"),
+        taskDefinition = Sys.getenv("WORKER_TASK_NAME"),
         overrides = list(
           containerOverrides = list(
             list(
