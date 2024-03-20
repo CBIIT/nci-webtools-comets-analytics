@@ -108,15 +108,18 @@ messageHandler <- function(id) {
 
         if (length(results$errors) == 0) {
             logger$info(sprintf("Processing time: %s", processingTime))
+            datal <- list(
+                ModelSummary = results$output$ModelSummary,
+                Effects = results$output$Effects,
+                Errors_Warnings = results$output$Errors_Warnings,
+                Info = results$output$Info
+            )
+            if (!is.null(results$output$Table1)) {
+                datal$Table1 <- results$output$Table1
+            }
             resultsFile <- RcometsAnalytics::OutputXLSResults(
                 filename = file.path(outputFolder, paste0(modelName, "_")),
-                datal = list(
-                    ModelSummary = results$output$ModelSummary,
-                    Effects = results$output$Effects,
-                    Errors_Warnings = results$output$Errors_Warnings,
-                    Table1 = results$output$Table1,
-                    Info = results$output$Info
-                ),
+                datal = datal,
                 cohort = paste0(cohort, "_")
             )
             logger$info(sprintf("Saved model results: %s", resultsFile))
@@ -132,31 +135,12 @@ messageHandler <- function(id) {
         ))
     }
 
-    # outputFile <- file.path(outputFolder, "output.zip")
-    outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
+    outputFile <- file.path(outputFolder, "output.zip")
     zip::zip(outputFile, list.files(outputFolder, full.names = T), mode = "cherry-pick")
 
     logger$info(paste("Created output file: ", outputFile))
 
-    # s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
 
-    # upload output file to s3 bucket
-    # s3$put_object(
-    #     Body = outputFile,
-    #     Bucket = Sys.getenv("S3_BUCKET"),
-    #     Key = s3FilePath
-    # )
-
-    # logger$info(paste("Uploaded output file to s3: ", s3FilePath))
-
-    # s3$delete_object(
-    #     Bucket = Sys.getenv("S3_BUCKET"),
-    #     Key = params$s3FilePath
-    # )
-    # logger$info(sprintf("Deleted original input file from s3: %s", params$s3FilePath))
-
-    unlink(outputFolder, recursive = T)
-    logger$info(paste("Deleted local results: ", outputFolder))
 
     # generate success email
     template <- readLines(file.path("email-templates", "user-success.html"))
@@ -190,7 +174,6 @@ errorHandler <- function(message, output) {
     id <- sanitize(params$id)
     cohort <- sanitize(params$cohort)
     originalFileName <- params$originalFileName
-    s3FilePath <- params$s3FilePath
     email <- params$email
 
     errors <- output$errors
@@ -231,14 +214,6 @@ errorHandler <- function(message, output) {
     )
 
     logger$info(paste("Sent admin failure email to: ", Sys.getenv("EMAIL_ADMIN")))
-
-    callWithHandlers(
-        s3$delete_object,
-        Bucket = Sys.getenv("S3_BUCKET"),
-        Key = s3FilePath
-    )
-
-    logger$info(sprintf("Deleted original input file from s3: %s", s3FilePath))
 }
 
 logger$info("Started COMETS worker")

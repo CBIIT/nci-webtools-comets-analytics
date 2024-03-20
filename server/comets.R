@@ -237,7 +237,7 @@ runAllModels <- function(req, res) {
     write_json(params, paramsFilePath)
 
     workerType <- Sys.getenv("WORKER_TYPE")
-    logger$debug(workerType)
+    logger$info(paste0("Launched All Models worker: ", workerType))
     if (workerType == "fargate") {
       svc <- ecs()
       svc$run_task(
