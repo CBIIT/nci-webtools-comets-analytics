@@ -305,13 +305,13 @@ runModel <- function(req, res) {
 #* Retrieves an s3 url for batch results
 #*
 #* @get /batchResults/<id>
-#* @serializer contentType list(type="application/octet-stream")
+#* @serializer contentType list(type="application/zip")
 #*
 getBatchResults <- function(req, res) {
   id <- sanitize(req$args$id)
   outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
   res$setHeader("Content-Disposition", 'attachment; filename="comets_results.zip"')
-  include_file(outputFile)
+  readBin(outputFile, "raw", n = file.info(outputFile)$size)
 }
 
 
