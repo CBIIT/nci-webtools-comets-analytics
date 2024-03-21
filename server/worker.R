@@ -135,7 +135,7 @@ messageHandler <- function(id) {
         ))
     }
 
-    outputFile <- file.path(outputFolder, "output.zip")
+    outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
     zip::zip(outputFile, list.files(outputFolder, full.names = T), mode = "cherry-pick")
 
     logger$info(paste("Created output file: ", outputFile))
