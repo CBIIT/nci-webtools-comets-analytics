@@ -140,13 +140,11 @@ messageHandler <- function(id) {
 
     logger$info(paste("Created output file: ", outputFile))
 
-
-
     # generate success email
     template <- readLines(file.path("email-templates", "user-success.html"))
     templateData <- list(
         originalFileName = params$originalFileName,
-        resultsUrl = paste0(Sys.getenv("EMAIL_BASE_URL"), "/api/batchResults/", id),
+        resultsUrl = paste0(Sys.getenv("EMAIL_BASE_URL"), "api/batchResults/", id),
         totalProcessingTime = round(sum(unlist(modelResults$processingTime)), 2),
         modelResults = whisker::rowSplit(modelResults)
     )
