@@ -120,15 +120,18 @@ messageHandler <- function(message) {
 
     if (length(results$errors) == 0) {
       logger$info(sprintf("Processing time: %s", processingTime))
+      datal <- list(
+        ModelSummary = results$output$ModelSummary,
+        Effects = results$output$Effects,
+        Errors_Warnings = results$output$Errors_Warnings,
+        Info = results$output$Info
+      )
+      if (!is.null(results$output$Table1)) {
+        datal$Table1 <- results$output$Table1
+      }
       resultsFile <- RcometsAnalytics::OutputXLSResults(
         filename = file.path(outputFolder, paste0(modelName, "_")),
-        datal = list(
-          ModelSummary = results$output$ModelSummary,
-          Effects = results$output$Effects,
-          Errors_Warnings = results$output$Errors_Warnings,
-          Table1 = results$output$Table1,
-          Info = results$output$Info
-        ),
+        datal = datal,
         cohort = paste0(cohort, "_")
       )
       logger$info(sprintf("Saved model results: %s", resultsFile))
