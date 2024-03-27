@@ -12,21 +12,11 @@ RUN dnf -y update \
    mariadb-connector-c-devel \
    libsodium \
    libsodium-devel \
-   R-core-devel \
+   R-4.3.2 \
    readline-devel \
    libXt-devel  \
    cairo-devel \
    && dnf clean all
-
-ENV R_VERSION=4.3.2
-
-RUN cd /tmp \
-   && curl -O https://cran.rstudio.com/src/base/R-4/R-${R_VERSION}.tar.gz \
-   && tar -xzvf R-${R_VERSION}.tar.gz \
-   && cd R-${R_VERSION} \
-   && ./configure --with-libpng=yes --enable-R-shlib \
-   && make \
-   && make install
 
 RUN mkdir -p /server
 
