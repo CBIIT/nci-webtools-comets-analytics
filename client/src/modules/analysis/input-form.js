@@ -207,10 +207,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                   </option>
                 ))}
               </Form.Select>
-              <Form.Text>
-                If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique custom
-                name for each dataset
-              </Form.Text>
+              <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
             </Form.Group>
 
             {formValues.cohort === "Other/Undefined" && (
@@ -223,7 +220,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                   onChange={handleChange}
                   disabled={integrityCheckResults?.id}
                 />
-                <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
+                <Form.Text>
+                  If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique
+                  custom name for each dataset
+                </Form.Text>
               </Form.Group>
             )}
 
