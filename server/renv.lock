@@ -29,7 +29,7 @@
     ]
   },
   "Bioconductor": {
-    "Version": "3.14"
+    "Version": "3.18"
   },
   "Packages": {
     "Biobase": {
@@ -46,9 +46,8 @@
     },
     "BiocFileCache": {
       "Package": "BiocFileCache",
-      "Version": "2.10.2",
+      "Version": "2.10.1",
       "Source": "Bioconductor",
-      "Repository": "Bioconductor 3.18",
       "Requirements": [
         "DBI",
         "R",
@@ -62,7 +61,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "d59a927de08cce606299009cc595b2cb"
+      "Hash": "ac2a12468b948654220ed90ae94e9d08"
     },
     "BiocGenerics": {
       "Package": "BiocGenerics",
@@ -300,14 +299,14 @@
     },
     "RaMP": {
       "Package": "RaMP",
-      "Version": "3.0.1",
+      "Version": "3.0.0",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "ncats",
       "RemoteRepo": "RAMP-DB",
       "RemoteRef": "sqlite",
-      "RemoteSha": "8fa7a9d92f5d5586f795b3b9a281f5be8e39a334",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "4cec70e50e05201664a6e6b66eb6f6e6ec6f96df",
       "Requirements": [
         "BiocFileCache",
         "DBI",
@@ -338,7 +337,7 @@
         "visNetwork",
         "xtable"
       ],
-      "Hash": "060d47f309f7f91a2dc933a4a550204d"
+      "Hash": "3985ee8a17537c60dbd0652b2d8f4aa6"
     },
     "RcometsAnalytics": {
       "Package": "RcometsAnalytics",
@@ -349,7 +348,7 @@
       "RemoteRepo": "R-cometsAnalytics",
       "RemoteSubdir": "RPackageSource",
       "RemoteRef": "v3.0-dev",
-      "RemoteSha": "4ed7bf9674b20664bf22c8ab6c26095b9a5b682f",
+      "RemoteSha": "431fb5e3620e7c8a737821d06e20d9839b96793f",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "MASS",
@@ -370,7 +369,7 @@
         "survival",
         "tidyr"
       ],
-      "Hash": "68eeca79b3fd159d636c05e4a327c14f"
+      "Hash": "df772e364ba95d94287618c78d20eed1"
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -1882,13 +1881,13 @@
     },
     "paws.compute": {
       "Package": "paws.compute",
-      "Version": "0.5.0",
+      "Version": "0.4.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "paws.common"
       ],
-      "Hash": "31c510a7c324db340d7616f111fdbefb"
+      "Hash": "05b885b89a051daa20c75ebf934eda4e"
     },
     "paws.cost.management": {
       "Package": "paws.cost.management",
@@ -2407,13 +2406,13 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.0.3",
+      "Version": "1.0.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "utils"
       ],
-      "Hash": "41b847654f567341725473431dd0d5ab"
+      "Hash": "32c3f93e8360f667ca5863272ec8ba6a"
     },
     "reshape2": {
       "Package": "reshape2",
