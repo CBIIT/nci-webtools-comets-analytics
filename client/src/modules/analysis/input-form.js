@@ -86,6 +86,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       const asValue = (obj) => (obj ? obj.value : null);
       onSubmitModel({
         ...formValues,
+        cohort: formValues.cohort === "Other/Undefined" ? formValues.customCohort : formValues.cohort,
         id: integrityCheckResults.id,
         selectedModelName: asValue(formValues.selectedModelName),
         options: getOptions(formValues.modelType, true),
@@ -208,6 +209,23 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
               </Form.Select>
               <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
             </Form.Group>
+
+            {formValues.cohort === "Other/Undefined" && (
+              <Form.Group controlId="customCohort" className="mb-3">
+                <Form.Label className="required">Custom Cohort</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="customCohort"
+                  value={formValues.customCohort}
+                  onChange={handleChange}
+                  disabled={integrityCheckResults?.id}
+                />
+                <Form.Text>
+                  If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique
+                  custom name for each dataset
+                </Form.Text>
+              </Form.Group>
+            )}
 
             <Form.Group controlId="inputFile" className="mb-3">
               <Form.Label className="required">Input Data File</Form.Label>
@@ -506,7 +524,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
-                        closeMenuOnSelect={false}
+                        // closeMenuOnSelect={false}
                       />
                     </Form.Group>
                     <Form.Group controlId="outcomes" className="mb-3">
@@ -520,7 +538,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
-                        closeMenuOnSelect={false}
+                        // closeMenuOnSelect={false}
                       />
                     </Form.Group>
                     <Form.Group controlId="adjustedCovariates" className="mb-3">
@@ -534,7 +552,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
-                        closeMenuOnSelect={false}
+                        // closeMenuOnSelect={false}
                       />
                     </Form.Group>
                     <Form.Group controlId="strata" className="mb-3">
@@ -548,7 +566,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
-                        closeMenuOnSelect={false}
+                        // closeMenuOnSelect={false}
                       />
                     </Form.Group>
                     <Form.Group className="mb-3">
@@ -599,7 +617,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           value={formValues.time}
                           onChange={(ev) => handleSelectChange("time", ev)}
                           options={nonMetaboliteVariables}
-                          closeMenuOnSelect={true}
+                          // closeMenuOnSelect={true}
                           isClearable
                         />
                       </Form.Group>
@@ -614,7 +632,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           value={formValues.group}
                           onChange={(ev) => handleSelectChange("group", ev)}
                           options={nonMetaboliteVariables}
-                          closeMenuOnSelect={true}
+                          // closeMenuOnSelect={true}
                           isClearable
                         />
                       </Form.Group>

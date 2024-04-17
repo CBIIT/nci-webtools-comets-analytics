@@ -11,3 +11,5 @@ server/logs
 *.env
 *.env.*
 temp
+.DS_Store
+server/renv/cache/[^\.gitkeep]*

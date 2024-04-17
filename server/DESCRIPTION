@@ -13,3 +13,4 @@ Depends:
   RcometsAnalytics
 Suggests:
   styler
+biocViews: Infrastructure, Software

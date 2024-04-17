@@ -3,9 +3,6 @@
 server/.Rproj.user
 server/logs
 server/results
-server/renv/library
-server/renv/staging
 server/temp
 server/*.env
 client/build
-server/renv
