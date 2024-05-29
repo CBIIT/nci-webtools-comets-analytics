@@ -29,7 +29,7 @@
     ]
   },
   "Bioconductor": {
-    "Version": "3.18"
+    "Version": "3.14"
   },
   "Packages": {
     "Biobase": {
@@ -133,7 +133,7 @@
         "magrittr",
         "promises"
       ],
-      "Hash": "da62109ee93d6f8f24f80190f8a85deb"
+      "Hash": "64ff3427f559ce3f2597a4fe13255cb6"
     },
     "ISwR": {
       "Package": "ISwR",
@@ -312,11 +312,11 @@
         "plogr",
         "rlang"
       ],
-      "Hash": "401bb6597abffecee093990e90c60f26"
+      "Hash": "ae4a925e0f6bb1b7e5fa96b739c5221a"
     },
     "RaMP": {
       "Package": "RaMP",
-      "Version": "3.0.0",
+      "Version": "3.0.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
@@ -357,7 +357,7 @@
         "visNetwork",
         "xtable"
       ],
-      "Hash": "35f1ecbcb26030901ff2b1e8b34f9dee"
+      "Hash": "517acbfcd4d1549a05c6275980aafe2f"
     },
     "RcometsAnalytics": {
       "Package": "RcometsAnalytics",
@@ -369,7 +369,7 @@
       "RemoteRepo": "R-cometsAnalytics",
       "RemoteSubdir": "RPackageSource",
       "RemoteRef": "master",
-      "RemoteSha": "9ecb51f76d78b46f06f7623b883509f90117ed2b",
+      "RemoteSha": "5d35be46a359f0ddead36a6a48866560665bb1ee",
       "Requirements": [
         "MASS",
         "R",
@@ -389,7 +389,7 @@
         "survival",
         "tidyr"
       ],
-      "Hash": "cdd1e6c1f120be490f7d91eebdf2ba39"
+      "Hash": "cf22f5d2b845d038d6ce6be8cd50c913"
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -1564,7 +1564,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "912000398ac5f47685c75528fc59f38f"
+      "Hash": "6e008ab1d696a5283c79765fa7b56b47"
     },
     "labeling": {
       "Package": "labeling",
@@ -1904,13 +1904,13 @@
     },
     "paws.compute": {
       "Package": "paws.compute",
-      "Version": "0.4.0",
+      "Version": "0.6.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "paws.common"
       ],
-      "Hash": "05b885b89a051daa20c75ebf934eda4e"
+      "Hash": "f9a130a8f63986177bd497037b2e0447"
     },
     "paws.cost.management": {
       "Package": "paws.cost.management",
@@ -2430,13 +2430,11 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.0.6",
-      "Source": "Repository",
+      "Version": "1.0.7",
+      "OS_type": null,
+      "NeedsCompilation": "no",
       "Repository": "CRAN",
-      "Requirements": [
-        "utils"
-      ],
-      "Hash": "9657a35efec183ca64a5bbd71468e97a"
+      "Source": "Repository"
     },
     "reshape2": {
       "Package": "reshape2",
