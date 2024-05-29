@@ -52,6 +52,7 @@ getCohorts <- function() {
 loadFile <- function(req, res) {
   # future-scoped blocks only have access to copies of the
   # request and response objects
+  inputFile <- req$body$inputFile
   future({
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
@@ -62,7 +63,6 @@ loadFile <- function(req, res) {
     dir.create(sessionFolder, recursive = T)
 
     # write input file to session folder
-    inputFile <- req$body$inputFile
     inputFilePath <- file.path(sessionFolder, "input.xlsx")
     writeBin(inputFile$value, inputFilePath)
 
@@ -127,13 +127,13 @@ loadFile <- function(req, res) {
 #* @serializer unboxedJSON list(force=T, na="null")
 #*
 runSelectedModel <- function(req, res) {
+  id <- sanitize(req$body$id)
+  cohort <- sanitize(req$body$cohort)
+  selectedModelType <- sanitize(req$body$selectedModelType)
+  selectedModelName <- sanitize(req$body$selectedModelName)
   future({
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
-    id <- sanitize(req$body$id)
-    cohort <- sanitize(req$body$cohort)
-    selectedModelType <- sanitize(req$body$selectedModelType)
-    selectedModelName <- sanitize(req$body$selectedModelName)
 
     inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
@@ -159,21 +159,21 @@ runSelectedModel <- function(req, res) {
 #* @serializer unboxedJSON list(force=T, na="null")
 #*
 runCustomModel <- function(req, res) {
+  id <- sanitize(req$body$id)
+  cohort <- sanitize(req$body$cohort)
+  modelType <- sanitize(req$body$modelType)
+  modelName <- sanitize(req$body$modelName)
+  exposures <- req$body$exposures
+  outcomes <- req$body$outcomes
+  adjustedCovariates <- req$body$adjustedCovariates
+  strata <- req$body$strata
+  filters <- req$body$filters
+  time <- req$body$time
+  group <- req$body$group
+  options <- req$body$options
   future({
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
-    id <- sanitize(req$body$id)
-    cohort <- sanitize(req$body$cohort)
-    modelType <- sanitize(req$body$modelType)
-    modelName <- sanitize(req$body$modelName)
-    exposures <- req$body$exposures
-    outcomes <- req$body$outcomes
-    adjustedCovariates <- req$body$adjustedCovariates
-    strata <- req$body$strata
-    filters <- req$body$filters
-    time <- req$body$time
-    group <- req$body$group
-    options <- req$body$options
 
     inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
@@ -216,13 +216,13 @@ runCustomModel <- function(req, res) {
 #* @serializer unboxedJSON list(force=T, na="null")
 #*
 runAllModels <- function(req, res) {
+  id <- sanitize(req$body$id)
+  cohort <- sanitize(req$body$cohort)
+  originalFileName <- sanitize(req$body$inputFile)
+  email <- req$body$email
   future({
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
-    id <- sanitize(req$body$id)
-    cohort <- sanitize(req$body$cohort)
-    originalFileName <- sanitize(req$body$inputFile)
-    email <- req$body$email
 
     sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
     inputFilePath <- file.path(sessionFolder, "input.xlsx")
