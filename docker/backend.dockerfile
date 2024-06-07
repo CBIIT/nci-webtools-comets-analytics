@@ -16,29 +16,25 @@ RUN dnf -y update \
    readline-devel \
    libXt-devel  \
    cairo-devel \
+   rsync \
    && dnf clean all
 
 RUN mkdir -p /server
 
-WORKDIR /server
 
 # install R packages with renv
-COPY server/renv.lock ./
-COPY server/.Rprofile ./
-COPY server/renv/activate.R ./renv/
-COPY server/renv/settings.dcf ./renv/
+COPY server/renv.lock /server/
+COPY server/.Rprofile /server/
+COPY server/renv/activate.R /server/renv/
+COPY server/renv/settings.dcf /server/renv/
 
 # copy renv cache if available
 ENV RENV_PATHS_CACHE=/server/renv/cache
 RUN mkdir ${RENV_PATHS_CACHE}
 ARG R_RENV_CACHE_HOST=/renvCach[e]
 COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
-
-RUN R -e "\
-   options(Ncpus=parallel::detectCores()); \
-   install.packages('renv', repos = 'https://cloud.r-project.org/'); \
-   renv::restore(); \
-   renv::snapshot();"
+WORKDIR /server
+RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
 # can be a tag, branch, or commit sha - used to invalidate build cache
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
@@ -49,7 +45,7 @@ RUN R -e "\
    renv::install('${COMETS_R_PACKAGE_URL}@${COMETS_R_PACKAGE_REF}'); \
    renv::snapshot();"
 
-COPY server ./
+COPY server /server/
 
 ENV TZ=America/New_York
 CMD Rscript server.R

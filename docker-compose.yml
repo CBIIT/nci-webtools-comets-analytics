@@ -1,16 +1,16 @@
 services:
-  processor:
-    build: 
-      context: "."
-      args:
-        - R_RENV_CACHE_HOST=./server/renv/cache
-      dockerfile: "docker/backend.dockerfile"
-    entrypoint: "Rscript processor.R"
-    volumes:
-      - "./server/temp:/server/temp"
-      - "./server/logs:/server/logs"
-    env_file:
-      - server/.env      
+  # processor:
+  #   build: 
+  #     context: "."
+  #     args:
+  #       - R_RENV_CACHE_HOST=./server/renv/cache
+  #     dockerfile: "docker/backend.dockerfile"
+  #   entrypoint: "Rscript processor.R"
+  #   volumes:
+  #     - "./server/temp:/server/temp"
+  #     - "./server/logs:/server/logs"
+  #   env_file:
+  #     - server/.env      
   backend:
     build: 
       context: "."
