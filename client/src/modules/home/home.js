@@ -31,11 +31,11 @@ export default function Home() {
             <Row className="justify-content-start">
               <Col md={12}>
                 <h3 className="h5 mb-4">
-                  COMETS Analytics v3.0
-                  <Badge pill bg="success" className="ms-2">
+                  <span className="me-2">COMETS Analytics v3.0</span>
+                  <Badge pill bg="success" className="me-2">
                     Available in R
                   </Badge>
-                  <Badge pill bg="primary" className="ms-2">
+                  <Badge pill bg="primary" className="me-2">
                     Upcoming in Web
                   </Badge>
                 </h3>
