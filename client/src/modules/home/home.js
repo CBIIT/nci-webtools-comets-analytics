@@ -40,6 +40,7 @@ export default function Home() {
                   </Badge>
                 </h3>
                 <p>
+                  New features include:
                   <ul>
                     <li>Support for performing meta-analyses, chemical enrichment, and pathway enrichment</li>
                   </ul>
