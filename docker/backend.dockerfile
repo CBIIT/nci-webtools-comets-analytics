@@ -38,7 +38,7 @@ RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
 # can be a tag, branch, or commit sha - used to invalidate build cache
 ARG COMETS_R_PACKAGE_URL=CBIIT/R-cometsAnalytics/RPackageSource
-ARG COMETS_R_PACKAGE_REF=v3.0-dev
+ARG COMETS_R_PACKAGE_REF=master
 
 # install version of COMETS specified by tag
 RUN R -e "\
