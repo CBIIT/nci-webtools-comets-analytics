@@ -31,16 +31,18 @@ export default function Home() {
             <Row className="justify-content-start">
               <Col md={12}>
                 <h3 className="h5 mb-4">
-                  COMETS Analytics v2.1
-                  <Badge pill bg="primary" className="ms-2">
-                    New Release
+                  <span className="me-2">COMETS Analytics v3.0</span>
+                  <Badge pill bg="success" className="me-2">
+                    Available in R
+                  </Badge>
+                  <Badge pill bg="primary" className="me-2">
+                    Upcoming in Web
                   </Badge>
                 </h3>
-
                 <p>
                   New features include:
                   <ul>
-                    <li>Support for running survival and and conditional logistic models</li>
+                    <li>Support for performing meta-analyses, chemical enrichment, and pathway enrichment</li>
                   </ul>
                 </p>
                 <p>
