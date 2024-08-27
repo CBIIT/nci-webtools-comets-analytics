@@ -20,7 +20,7 @@ RUN npm install
 COPY client /client/
 
 RUN npm run build \
- && mv /client/build/* /var/www/html/
+ && mv /client/dist/* /var/www/html/
 
 COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
