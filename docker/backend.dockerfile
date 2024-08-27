@@ -39,10 +39,11 @@ COPY server/renv/activate.R /server/renv/
 COPY server/renv/settings.json /server/renv/
 
 # copy renv cache if available
-ENV RENV_PATHS_CACHE=/server/renv/cache
-RUN mkdir ${RENV_PATHS_CACHE}
-ARG R_RENV_CACHE_HOST=/renvCach[e]
-COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
+# note: disabled since we are using ppm
+# ENV RENV_PATHS_CACHE=/server/renv/cache
+# RUN mkdir ${RENV_PATHS_CACHE}
+# ARG R_RENV_CACHE_HOST=/renvCach[e]
+# COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
 WORKDIR /server
 RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore(repos=c(CRAN='https://packagemanager.posit.co/cran/__linux__/rhel9/latest'))"
 
