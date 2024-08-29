@@ -39,12 +39,10 @@ export default function Home() {
                     Upcoming in Web
                   </Badge>
                 </h3>
-                <p>
-                  New features include:
-                  <ul>
-                    <li>Support for performing meta-analyses, chemical enrichment, and pathway enrichment</li>
-                  </ul>
-                </p>
+                New features include:
+                <ul>
+                  <li>Support for performing meta-analyses, chemical enrichment, and pathway enrichment</li>
+                </ul>
                 <p>
                   Check out the R Package{" "}
                   <a

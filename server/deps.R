@@ -7,3 +7,5 @@ library(plumber)
 library(RcometsAnalytics)
 library(whisker)
 library(zip)
+library(Hmisc)
+library(RaMP) # ncats/RaMP-DB@sqlite
