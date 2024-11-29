@@ -1,4 +1,4 @@
-FROM oraclelinux:9
+FROM --platform=linux/amd64 oraclelinux:9
 
 RUN dnf -y update \
    && dnf config-manager --set-enabled ol9_codeready_builder \
