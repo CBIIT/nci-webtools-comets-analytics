@@ -56,6 +56,7 @@ export default function Analysis() {
           allModels: "all",
           selectedModel: params.selectedModelName,
           customModel: params.modelName,
+          metaAnalysis: "Meta-Analysis",
         }[params.method] || "custom";
 
       window.gtag("event", "run", {
