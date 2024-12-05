@@ -295,6 +295,11 @@ runModel <- function(req, res) {
     return(runAllModels(req, res))
   }
 
+  # meta analysis (queue models)
+  else if (method == "metaAnalysis") {
+    return(runAllModels(req, res))
+  }
+
   res$status <- 400
   list(
     error = "Invalid method specified"
