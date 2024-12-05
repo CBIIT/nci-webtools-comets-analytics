@@ -33,6 +33,7 @@ export const formValuesState = atom({
     method: "allModels",
     selectedModelName: "",
     selectedModelType: "",
+    selectedModelNames: [],
     email: "",
     modelType: "",
     showPredefinedModelTypes: false,
