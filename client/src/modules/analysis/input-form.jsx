@@ -50,7 +50,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
 
     if (name === "selectedModelType") {
-      mergeFormValues({ selectedModelName: null });
+      mergeFormValues({ selectedModelName: null, selectedModelNames: [] });
     }
 
     if (name === "modelType") {
@@ -298,6 +298,15 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                     onChange={handleChange}
                     checked={formValues.method === "customModel"}
                   />
+                  <Form.Check
+                    type="radio"
+                    name="method"
+                    value="metaAnalysis"
+                    id="metaAnalysis"
+                    label="Meta-analysis"
+                    onChange={handleChange}
+                    checked={formValues.method === "metaAnalysis"}
+                  />
                 </Form.Group>
 
                 {formValues.method === "allModels" && (
@@ -479,6 +488,74 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         placeholder="Enter model description"></Form.Control>
                     </Form.Group>
                   </div>
+                )}
+
+                {formValues.method === "metaAnalysis" && (
+                  <>
+                    <div className="border p-3 mb-3">
+                      <Form.Group controlId="selectedModelType" className="mb-3">
+                        <Form.Label className="required">Model Type</Form.Label>
+                        <Form.Select
+                          name="selectedModelType"
+                          onChange={handleChange}
+                          value={formValues.selectedModelType}
+                          required>
+                          <option value="" hidden>
+                            Select model type
+                          </option>
+                          {integrityCheckResults.modelTypes
+                            .filter(
+                              (modelType) =>
+                                modelType.model &&
+                                integrityCheckResults.models.find((m) => m.model_type === modelType.name)
+                            )
+                            .map((modelType, i) => (
+                              <option value={modelType.name} key={`selected-model-type-${i}`}>
+                                {modelType.name}
+                              </option>
+                            ))}
+                        </Form.Select>
+                      </Form.Group>
+
+                      <Form.Group controlId="selectedModelNames" className="mb-3">
+                        <Form.Label className="required">Models</Form.Label>
+                        <Select
+                          isMulti
+                          placeholder="No models chosen"
+                          name="selectedModelNames"
+                          value={formValues.selectedModelNames}
+                          onChange={(ev) => handleSelectChange("selectedModelNames", ev)}
+                          defaultOptions
+                          options={integrityCheckResults.models
+                            .filter(
+                              (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type
+                            )
+                            .map((m, i) => ({
+                              value: m.model,
+                              label: !formValues.showPredefinedModelTypes ? m.model : `${m.model_type} - ${m.model}`,
+                            }))}
+                        />
+                      </Form.Group>
+
+                      <Form.Group controlId="email" className="mb-3">
+                        <Form.Label className="required">Email</Form.Label>
+                        <Form.Control type="email" name="email" onChange={handleChange} value={formValues.email} />
+                      </Form.Group>
+                    </div>
+
+                    <div className="text-end">
+                      <Button type="reset" variant="danger-outline" className="me-1">
+                        Reset
+                      </Button>
+
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={formValues.selectedModelNames?.length <= 1 || !formValues.selectedModelType}>
+                        Run Meta-Analysis
+                      </Button>
+                    </div>
+                  </>
                 )}
               </Form>
             </Card.Body>
