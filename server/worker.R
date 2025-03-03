@@ -43,6 +43,7 @@ messageHandler <- function(id) {
     cohort <- sanitize(params$cohort)
     originalFileName <- params$originalFileName
     email <- params$email
+    runMeta <- params$runMeta
 
 
     outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output")
@@ -133,6 +134,9 @@ messageHandler <- function(id) {
             hasWarnings = length(results$warnings) > 0,
             hasErrors = length(results$errors) > 0
         ))
+
+        if (runMeta)
+        RcometsAnalytics::runMeta(...)
     }
 
     outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
