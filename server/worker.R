@@ -135,8 +135,24 @@ messageHandler <- function(id) {
             hasErrors = length(results$errors) > 0
         ))
 
-        if (runMeta)
-        RcometsAnalytics::runMeta(...)
+        # if (runMeta)
+        # RcometsAnalytics::runMeta(...)
+        if (isTRUE(runMeta)) {
+            logger$info("Running meta-analysis across selected models...")
+            metaResults <- RcometsAnalytics::runMeta(
+                cometsInput,
+                cohort = cohort
+            )
+
+            metaResultsFile <- RcometsAnalytics::OutputXLSResults(
+                filename = file.path(outputFolder, "meta_analysis_"),
+                datal = metaResults,
+                cohort = paste0(cohort, "_")
+            )
+
+            logger$info(sprintf("Saved meta-analysis results: %s", metaResultsFile))
+        }
+
     }
 
     outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
