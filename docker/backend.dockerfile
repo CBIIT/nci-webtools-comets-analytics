@@ -40,6 +40,9 @@ ARG COMETS_R_PACKAGE_REF=master
 # install version of COMETS specified by tag
 RUN R -e "renv::install('${COMETS_R_PACKAGE_URL}@${COMETS_R_PACKAGE_REF}')"
 
+# install RaMP package from GitHub
+RUN R -e "renv::install('ncats/RaMP-DB')"
+
 COPY server /server/
 
 ENV TZ=America/New_York

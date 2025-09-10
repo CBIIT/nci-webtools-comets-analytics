@@ -298,15 +298,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                     onChange={handleChange}
                     checked={formValues.method === "customModel"}
                   />
-                  <Form.Check
-                    type="radio"
-                    name="method"
-                    value="metaAnalysis"
-                    id="metaAnalysis"
-                    label="Meta-analysis"
-                    onChange={handleChange}
-                    checked={formValues.method === "metaAnalysis"}
-                  />
+                  
                 </Form.Group>
 
                 {formValues.method === "allModels" && (
