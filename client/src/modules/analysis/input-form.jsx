@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import Select from "react-select";
 import Form from "react-bootstrap/Form";
@@ -7,12 +7,15 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 import ObjectList from "../common/object-list";
 import { isNull, omitBy } from "lodash";
 import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
 export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onReset }) {
+  const [activeTab, setActiveTab] = useState("cohort-analysis");
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
   const variables = useRecoilValue(variablesState);
@@ -24,6 +27,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     (variable) => !variable.isMetabolite && variable.value !== "All metabolites"
   );
   const inputFileRef = useRef(null);
+  const metaAnalysisFileRef = useRef(null);
 
   function handleChange(event) {
     let { name, value, type, files, checked } = event.target;
@@ -33,7 +37,21 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
 
     if (type === "file") {
-      value = files && files.length ? files[0].name : null;
+      if (files && files.length) {
+        // Handle multiple files - store file names as array or count
+        if (files.length === 1) {
+          value = files[0].name;
+        } else if (files.length <= 100) {
+          value = `${files.length} files selected`;
+        } else {
+          // Limit to 100 files
+          event.target.value = '';
+          alert('Maximum 100 files allowed. Please select fewer files.');
+          return;
+        }
+      } else {
+        value = null;
+      }
     }
 
     if (name === "showPredefinedModelTypes") {
@@ -62,7 +80,44 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       });
     }
 
+    // Validate multiple emails if it's the email field
+    if (name === "email" && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emails = value.split(';').map(email => email.trim());
+      const invalidEmails = emails.filter(email => email && !emailRegex.test(email));
+      
+      if (invalidEmails.length > 0) {
+        // Store the value but mark it as having validation errors
+        mergeFormValues({ 
+          [name]: value,
+          emailValidationError: `Invalid email format: ${invalidEmails.join('; ')}`
+        });
+        return;
+      } else {
+        // Clear any previous validation errors
+        mergeFormValues({ 
+          [name]: value,
+          emailValidationError: null
+        });
+        return;
+      }
+    }
+
     mergeFormValues({ [name]: value });
+  }
+
+  function getFileCount(inputFileValue) {
+    if (!inputFileValue) return 0;
+    if (typeof inputFileValue === 'string') {
+      // Check if it's the format "X files selected"
+      const match = inputFileValue.match(/^(\d+) files selected$/);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+      // If it's a single file name, return 1
+      return 1;
+    }
+    return 0;
   }
 
   function handleSelectChange(name, selection = []) {
@@ -109,6 +164,9 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     resetFormValues();
     if (inputFileRef?.current) {
       inputFileRef.current.value = "";
+    }
+    if (metaAnalysisFileRef?.current) {
+      metaAnalysisFileRef.current.value = "";
     }
     if (typeof onReset === "function") {
       onReset();
@@ -190,76 +248,149 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     <>
       <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
         <Card.Body>
-          <Form onSubmit={submitIntegrityCheck} onReset={reset}>
-            <h2 className="h5 text-primary mb-4">Cohort-Specific Analyses</h2>
+          <Tabs
+            activeKey={activeTab}
+            onSelect={setActiveTab}
+            className="mb-4"
+            id="analysis-tabs"
+            variant="tabs"
+          >
+            <Tab eventKey="cohort-analysis" title="Cohort-Specific Analyses">
+              <Form onSubmit={submitIntegrityCheck} onReset={reset}>
+                <Form.Group controlId="cohort" className="mb-3">
+                  <Form.Label className="required">COMETS Cohort</Form.Label>
+                  <Form.Select
+                    name="cohort"
+                    value={formValues.cohort}
+                    onChange={handleChange}
+                    disabled={integrityCheckResults?.id}>
+                    <option value="Other/Undefined">Other/Undefined</option>
+                    {cohorts.map((c) => (
+                      <option key={c.Cohort} value={c.Cohort}>
+                        {c.Cohort}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
+                </Form.Group>
 
-            <Form.Group controlId="cohort" className="mb-3">
-              <Form.Label className="required">COMETS Cohort</Form.Label>
-              <Form.Select
-                name="cohort"
-                value={formValues.cohort}
-                onChange={handleChange}
-                disabled={integrityCheckResults?.id}>
-                <option value="Other/Undefined">Other/Undefined</option>
-                {cohorts.map((c) => (
-                  <option key={c.Cohort} value={c.Cohort}>
-                    {c.Cohort}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
-            </Form.Group>
+                {formValues.cohort === "Other/Undefined" && (
+                  <Form.Group controlId="customCohort" className="mb-3">
+                    <Form.Label className="required">Custom Cohort</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="customCohort"
+                      value={formValues.customCohort}
+                      onChange={handleChange}
+                      disabled={integrityCheckResults?.id}
+                    />
+                    <Form.Text>
+                      If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique
+                      custom name for each dataset
+                    </Form.Text>
+                  </Form.Group>
+                )}
 
-            {formValues.cohort === "Other/Undefined" && (
-              <Form.Group controlId="customCohort" className="mb-3">
-                <Form.Label className="required">Custom Cohort</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="customCohort"
-                  value={formValues.customCohort}
-                  onChange={handleChange}
-                  disabled={integrityCheckResults?.id}
-                />
-                <Form.Text>
-                  If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique
-                  custom name for each dataset
-                </Form.Text>
-              </Form.Group>
-            )}
+                <Form.Group controlId="inputFile" className="mb-3">
+                  <Form.Label className="required">Input Data File</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="inputFile"
+                    ref={inputFileRef}
+                    onChange={handleChange}
+                    disabled={integrityCheckResults?.id}
+                  />
+                  <Form.Text>
+                    <i className="bi bi-download me-1"></i>
+                    <a
+                      href="files/cometsInputAge.xlsx"
+                      onClick={(ev) =>
+                        window.gtag("event", "download", {
+                          event_category: "file",
+                          event_label: "sample input",
+                        })
+                      }>
+                      Download Sample Input
+                    </a>
+                  </Form.Text>
+                </Form.Group>
 
-            <Form.Group controlId="inputFile" className="mb-3">
-              <Form.Label className="required">Input Data File</Form.Label>
-              <Form.Control
-                type="file"
-                name="inputFile"
-                ref={inputFileRef}
-                onChange={handleChange}
-                disabled={integrityCheckResults?.id}
-              />
-              <Form.Text>
-                <i className="bi bi-download me-1"></i>
-                <a
-                  href="files/cometsInputAge.xlsx"
-                  onClick={(ev) =>
-                    window.gtag("event", "download", {
-                      event_category: "file",
-                      event_label: "sample input",
-                    })
-                  }>
-                  Download Sample Input
-                </a>
-              </Form.Text>
-            </Form.Group>
+                <div className="text-end">
+                  <Button type="reset" variant="danger-outline" className="me-1" disabled={integrityCheckResults?.id}>
+                    Reset
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={integrityCheckResults?.id || !formValues.inputFile}>
+                    Check Integrity
+                  </Button>
+                </div>
+              </Form>
+            </Tab>
+            
+            <Tab eventKey="meta-analysis" title="Meta-Analysis">
+              <Form>
+                <Form.Group controlId="metaAnalysisFiles" className="mb-3">
+                  <Form.Label className="required">Input Data Files</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="metaAnalysisFiles"
+                    ref={metaAnalysisFileRef}
+                    onChange={handleChange}
+                    disabled={integrityCheckResults?.id}
+                    multiple
+                    accept=".xlsx,.xls,.csv"
+                  />
+                  <Form.Text className="d-block">
+                    Select up to 100 files. Accepted formats: .xlsx, .xls, .csv
+                  </Form.Text>
+                  <Form.Text>
+                    <i className="bi bi-download me-1"></i>
+                    <a
+                      href="files/cometsInputAge.xlsx"
+                      onClick={(ev) =>
+                        window.gtag("event", "download", {
+                          event_category: "file",
+                          event_label: "sample input",
+                        })
+                      }>
+                      Download Sample Inputs
+                    </a>
+                  </Form.Text>
+                </Form.Group>
+                <Form.Group controlId="email" className="mb-3">
+                  <Form.Label className="required">Email(s)</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    name="email" 
+                    onChange={handleChange} 
+                    value={formValues.email}
+                    placeholder="Enter email addresses separated by semicolons"
+                    isInvalid={!!formValues.emailValidationError}
+                  />
+                  {formValues.emailValidationError && (
+                    <Form.Control.Feedback type="invalid">
+                      {formValues.emailValidationError}
+                    </Form.Control.Feedback>
+                  )}
+                  <Form.Text>
+                    Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
+                  </Form.Text>
+                </Form.Group>
+              </Form>
 
-            <div className="text-end">
-              <Button type="reset" variant="danger-outline" className="me-1" disabled={integrityCheckResults?.id}>
-                Reset
-              </Button>
-              <Button type="submit" variant="primary" disabled={integrityCheckResults?.id || !formValues.inputFile}>
-                Check Integrity
-              </Button>
-            </div>
-          </Form>
+               <div className="text-end">
+                <Button type="reset" variant="danger-outline" className="me-1">
+                  Reset
+                </Button>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={getFileCount(formValues.metaAnalysisFiles) < 2}>
+                  Run {formValues.metaAnalysisFiles && `(${getFileCount(formValues.metaAnalysisFiles)} files)`}
+                </Button>
+              </div>
+            </Tab>
+          </Tabs>
         </Card.Body>
       </Card>
 
@@ -530,8 +661,23 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       </Form.Group>
 
                       <Form.Group controlId="email" className="mb-3">
-                        <Form.Label className="required">Email</Form.Label>
-                        <Form.Control type="email" name="email" onChange={handleChange} value={formValues.email} />
+                        <Form.Label className="required">Email(s)</Form.Label>
+                        <Form.Control 
+                          type="text" 
+                          name="email" 
+                          onChange={handleChange} 
+                          value={formValues.email}
+                          placeholder="Enter email addresses separated by semicolons"
+                          isInvalid={!!formValues.emailValidationError}
+                        />
+                        {formValues.emailValidationError && (
+                          <Form.Control.Feedback type="invalid">
+                            {formValues.emailValidationError}
+                          </Form.Control.Feedback>
+                        )}
+                        <Form.Text>
+                          Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
+                        </Form.Text>
                       </Form.Group>
                     </div>
 
@@ -543,7 +689,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Button
                         type="submit"
                         variant="primary"
-                        disabled={formValues.selectedModelNames?.length <= 1 || !formValues.selectedModelType}>
+                        disabled={
+                          formValues.selectedModelNames?.length <= 1 || 
+                          !formValues.selectedModelType || 
+                          !formValues.email || 
+                          !!formValues.emailValidationError
+                        }>
                         Run Meta-Analysis
                       </Button>
                     </div>
