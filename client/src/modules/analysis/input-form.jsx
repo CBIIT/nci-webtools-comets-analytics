@@ -173,6 +173,19 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
   }
 
+  function resetMetaAnalysis(event) {
+    event.preventDefault();
+    // Reset only meta-analysis specific fields and stay on the same tab
+    mergeFormValues({ 
+      metaAnalysisFiles: null,
+      email: "",
+      emailValidationError: null
+    });
+    if (metaAnalysisFileRef?.current) {
+      metaAnalysisFileRef.current.value = "";
+    }
+  }
+
   function filterVariable({ data }, value, limit = 100) {
     const { label, isMetabolite } = data;
     const showMetabolite = !isMetabolite || (isMetabolite && formValues.showMetabolites);
@@ -327,7 +340,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
             </Tab>
             
             <Tab eventKey="meta-analysis" title="Meta-Analysis">
-              <Form>
+              <Form onReset={reset}>
                 <Form.Group controlId="metaAnalysisFiles" className="mb-3">
                   <Form.Label className="required">Input Data Files</Form.Label>
                   <Form.Control
@@ -378,7 +391,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
               </Form>
 
                <div className="text-end">
-                <Button type="reset" variant="danger-outline" className="me-1">
+                <Button type="button" variant="danger-outline" className="me-1" onClick={resetMetaAnalysis}>
                   Reset
                 </Button>
 
