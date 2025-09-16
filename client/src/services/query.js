@@ -37,8 +37,15 @@ export async function getIntegrityCheckResults(params) {
 export async function getModelResults(params) {
   const response = await fetch("api/runModel", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(params),
+    body: params,
+  });
+  return await parseResponse(response);
+}
+
+export async function getMetaAnalysisResults(formData) {
+  const response = await fetch("api/runMetaAnalysis", {
+    method: "POST",
+    body: formData, // FormData object containing files and email
   });
   return await parseResponse(response);
 }

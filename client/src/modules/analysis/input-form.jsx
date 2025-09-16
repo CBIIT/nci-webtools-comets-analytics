@@ -14,7 +14,7 @@ import { isNull, omitBy } from "lodash";
 import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
-export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onReset }) {
+export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSubmitMetaAnalysis, onReset, onTabSelect }) {
   const [activeTab, setActiveTab] = useState("cohort-analysis");
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
@@ -159,6 +159,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
   }
 
+  function submitMetaAnalysis(event) {
+    event.preventDefault();
+    if (onSubmitMetaAnalysis) {
+      const formData = new FormData(event.target);
+      onSubmitMetaAnalysis(formData);
+    }
+  }
+
   function reset(event) {
     event.preventDefault();
     resetFormValues();
@@ -173,8 +181,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
   }
 
+  function handleTabSelect(key) {
+    setActiveTab(key);
+    if (onTabSelect) {
+      onTabSelect(key);
+    }
+  }
+
   function resetMetaAnalysis(event) {
-    event.preventDefault();
     // Reset only meta-analysis specific fields and stay on the same tab
     mergeFormValues({ 
       metaAnalysisFiles: null,
@@ -263,7 +277,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
         <Card.Body>
           <Tabs
             activeKey={activeTab}
-            onSelect={setActiveTab}
+            onSelect={handleTabSelect}
             className="mb-4"
             id="analysis-tabs"
             variant="tabs"
@@ -340,7 +354,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
             </Tab>
             
             <Tab eventKey="meta-analysis" title="Meta-Analysis">
-              <Form onReset={reset}>
+              <Form onSubmit={submitMetaAnalysis} onReset={reset}>
                 <Form.Group controlId="metaAnalysisFiles" className="mb-3">
                   <Form.Label className="required">Input Data Files</Form.Label>
                   <Form.Control
@@ -388,20 +402,20 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                     Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
                   </Form.Text>
                 </Form.Group>
+
+                <div className="text-end">
+                  <Button type="button" variant="danger-outline" className="me-1" onClick={resetMetaAnalysis}>
+                    Reset
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={getFileCount(formValues.metaAnalysisFiles) < 2 || !formValues.email || !!formValues.emailValidationError}>
+                    Run {formValues.metaAnalysisFiles && `(${getFileCount(formValues.metaAnalysisFiles)} files)`}
+                  </Button>
+                </div>
               </Form>
-
-               <div className="text-end">
-                <Button type="button" variant="danger-outline" className="me-1" onClick={resetMetaAnalysis}>
-                  Reset
-                </Button>
-
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={getFileCount(formValues.metaAnalysisFiles) < 2}>
-                  Run {formValues.metaAnalysisFiles && `(${getFileCount(formValues.metaAnalysisFiles)} files)`}
-                </Button>
-              </div>
             </Tab>
           </Tabs>
         </Card.Body>
