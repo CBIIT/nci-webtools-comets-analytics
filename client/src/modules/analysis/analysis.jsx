@@ -133,48 +133,62 @@ export default function Analysis() {
             </ErrorBoundary>
           </Col>
           <Col md={8}>
-            <Tab.Container id="results-tabs" activeKey={activeResultsTab} onSelect={handleSelectTab}>
-              <Card className="shadow-sm mb-3" style={{ minHeight: "400px" }}>
-                <Card.Header>
-                  <Nav variant="tabs">
-                    {!isMetaAnalysisMode && (
+            <ErrorBoundary
+              fallback={
+                <Alert variant="danger">
+                  An internal error prevented the results panel from loading. Please contact the website administrator if
+                  this problem persists.
+                </Alert>
+              }>
+              <Tab.Container id="results-tabs" activeKey={activeResultsTab} onSelect={handleSelectTab}>
+                <Card className="shadow-sm mb-3" style={{ minHeight: "400px" }}>
+                  <Card.Header>
+                    <Nav variant="tabs">
+                      {!isMetaAnalysisMode && (
+                        <Nav.Item>
+                          <Nav.Link eventKey="integrityCheckResults">Integrity Check</Nav.Link>
+                        </Nav.Item>
+                      )}
                       <Nav.Item>
-                        <Nav.Link eventKey="integrityCheckResults">Integrity Check</Nav.Link>
-                      </Nav.Item>
-                    )}
-                    <Nav.Item>
-                      <Nav.Link eventKey="modelResults" disabled={!modelResults}>
-                        Results
-                      </Nav.Link>
-                    </Nav.Item>
-                    {!isMetaAnalysisMode && (
-                      <Nav.Item>
-                        <Nav.Link eventKey="heatmap" disabled={!modelResults}>
-                          Heatmap
+                        <Nav.Link eventKey="modelResults" disabled={!modelResults}>
+                          Results
                         </Nav.Link>
                       </Nav.Item>
-                    )}
-                  </Nav>
-                </Card.Header>
-                <Card.Body>
-                  <Tab.Content>
-                    {!isMetaAnalysisMode && (
-                      <Tab.Pane eventKey="integrityCheckResults">
-                        <IntegrityCheckResults results={integrityCheckResults} />
+                      {!isMetaAnalysisMode && (
+                        <Nav.Item>
+                          <Nav.Link eventKey="heatmap" disabled={!modelResults}>
+                            Heatmap
+                          </Nav.Link>
+                        </Nav.Item>
+                      )}
+                    </Nav>
+                  </Card.Header>
+                  <Card.Body>
+                    <Tab.Content>
+                      {!isMetaAnalysisMode && (
+                        <Tab.Pane eventKey="integrityCheckResults">
+                          <ErrorBoundary fallback={<Alert variant="danger">Error loading integrity check results.</Alert>}>
+                            <IntegrityCheckResults results={integrityCheckResults} />
+                          </ErrorBoundary>
+                        </Tab.Pane>
+                      )}
+                      <Tab.Pane eventKey="modelResults">
+                        <ErrorBoundary fallback={<Alert variant="danger">Error loading model results.</Alert>}>
+                          <ModelResults results={modelResults} />
+                        </ErrorBoundary>
                       </Tab.Pane>
-                    )}
-                    <Tab.Pane eventKey="modelResults">
-                      <ModelResults results={modelResults} />
-                    </Tab.Pane>
-                    {!isMetaAnalysisMode && (
-                      <Tab.Pane eventKey="heatmap">
-                        <HeatmapResults results={modelResults} formValues={formValues} />
-                      </Tab.Pane>
-                    )}
-                  </Tab.Content>
-                </Card.Body>
-              </Card>
-            </Tab.Container>
+                      {!isMetaAnalysisMode && (
+                        <Tab.Pane eventKey="heatmap">
+                          <ErrorBoundary fallback={<Alert variant="danger">Error loading heatmap results.</Alert>}>
+                            <HeatmapResults results={modelResults} formValues={formValues} />
+                          </ErrorBoundary>
+                        </Tab.Pane>
+                      )}
+                    </Tab.Content>
+                  </Card.Body>
+                </Card>
+              </Tab.Container>
+            </ErrorBoundary>
           </Col>
         </Row>
       </Container>
