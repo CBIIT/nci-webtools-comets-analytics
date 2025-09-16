@@ -307,6 +307,145 @@ runModel <- function(req, res) {
 }
 
 
+#* Runs meta-analysis across multiple files
+#*
+#* @post /runMetaAnalysis
+#*
+#* @parser multi
+#* @serializer unboxedJSON list(force=T, na="null")
+#*
+runMetaAnalysis <- function(req, res) {
+  id <- plumber::random_cookie_key()
+  
+  # Extract email properly (it comes as a list, take the first element)
+  email <- req$body$email
+  if (is.list(email) && length(email) > 0) {
+    email <- email[[1]]
+  }
+  
+  future({
+    shouldLog # inject globals (needed since shouldLog is not in the future scope)
+
+    # Create session folder
+    sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
+    dir.create(sessionFolder, recursive = TRUE)
+    outputFolder <- file.path(sessionFolder, "output")
+    dir.create(outputFolder, recursive = TRUE)
+    
+    # Create input folder for multiple files
+    inputFolder <- file.path(sessionFolder, "input")
+    dir.create(inputFolder, recursive = TRUE)
+    
+    # Save uploaded files to input folder
+    files <- req$body
+    
+    # Debug: log the structure of req$body
+    logger$info(sprintf("Request body structure: %s", paste(names(files), collapse = ", ")))
+    
+    # Find all file objects (those with filename and value properties)
+    savedFiles <- c()
+    fileCount <- 0
+    processedFiles <- character(0)  # Track filenames to avoid duplicates
+    
+    for (fieldName in names(files)) {
+      fileObj <- files[[fieldName]]
+      logger$info(sprintf("Processing field: %s, type: %s", fieldName, class(fileObj)))
+      
+      if (!is.null(fileObj)) {
+        # Check if it's a file object with filename and value
+        if (!is.null(fileObj$filename) && !is.null(fileObj$value)) {
+          # Check if we've already processed this filename
+          if (!fileObj$filename %in% processedFiles) {
+            fileCount <- fileCount + 1
+            processedFiles <- c(processedFiles, fileObj$filename)
+            # Save file to input folder using filename from the file object
+            filePath <- file.path(inputFolder, fileObj$filename)
+            writeBin(fileObj$value, filePath)
+            savedFiles <- c(savedFiles, filePath)
+            logger$info(sprintf("Saved file: %s to %s", fileObj$filename, filePath))
+          } else {
+            logger$info(sprintf("Skipping duplicate file: %s", fileObj$filename))
+          }
+        } else {
+          logger$info(sprintf("Field %s is not a file object", fieldName))
+        }
+      }
+    }
+    
+    if (fileCount < 2) {
+      logger$error(sprintf("Found %d unique files, need at least 2. Saved files: %s", 
+                          fileCount, paste(basename(savedFiles), collapse = ", ")))
+      if (length(processedFiles) == 1) {
+        stop(sprintf("Meta-analysis requires at least 2 different files. You uploaded the same file (%s) multiple times. Please upload 2 different XLSX files.", processedFiles[1]))
+      } else {
+        stop("Meta-analysis requires at least 2 files")
+      }
+    }
+    
+    logger$info(sprintf("Running meta-analysis with %d files", length(savedFiles)))
+    
+    # Create options file path (optional parameter for runAllMeta)
+    opfile <- NULL  # Can be modified to pass custom options if needed
+    
+    # Run meta-analysis using RcometsAnalytics::runAllMeta
+    tryCatch({
+      RcometsAnalytics::runAllMeta(
+        filesFolders = inputFolder,  # Pass the folder containing all files
+        out.dir = outputFolder,     # Output directory
+        opfile = opfile             # Options file (optional)
+      )
+      
+      logger$info("Meta-analysis completed successfully")
+      
+      # Send success email if provided
+      if (!is.null(email) && email != "") {
+        tryCatch({
+          send.email(
+            recipient = email,
+            template = "user-success",
+            templateVariables = list(downloadUrl = paste0(Sys.getenv("WEBSITE_HOST"), "/api/batchResults/", id))
+          )
+          logger$info(sprintf("Success email sent to: %s", email))
+        }, error = function(e) {
+          logger$error(sprintf("Failed to send success email: %s", e$message))
+        })
+      }
+      
+    }, error = function(e) {
+      logger$error(sprintf("Meta-analysis failed: %s", e$message))
+      
+      # Send failure email if provided
+      if (!is.null(email) && email != "") {
+        tryCatch({
+          send.email(
+            recipient = email,
+            template = "user-failure",
+            templateVariables = list(error = e$message)
+          )
+          logger$info(sprintf("Failure email sent to: %s", email))
+        }, error = function(e2) {
+          logger$error(sprintf("Failed to send failure email: %s", e2$message))
+        })
+      }
+      
+      stop(e$message)
+    })
+    
+    # Create zip file with results
+    outputFile <- file.path(sessionFolder, "output.zip")
+    if (length(list.files(outputFolder)) > 0) {
+      zip::zip(outputFile, list.files(outputFolder, full.names = TRUE), mode = "cherry-pick")
+      logger$info(sprintf("Results archived: %s", outputFile))
+    }
+    
+    list(
+      success = TRUE,
+      id = id,
+      message = sprintf("Meta-analysis completed with %d files", length(savedFiles))
+    )
+  })
+}
+
 #* Retrieves an s3 url for batch results
 #*
 #* @get /batchResults/<id>
