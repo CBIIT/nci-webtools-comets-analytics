@@ -163,6 +163,34 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     event.preventDefault();
     if (onSubmitMetaAnalysis) {
       const formData = new FormData(event.target);
+      
+      // Log detailed submission info
+      console.log("=== Meta-Analysis Submission ===");
+      console.log("Email:", formData.get('email'));
+      
+      // Log all files
+      const files = formData.getAll('metaAnalysisFiles');
+      console.log("Number of files:", files.length);
+      files.forEach((file, index) => {
+        console.log(`File ${index + 1}:`, {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          lastModified: new Date(file.lastModified)
+        });
+      });
+      
+      // Log all FormData entries
+      console.log("All FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}:`, value.name, `(${value.size} bytes)`);
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
+      console.log("===============================");
+      
       onSubmitMetaAnalysis(formData);
     }
   }
