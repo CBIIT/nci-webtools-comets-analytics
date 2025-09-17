@@ -37,7 +37,8 @@ export async function getIntegrityCheckResults(params) {
 export async function getModelResults(params) {
   const response = await fetch("api/runModel", {
     method: "POST",
-    body: params,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
   });
   return await parseResponse(response);
 }
