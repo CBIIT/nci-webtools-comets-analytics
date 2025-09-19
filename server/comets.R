@@ -4,6 +4,7 @@ library(jsonlite)
 library(paws)
 library(RcometsAnalytics)
 library(whisker)
+library(openxlsx)
 
 plan(multisession)
 source("utils.R")
@@ -482,18 +483,178 @@ runMetaAnalysis <- function(req, res) {
     # Create options file path (optional parameter for runAllMeta)
     opfile <- NULL  # Can be modified to pass custom options if needed
     
-    # Run meta-analysis using RcometsAnalytics::runAllMeta
+    # Run comprehensive meta-analysis using the improved workflow
     tryCatch({
-      # Try passing individual file paths instead of the folder
-      logger$info(sprintf("Attempting meta-analysis with file paths: %s", paste(savedFiles, collapse = ", ")))
+      logger$info(sprintf("Starting comprehensive meta-analysis with %d files", length(savedFiles)))
       
-      RcometsAnalytics::runAllMeta(
-        filesFolders = savedFiles,  # Pass individual file paths instead of folder
-        out.dir = outputFolder,     # Output directory
-        opfile = opfile             # Options file (optional)
-      )
+      # Step 1: Read COMETS input files
+      logger$info("Step 1: Reading COMETS input files...")
+      data_list <- list()
+      cohort_names <- c()
       
-      logger$info("Meta-analysis completed successfully")
+      for (i in seq_along(savedFiles)) {
+        file_path <- savedFiles[i]
+        # Extract cohort name from filename (remove AllModels__ prefix and date suffix)
+        cohort_name <- sub("^AllModels__", "", basename(file_path))
+        cohort_name <- sub("__\\d{8}.*\\.xlsx$", "", cohort_name)
+        cohort_name <- sub("_\\d+$", "", cohort_name)  # Remove duplicate suffix like _1
+        
+        logger$info(sprintf("Reading file %d: %s (cohort: %s)", i, basename(file_path), cohort_name))
+        data_list[[i]] <- RcometsAnalytics::readCOMETSinput(file_path)
+        cohort_names[i] <- cohort_name
+      }
+      
+      # Step 2: Build model specifications (using Interactive model as in your example)
+      logger$info("Step 2: Building model specifications...")
+      modeldata_list <- list()
+      
+      for (i in seq_along(data_list)) {
+        logger$info(sprintf("Building model for cohort %s", cohort_names[i]))
+        modeldata_list[[i]] <- RcometsAnalytics::getModelData(
+          data_list[[i]], 
+          modelspec = "Interactive", 
+          exposures = "age", 
+          outcomes = NULL, 
+          adjvars = "bmi_grp"
+        )
+      }
+      
+      # Step 3: Run individual cohort analyses
+      logger$info("Step 3: Running individual cohort analyses...")
+      results_list <- list()
+      
+      for (i in seq_along(data_list)) {
+        logger$info(sprintf("Running model for cohort %s", cohort_names[i]))
+        results_list[[i]] <- RcometsAnalytics::runModel(
+          modeldata_list[[i]], 
+          data_list[[i]], 
+          cohort_names[i], 
+          op = list(model = "lm")
+        )
+      }
+      
+      # Step 4: Save intermediate results in COMETS format
+      logger$info("Step 4: Saving intermediate results...")
+      output_files <- c()
+      model_name <- "AgeAdjustedForBMI"  # Following your example
+      
+      for (i in seq_along(results_list)) {
+        logger$info(sprintf("Saving results for cohort %s", cohort_names[i]))
+        
+        # Get options for this cohort
+        op <- RcometsAnalytics:::runAllModels.getOptions(data_list[[i]])
+        
+        # Write to session folder with trailing slash
+        session_dir_with_slash <- paste0(sessionFolder, "/")
+        RcometsAnalytics:::writeObjectToFile(
+          results_list[[i]], 
+          cohort_names[i], 
+          model_name, 
+          op, 
+          dir = session_dir_with_slash
+        )
+        
+        # Find the written file
+        pattern <- sprintf("^%s__%s__.*\\.(xlsx|rda)$", model_name, cohort_names[i])
+        written_file <- list.files(
+          sessionFolder, 
+          pattern = pattern, 
+          full.names = TRUE, 
+          ignore.case = TRUE
+        )
+        
+        if (length(written_file) > 0) {
+          output_files[i] <- written_file[1]
+          logger$info(sprintf("Saved intermediate file: %s", basename(written_file[1])))
+        } else {
+          stop(sprintf("Failed to find written file for cohort %s with pattern %s", cohort_names[i], pattern))
+        }
+      }
+      
+      # Step 5: Run meta-analysis on intermediate results
+      logger$info("Step 5: Running meta-analysis...")
+      logger$info(sprintf("Meta-analysis input files: %s", paste(basename(output_files), collapse = ", ")))
+      
+      meta_results <- RcometsAnalytics::runMeta(output_files)
+      
+      # Step 6: Extract and process meta-analysis results
+      logger$info("Step 6: Processing meta-analysis results...")
+      
+      # Helper function to safely extract tables
+      get_ret_tbl <- function(x, choices) {
+        nm <- intersect(choices, names(x))
+        if (length(nm)) x[[nm[1]]] else NULL
+      }
+      
+      meta_tbl <- get_ret_tbl(meta_results, c("Results", "Metaresults"))
+      errors_tbl <- get_ret_tbl(meta_results, c("Errors_Warnings", "Error_Warnings", "ErrorsWarnings"))
+      info_tbl <- get_ret_tbl(meta_results, c("Info", "INFO", "info"))
+      
+      logger$info(sprintf("Meta-analysis completed. Results table has %d rows", 
+                         if (!is.null(meta_tbl)) nrow(meta_tbl) else 0))
+      
+      # Step 7: Add metabolite annotations
+      logger$info("Step 7: Adding metabolite annotations...")
+      
+      # Combine all metabolite data
+      allmetab <- do.call(rbind, lapply(data_list, function(d) d$metab))
+      uid_col <- intersect(c("uid_01", "uid"), colnames(allmetab))[1]
+      
+      if (!is.null(uid_col) && !is.null(meta_tbl)) {
+        uniquemetab <- allmetab[!duplicated(allmetab[[uid_col]]), 
+                               intersect(colnames(allmetab), 
+                                       c(uid_col, "metabolite_name", "super_pathway", "sub_pathway", "pubchem"))]
+        
+        # Add annotations to meta results
+        meta_df <- as.data.frame(meta_tbl)
+        if ("outcome_uid" %in% colnames(meta_df)) {
+          names(uniquemetab)[names(uniquemetab) == uid_col] <- "outcome_uid"
+          meta_df <- merge(meta_df, uniquemetab, by = "outcome_uid", all.x = TRUE)
+          
+          # Add visualization metrics
+          meta_df$log10p <- -log10(pmax(meta_df$fixed.pvalue, .Machine$double.xmin))
+          meta_df$hetp <- ifelse(meta_df$het.pvalue < 0.05, "hetp<0.05", "hetp ns")
+          
+          logger$info("Successfully added metabolite annotations")
+        }
+      }
+      
+      # Step 8: Save final results
+      logger$info("Step 8: Saving final results...")
+      
+      # Save main meta-analysis results
+      meta_output_file <- file.path(outputFolder, sprintf("%s__meta__%s.xlsx", model_name, Sys.Date()))
+      
+      if (!is.null(meta_tbl)) {
+        # Use openxlsx to save the results
+        wb <- createWorkbook()
+        addWorksheet(wb, "Results")
+        
+        # Check if we have the enhanced meta_df with annotations
+        if (!is.null(uid_col) && "outcome_uid" %in% colnames(as.data.frame(meta_tbl))) {
+          writeData(wb, "Results", meta_df)
+        } else {
+          writeData(wb, "Results", as.data.frame(meta_tbl))
+        }
+        
+        saveWorkbook(wb, meta_output_file, overwrite = TRUE)
+        logger$info(sprintf("Saved meta-analysis results to: %s", basename(meta_output_file)))
+      }
+      
+      # Save additional tables if they exist
+      if (!is.null(errors_tbl)) {
+        errors_file <- file.path(outputFolder, sprintf("%s__meta_errors__%s.csv", model_name, Sys.Date()))
+        write.csv(as.data.frame(errors_tbl), errors_file, row.names = FALSE)
+        logger$info(sprintf("Saved errors table to: %s", basename(errors_file)))
+      }
+      
+      if (!is.null(info_tbl)) {
+        info_file <- file.path(outputFolder, sprintf("%s__meta_info__%s.csv", model_name, Sys.Date()))
+        write.csv(as.data.frame(info_tbl), info_file, row.names = FALSE)
+        logger$info(sprintf("Saved info table to: %s", basename(info_file)))
+      }
+      
+      logger$info("Comprehensive meta-analysis completed successfully")
       
       # Create zip file with results
       outputFile <- file.path(sessionFolder, "output.zip")
