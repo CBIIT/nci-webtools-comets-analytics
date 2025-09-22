@@ -400,11 +400,11 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                   <Form.Text>
                     <i className="bi bi-download me-1"></i>
                     <a
-                      href="files/cometsInputAge.xlsx"
+                      href="files/meta_analysis_sample_files.zip"
                       onClick={(ev) =>
                         window.gtag("event", "download", {
                           event_category: "file",
-                          event_label: "sample input",
+                          event_label: "meta analysis sample inputs",
                         })
                       }>
                       Download Sample Inputs
