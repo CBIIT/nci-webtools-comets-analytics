@@ -787,9 +787,9 @@ runMetaAnalysis <- function(req, res) {
     })
     
     list(
-      success = TRUE,
+      queue = TRUE,
       id = id,
-      message = sprintf("Meta-analysis completed with %d files", length(savedFiles))
+      message = sprintf("Meta-analysis queued with %d files", length(savedFiles))
     )
   })
 }
