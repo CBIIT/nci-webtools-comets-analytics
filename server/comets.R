@@ -661,6 +661,24 @@ runMetaAnalysis <- function(req, res) {
       if (length(list.files(outputFolder)) > 0) {
         zip::zip(outputFile, list.files(outputFolder, full.names = TRUE), mode = "cherry-pick")
         logger$info(sprintf("Results archived: %s", outputFile))
+        
+        # Upload to S3 (following same pattern as processor.R)
+        tryCatch({
+          awsConfig <- getAwsConfig()
+          if (!is.null(awsConfig) && length(awsConfig) > 0 && Sys.getenv("S3_BUCKET") != "") {
+            s3 <- paws::s3(config = awsConfig)
+            s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
+            
+            s3$put_object(
+              Body = outputFile,
+              Bucket = Sys.getenv("S3_BUCKET"),
+              Key = s3FilePath
+            )
+            logger$info(sprintf("Uploaded meta-analysis results to S3: %s", s3FilePath))
+          }
+        }, error = function(e) {
+          logger$warn(sprintf("S3 upload failed (non-critical): %s", e$message))
+        })
       }
       
       # Send success email if provided
@@ -676,13 +694,20 @@ runMetaAnalysis <- function(req, res) {
             # Setup AWS SES for email sending
             ses <- paws::sesv2(config = awsConfig)
             
-            # Generate success email using template
+            # Generate success email using template (same pattern as processor.R)
             template <- readLines(file.path("email-templates", "user-success.html"))
             templateData <- list(
               originalFileName = "Meta-Analysis Files",
-              resultsUrl = paste0(Sys.getenv("EMAIL_BASE_URL"), "api/batchResults/", id),
+              resultsUrl = paste0(Sys.getenv("EMAIL_BASE_URL"), "/api/metaAnalysisResults/", id),
               totalProcessingTime = "N/A",
-              modelResults = list()  # Empty for meta-analysis
+              modelResults = list(list(
+                modelName = "Meta-Analysis",
+                processingTime = "N/A",
+                hasWarnings = FALSE,
+                hasErrors = FALSE,
+                warnings = "",
+                errors = ""
+              ))
             )
             
             emailSubject <- "COMETS Analytics Meta-Analysis Results"
@@ -777,6 +802,52 @@ getBatchResults <- function(req, res) {
   outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
   res$setHeader("Content-Disposition", 'attachment; filename="comets_results.zip"')
   readBin(outputFile, "raw", n = file.info(outputFile)$size)
+}
+
+#* Retrieves results for meta-analysis
+#*
+#* @get /metaAnalysisResults/<id>
+#* @serializer contentType list(type="application/zip")
+#*
+getMetaAnalysisResults <- function(req, res) {
+  id <- sanitize(req$args$id)
+  outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
+  
+  # First try local file
+  if (file.exists(outputFile)) {
+    logger$info(sprintf("Serving local meta-analysis results: %s", outputFile))
+    res$setHeader("Content-Disposition", 'attachment; filename="meta_analysis_results.zip"')
+    return(readBin(outputFile, "raw", n = file.info(outputFile)$size))
+  }
+  
+  # If not found locally, try S3 download (same pattern as batch results)
+  tryCatch({
+    logger$info(sprintf("Local file not found, attempting S3 download for session: %s", id))
+    
+    awsConfig <- getAwsConfig()
+    if (is.null(awsConfig) || length(awsConfig) == 0 || Sys.getenv("S3_BUCKET") == "") {
+      logger$warn("AWS not configured - cannot download from S3")
+      res$status <- 404
+      return(list(error = "Meta-analysis results not found"))
+    }
+    
+    s3 <- paws::s3(config = awsConfig)
+    s3FilePath <- paste0(Sys.getenv("S3_OUTPUT_KEY_PREFIX"), id, "/output.zip")
+    
+    s3Object <- s3$get_object(
+      Bucket = Sys.getenv("S3_BUCKET"),
+      Key = s3FilePath
+    )
+    
+    logger$info(sprintf("Successfully downloaded meta-analysis results from S3: %s", s3FilePath))
+    res$setHeader("Content-Disposition", 'attachment; filename="meta_analysis_results.zip"')
+    return(s3Object$Body)
+    
+  }, error = function(e) {
+    logger$error(sprintf("Error retrieving meta-analysis results for session %s: %s", id, e$message))
+    res$status <- 404
+    return(list(error = "Meta-analysis results not found", message = e$message))
+  })
 }
 
 
