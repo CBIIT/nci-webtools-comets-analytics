@@ -39,6 +39,13 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     if (type === "file") {
       if (files && files.length) {
         // Handle multiple files - store file names as array or count
+        console.log(`=== File Selection for ${name} ===`);
+        console.log(`Number of files selected: ${files.length}`);
+        for (let i = 0; i < files.length; i++) {
+          console.log(`File ${i + 1}: ${files[i].name} (${files[i].size} bytes)`);
+        }
+        console.log("================================");
+        
         if (files.length === 1) {
           value = files[0].name;
         } else if (files.length <= 100) {
@@ -162,23 +169,41 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
   function submitMetaAnalysis(event) {
     event.preventDefault();
     if (onSubmitMetaAnalysis) {
-      const formData = new FormData(event.target);
+      // Create FormData manually to avoid multipart parser issues with multiple files having the same field name
+      const formData = new FormData();
+      
+      // Add email field
+      const emailField = event.target.querySelector('input[name="email"]');
+      if (emailField) {
+        formData.append('email', emailField.value);
+      }
+      
+      // Add files with unique field names to avoid Plumber multipart parser corruption
+      const fileInput = event.target.querySelector('input[name="metaAnalysisFiles"]');
+      if (fileInput && fileInput.files) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          // Use unique field names: metaAnalysisFile_1, metaAnalysisFile_2, etc.
+          formData.append(`metaAnalysisFile_${i + 1}`, fileInput.files[i]);
+        }
+      }
       
       // Log detailed submission info
-      console.log("=== Meta-Analysis Submission ===");
+      console.log("=== Meta-Analysis Submission (Fixed) ===");
       console.log("Email:", formData.get('email'));
       
-      // Log all files
-      const files = formData.getAll('metaAnalysisFiles');
-      console.log("Number of files:", files.length);
-      files.forEach((file, index) => {
-        console.log(`File ${index + 1}:`, {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          lastModified: new Date(file.lastModified)
-        });
-      });
+      // Log all files with their unique field names
+      let fileCount = 0;
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          fileCount++;
+          console.log(`File ${fileCount} (${key}):`, {
+            name: value.name,
+            size: value.size,
+            type: value.type,
+            lastModified: new Date(value.lastModified)
+          });
+        }
+      }
       
       // Log all FormData entries
       console.log("All FormData entries:");
