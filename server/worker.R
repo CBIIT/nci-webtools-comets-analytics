@@ -36,7 +36,7 @@ listItems <- function(values) {
 }
 
 messageHandler <- function(id) {
-    paramsFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "params.json")
+    paramsFile <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id, "params.json")
     params <- jsonlite::read_json(paramsFile)
 
     id <- sanitize(params$id)
@@ -46,13 +46,13 @@ messageHandler <- function(id) {
     runMeta <- params$runMeta
 
 
-    outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output")
-    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.xlsx")
+    outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id)
+    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id, "input.xlsx")
 
 
     # clear and recreate output folder
-    unlink(outputFolder, recursive = T)
-    dir.create(outputFolder, recursive = T)
+    unlink(outputFolder, recursive = TRUE)
+    dir.create(outputFolder, recursive = TRUE)
 
 
     cometsInput <- RcometsAnalytics::readCOMETSinput(inputFilePath)
@@ -155,7 +155,7 @@ messageHandler <- function(id) {
 
     }
 
-    outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
+    outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id, "output.zip")
     zip::zip(outputFile, list.files(outputFolder, full.names = T), mode = "cherry-pick")
 
     logger$info(paste("Created output file: ", outputFile))
