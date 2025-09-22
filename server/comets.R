@@ -60,12 +60,12 @@ loadFile <- function(req, res) {
 
     id <- plumber::random_cookie_key()
 
-    # create temporary session folder
-    sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
-    dir.create(sessionFolder, recursive = T)
+    # create input session folder
+    inputSessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id)
+    dir.create(inputSessionFolder, recursive = TRUE)
 
-    # write input file to session folder
-    inputFilePath <- file.path(sessionFolder, "input.xlsx")
+    # write input file to input session folder
+    inputFilePath <- file.path(inputSessionFolder, "input.xlsx")
     writeBin(inputFile$value, inputFilePath)
 
     # capture errors and warnings from readCOMETSinput
@@ -75,7 +75,7 @@ loadFile <- function(req, res) {
 
     # return errors if present
     if (length(results$errors)) {
-      unlink(sessionFolder, recursive = T)
+      unlink(inputSessionFolder, recursive = TRUE)
       logger$error(results$capturedOutput)
       logger$error(results$errors)
       res$status <- 500
@@ -84,8 +84,8 @@ loadFile <- function(req, res) {
 
     output <- results$output
 
-    # save results to session folder
-    saveRDS(output, file.path(sessionFolder, "input.rds"))
+    # save results to input session folder
+    saveRDS(output, file.path(inputSessionFolder, "input.rds"))
 
     # Return metabolites, models, variables, and summary statistics
     # I() inhibits conversion of single-value vectors to scalars
@@ -137,7 +137,7 @@ runSelectedModel <- function(req, res) {
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
 
-    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
+    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
 
     modelData <- RcometsAnalytics::getModelData(metaboliteData, modlabel = selectedModelName)
@@ -177,7 +177,7 @@ runCustomModel <- function(req, res) {
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
 
-    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), id, "input.rds")
+    inputFilePath <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id, "input.rds")
     metaboliteData <- readRDS(inputFilePath)
 
     modelData <- RcometsAnalytics::getModelData(
@@ -226,9 +226,9 @@ runAllModels <- function(req, res) {
     shouldLog # inject globals (needed since shouldLog is not in the future scope)
 
 
-    sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
-    inputFilePath <- file.path(sessionFolder, "input.xlsx")
-    paramsFilePath <- file.path(sessionFolder, "params.json")
+    inputSessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id)
+    inputFilePath <- file.path(inputSessionFolder, "input.xlsx")
+    paramsFilePath <- file.path(inputSessionFolder, "params.json")
 
     params <- list(
       id = id,
@@ -401,15 +401,17 @@ runMetaAnalysis <- function(req, res) {
     
     logger$info(sprintf("Final email_val: '%s'", email_val))
 
-    # Create session folder
-    sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
-    dir.create(sessionFolder, recursive = TRUE)
-    outputFolder <- file.path(sessionFolder, "output")
-    dir.create(outputFolder, recursive = TRUE)
+    # Create input and output session folders
+    inputSessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id)
+    outputSessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id)
+    dir.create(inputSessionFolder, recursive = TRUE)
+    dir.create(outputSessionFolder, recursive = TRUE)
     
-    # Create input folder for multiple files
-    inputFolder <- file.path(sessionFolder, "input")
+    # Create input and output subfolders
+    inputFolder <- file.path(inputSessionFolder, "files")
+    outputFolder <- file.path(outputSessionFolder, "results")
     dir.create(inputFolder, recursive = TRUE)
+    dir.create(outputFolder, recursive = TRUE)
     
     # Save uploaded files to input folder
     files <- req$body
@@ -544,8 +546,8 @@ runMetaAnalysis <- function(req, res) {
         # Get options for this cohort
         op <- RcometsAnalytics:::runAllModels.getOptions(data_list[[i]])
         
-        # Write to session folder with trailing slash
-        session_dir_with_slash <- paste0(sessionFolder, "/")
+        # Write to output session folder with trailing slash
+        session_dir_with_slash <- paste0(outputSessionFolder, "/")
         RcometsAnalytics:::writeObjectToFile(
           results_list[[i]], 
           cohort_names[i], 
@@ -557,7 +559,7 @@ runMetaAnalysis <- function(req, res) {
         # Find the written file
         pattern <- sprintf("^%s__%s__.*\\.(xlsx|rda)$", model_name, cohort_names[i])
         written_file <- list.files(
-          sessionFolder, 
+          outputSessionFolder, 
           pattern = pattern, 
           full.names = TRUE, 
           ignore.case = TRUE
@@ -657,7 +659,7 @@ runMetaAnalysis <- function(req, res) {
       logger$info("Comprehensive meta-analysis completed successfully")
       
       # Create zip file with results
-      outputFile <- file.path(sessionFolder, "output.zip")
+      outputFile <- file.path(outputSessionFolder, "output.zip")
       if (length(list.files(outputFolder)) > 0) {
         zip::zip(outputFile, list.files(outputFolder, full.names = TRUE), mode = "cherry-pick")
         logger$info(sprintf("Results archived: %s", outputFile))
@@ -799,7 +801,7 @@ runMetaAnalysis <- function(req, res) {
 #*
 getBatchResults <- function(req, res) {
   id <- sanitize(req$args$id)
-  outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
+  outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id, "output.zip")
   res$setHeader("Content-Disposition", 'attachment; filename="comets_results.zip"')
   readBin(outputFile, "raw", n = file.info(outputFile)$size)
 }
@@ -811,7 +813,7 @@ getBatchResults <- function(req, res) {
 #*
 getMetaAnalysisResults <- function(req, res) {
   id <- sanitize(req$args$id)
-  outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output.zip")
+  outputFile <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id, "output.zip")
   
   # First try local file
   if (file.exists(outputFile)) {

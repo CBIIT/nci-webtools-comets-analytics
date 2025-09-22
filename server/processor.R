@@ -52,12 +52,12 @@ messageHandler <- function(message) {
   s3FilePath <- params$s3FilePath
   email <- params$email
 
-  outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output")
+  outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id)
   inputFilePath <- file.path(outputFolder, "input.xlsx")
 
   # clear and recreate output folder
-  unlink(outputFolder, recursive = T)
-  dir.create(outputFolder, recursive = T)
+  unlink(outputFolder, recursive = TRUE)
+  dir.create(outputFolder, recursive = TRUE)
 
   s3Object <- s3$get_object(
     Bucket = Sys.getenv("S3_BUCKET"),
