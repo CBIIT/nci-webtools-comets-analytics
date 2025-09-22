@@ -419,58 +419,88 @@ runMetaAnalysis <- function(req, res) {
     # Debug: log the structure of req$body
     logger$info(sprintf("Request body structure: %s", paste(names(files), collapse = ", ")))
     
-    # Find all file objects (those with filename and value properties)
+    # Enhanced debugging for multipart file parsing
+    logger$info("=== DETAILED MULTIPART PARSING DEBUG ===")
+    for (name in names(files)) {
+      obj <- files[[name]]
+      logger$info(sprintf("Field '%s': class=%s, length=%s", name, class(obj), length(obj)))
+      
+      if (is.list(obj)) {
+        logger$info(sprintf("  List elements: %s", paste(names(obj), collapse = ", ")))
+        if ("filename" %in% names(obj)) {
+          logger$info(sprintf("  Filename: '%s'", obj$filename))
+        }
+        if ("value" %in% names(obj) && is.raw(obj$value)) {
+          logger$info(sprintf("  Value size: %d bytes", length(obj$value)))
+        }
+      } else if (is.character(obj)) {
+        logger$info(sprintf("  Character value: '%s'", obj))
+      }
+    }
+    logger$info("========================================")
+    
+    # Find all file objects - look for fields that start with "metaAnalysisFile" (unique field names)
     savedFiles <- c()
     fileCount <- 0
     processedFiles <- character(0)  # Track filenames to avoid duplicates
     
+    # Process files with unique field names (metaAnalysisFile_1, metaAnalysisFile_2, etc.)
     for (fieldName in names(files)) {
-      fileObj <- files[[fieldName]]
-      logger$info(sprintf("Processing field: %s, type: %s", fieldName, class(fileObj)))
-      
-      if (!is.null(fileObj)) {
-        # Check if it's a file object with filename and value
-        if (!is.null(fileObj$filename) && !is.null(fileObj$value)) {
-          logger$info(sprintf("Found file object - Name: '%s', Size: %d bytes, Modified: %s", 
-                             fileObj$filename, 
-                             length(fileObj$value),
-                             ifelse(is.null(fileObj$lastModified), "unknown", fileObj$lastModified)))
-          
-          # Check for duplicate filenames and create unique names if needed
-          # For meta-analysis, we need to follow the COMETS naming convention:
-          # <model name>__<cohort name>__<date>.xlsx
-          
-          # Extract the base filename without extension
-          fileExt <- tools::file_ext(fileObj$filename)
-          baseName <- tools::file_path_sans_ext(fileObj$filename)
-          
-          # Create COMETS-compatible filename
-          # Use a generic model name and the base filename as cohort
-          currentDate <- format(Sys.Date(), "%Y%m%d")
-          cometsFilename <- sprintf("AllModels__%s__%s.%s", baseName, currentDate, fileExt)
-          
-          # Check for duplicates and create unique names if needed
-          uniqueFilename <- cometsFilename
-          counter <- 1
-          while (uniqueFilename %in% processedFiles) {
-            uniqueFilename <- sprintf("AllModels__%s_%d__%s.%s", baseName, counter, currentDate, fileExt)
-            counter <- counter + 1
-            logger$info(sprintf("Filename conflict detected, creating unique name: %s", uniqueFilename))
+      # Skip email field and look for file fields
+      if (fieldName != "email" && (fieldName == "metaAnalysisFiles" || startsWith(fieldName, "metaAnalysisFile"))) {
+        fileObj <- files[[fieldName]]
+        logger$info(sprintf("Processing field: %s, type: %s", fieldName, class(fileObj)))
+        
+        if (!is.null(fileObj)) {
+          # Check if it's a file object with filename and value
+          if (!is.null(fileObj$filename) && !is.null(fileObj$value)) {
+            logger$info(sprintf("Found file object - Name: '%s', Size: %d bytes, Modified: %s", 
+                               fileObj$filename, 
+                               length(fileObj$value),
+                               ifelse(is.null(fileObj$lastModified), "unknown", fileObj$lastModified)))
+            
+            # Check for duplicate filenames and create unique names if needed
+            # For meta-analysis, we need to follow the COMETS naming convention:
+            # <model name>__<cohort name>__<date>.xlsx
+            
+            # Extract the base filename without extension
+            fileExt <- tools::file_ext(fileObj$filename)
+            baseName <- tools::file_path_sans_ext(fileObj$filename)
+            
+            # Create COMETS-compatible filename
+            # Use a generic model name and the base filename as cohort
+            currentDate <- format(Sys.Date(), "%Y%m%d")
+            cometsFilename <- sprintf("AllModels__%s__%s.%s", baseName, currentDate, fileExt)
+            
+            logger$info(sprintf("Processing file: %s -> attempting filename: %s", fileObj$filename, cometsFilename))
+            logger$info(sprintf("Current processedFiles: %s", paste(processedFiles, collapse = ", ")))
+            
+            # Check for duplicates and create unique names if needed
+            uniqueFilename <- cometsFilename
+            counter <- 1
+            while (uniqueFilename %in% processedFiles) {
+              # If there's a conflict, add counter to the base name (cohort name)
+              uniqueFilename <- sprintf("AllModels__%s_%d__%s.%s", baseName, counter, currentDate, fileExt)
+              counter <- counter + 1
+              logger$info(sprintf("Filename conflict detected for '%s', creating unique name: %s", baseName, uniqueFilename))
+            }
+            
+            fileCount <- fileCount + 1
+            processedFiles <- c(processedFiles, uniqueFilename)
+            logger$info(sprintf("Final filename: %s, processedFiles now: %s", uniqueFilename, paste(processedFiles, collapse = ", ")))
+            
+            # Save file to input folder using the unique filename
+            filePath <- file.path(inputFolder, uniqueFilename)
+            writeBin(fileObj$value, filePath)
+            savedFiles <- c(savedFiles, filePath)
+            logger$info(sprintf("Successfully saved file #%d: %s (original: %s) - %d bytes", 
+                               fileCount, uniqueFilename, fileObj$filename, length(fileObj$value)))
+          } else {
+            logger$info(sprintf("Field %s is not a file object (missing filename or value)", fieldName))
           }
-          
-          fileCount <- fileCount + 1
-          processedFiles <- c(processedFiles, uniqueFilename)
-          # Save file to input folder using the unique filename
-          filePath <- file.path(inputFolder, uniqueFilename)
-          writeBin(fileObj$value, filePath)
-          savedFiles <- c(savedFiles, filePath)
-          logger$info(sprintf("Successfully saved file #%d: %s (original: %s) - %d bytes", 
-                             fileCount, uniqueFilename, fileObj$filename, length(fileObj$value)))
         } else {
-          logger$info(sprintf("Field %s is not a file object (missing filename or value)", fieldName))
+          logger$info(sprintf("Field %s is NULL", fieldName))
         }
-      } else {
-        logger$info(sprintf("Field %s is NULL", fieldName))
       }
     }
     
@@ -498,8 +528,8 @@ runMetaAnalysis <- function(req, res) {
         file_path <- savedFiles[i]
         # Extract cohort name from filename (remove AllModels__ prefix and date suffix)
         cohort_name <- sub("^AllModels__", "", basename(file_path))
-        cohort_name <- sub("__\\d{8}.*\\.xlsx$", "", cohort_name)
-        cohort_name <- sub("_\\d+$", "", cohort_name)  # Remove duplicate suffix like _1
+        cohort_name <- sub("__\\d{8}\\.xlsx$", "", cohort_name)  # Remove date and extension
+        # Don't remove _1, _2 suffixes as they're part of cohort names like cohort_1, cohort_2
         
         logger$info(sprintf("Reading file %d: %s (cohort: %s)", i, basename(file_path), cohort_name))
         data_list[[i]] <- RcometsAnalytics::readCOMETSinput(file_path)
