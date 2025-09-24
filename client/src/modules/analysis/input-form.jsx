@@ -39,13 +39,6 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     if (type === "file") {
       if (files && files.length) {
         // Handle multiple files - store file names as array or count
-        console.log(`=== File Selection for ${name} ===`);
-        console.log(`Number of files selected: ${files.length}`);
-        for (let i = 0; i < files.length; i++) {
-          console.log(`File ${i + 1}: ${files[i].name} (${files[i].size} bytes)`);
-        }
-        console.log("================================");
-        
         if (files.length === 1) {
           value = files[0].name;
         } else if (files.length <= 100) {
@@ -186,35 +179,6 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
           formData.append(`metaAnalysisFile_${i + 1}`, fileInput.files[i]);
         }
       }
-      
-      // Log detailed submission info
-      console.log("=== Meta-Analysis Submission (Fixed) ===");
-      console.log("Email:", formData.get('email'));
-      
-      // Log all files with their unique field names
-      let fileCount = 0;
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          fileCount++;
-          console.log(`File ${fileCount} (${key}):`, {
-            name: value.name,
-            size: value.size,
-            type: value.type,
-            lastModified: new Date(value.lastModified)
-          });
-        }
-      }
-      
-      // Log all FormData entries
-      console.log("All FormData entries:");
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}:`, value.name, `(${value.size} bytes)`);
-        } else {
-          console.log(`${key}:`, value);
-        }
-      }
-      console.log("===============================");
       
       onSubmitMetaAnalysis(formData);
     }
