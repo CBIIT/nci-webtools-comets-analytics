@@ -318,55 +318,33 @@ runModel <- function(req, res) {
 runMetaAnalysis <- function(req, res) {
   id <- plumber::random_cookie_key()
   
-  # Log raw request structure for debugging
-  logger$info("=== Meta-Analysis Submission Received ===")
-  logger$info(sprintf("Session ID: %s", id))
-  
-  # Get content type and log all headers for debugging
-  content_type <- req$headers[['content-type']] %||% "unknown"
-  logger$info(sprintf("Request Content-Type: %s", content_type))
-  logger$info(sprintf("All headers: %s", paste(names(req$headers), "=", req$headers, collapse = "; ")))
+  logger$info(sprintf("Meta-Analysis submission - Session ID: %s", id))
   
   # Check if multipart parsing worked
   if (is.null(req$body) || length(req$body) == 0) {
     logger$error("Request body is empty or NULL - multipart parsing failed")
     res$status <- 400
-    return(list(error = "No data received - multipart parsing failed", 
-                debug = list(content_type = content_type, 
-                           headers = req$headers)))
+    return(list(error = "No data received - multipart parsing failed"))
   }
-  
-  # Log the request body structure
-  logger$info(sprintf("Request body class: %s", class(req$body)))
-  logger$info(sprintf("Request body length: %d", length(req$body)))
-  logger$info(sprintf("Request body names: %s", paste(names(req$body), collapse = ", ")))
   
   # Try to process the body
   tryCatch({
-    logger$info("=== EMAIL EXTRACTION DEBUG START ===")
-    
     # For multipart data, the email field contains raw bytes that need conversion
     email <- req$body$email
-    logger$info(sprintf("Raw email field - class: %s", class(email)))
     
     if (is.list(email) && "value" %in% names(email)) {
       email_raw <- email[["value"]]
-      logger$info(sprintf("Email value field - class: %s", class(email_raw)))
       
       # Convert raw bytes to character string
       if (class(email_raw) == "raw") {
         email <- rawToChar(email_raw)
-        logger$info(sprintf("Converted raw bytes to string: '%s'", email))
       } else if (is.character(email_raw)) {
         email <- email_raw
-        logger$info(sprintf("Email was already character: '%s'", email))
       } else {
         email <- as.character(email_raw)
-        logger$info(sprintf("Converted to character: '%s'", email))
       }
     } else {
       email <- as.character(email)
-      logger$info(sprintf("Fallback conversion: '%s'", email))
     }
     
     # Ensure we have a clean email string
@@ -375,15 +353,9 @@ runMetaAnalysis <- function(req, res) {
       logger$warning("Email is empty after extraction")
     }
     
-    logger$info(sprintf("=== FINAL EMAIL: '%s' ===", email))
-    
-    logger$info(sprintf("Email: %s", ifelse(nchar(email) == 0, "EMPTY", email)))
-    
     # Count potential file fields
     fileFields <- names(req$body)[names(req$body) != "email"]
-    logger$info(sprintf("File field names: %s", paste(fileFields, collapse = ", ")))
-    
-    # Continue with the meta-analysis processing
+    logger$info(sprintf("Received %d file fields for meta-analysis", length(fileFields)))
     
   }, error = function(e) {
     logger$error(sprintf("Error processing request body: %s", e$message))
@@ -396,9 +368,6 @@ runMetaAnalysis <- function(req, res) {
     
     # Use the same email handling as runAllModels - simple and direct
     email_val <- email  # Use the email already extracted above
-    logger$info(sprintf("Processing with email: %s", email_val))
-    
-    logger$info(sprintf("Final email_val: '%s'", email_val))
 
     # Create session folder
     sessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id)
@@ -413,9 +382,6 @@ runMetaAnalysis <- function(req, res) {
     # Save uploaded files to input folder
     files <- req$body
     
-    # Debug: log the structure of req$body
-    logger$info(sprintf("Request body structure: %s", paste(names(files), collapse = ", ")))
-    
     # Find all file objects (those with filename and value properties)
     savedFiles <- c()
     fileCount <- 0
@@ -423,15 +389,10 @@ runMetaAnalysis <- function(req, res) {
     
     for (fieldName in names(files)) {
       fileObj <- files[[fieldName]]
-      logger$info(sprintf("Processing field: %s, type: %s", fieldName, class(fileObj)))
       
       if (!is.null(fileObj)) {
         # Check if it's a file object with filename and value
         if (!is.null(fileObj$filename) && !is.null(fileObj$value)) {
-          logger$info(sprintf("Found file object - Name: '%s', Size: %d bytes, Modified: %s", 
-                             fileObj$filename, 
-                             length(fileObj$value),
-                             ifelse(is.null(fileObj$lastModified), "unknown", fileObj$lastModified)))
           
           # Check for duplicate filenames and create unique names if needed
           # For meta-analysis, we need to follow the COMETS naming convention:
@@ -461,23 +422,16 @@ runMetaAnalysis <- function(req, res) {
           filePath <- file.path(inputFolder, uniqueFilename)
           writeBin(fileObj$value, filePath)
           savedFiles <- c(savedFiles, filePath)
-          logger$info(sprintf("Successfully saved file #%d: %s (original: %s) - %d bytes", 
-                             fileCount, uniqueFilename, fileObj$filename, length(fileObj$value)))
-        } else {
-          logger$info(sprintf("Field %s is not a file object (missing filename or value)", fieldName))
         }
-      } else {
-        logger$info(sprintf("Field %s is NULL", fieldName))
       }
     }
     
     if (fileCount < 2) {
-      logger$error(sprintf("Found %d files, need at least 2. Saved files: %s", 
-                          fileCount, paste(basename(savedFiles), collapse = ", ")))
+      logger$error(sprintf("Meta-analysis requires at least 2 files, received %d", fileCount))
       stop("Meta-analysis requires at least 2 files")
     }
     
-    logger$info(sprintf("Running meta-analysis with %d files", length(savedFiles)))
+    logger$info(sprintf("Processing meta-analysis with %d files", fileCount))
     
     # Create options file path (optional parameter for runAllMeta)
     opfile <- NULL  # Can be modified to pass custom options if needed
@@ -485,8 +439,6 @@ runMetaAnalysis <- function(req, res) {
     # Run meta-analysis using RcometsAnalytics::runAllMeta
     tryCatch({
       # Try passing individual file paths instead of the folder
-      logger$info(sprintf("Attempting meta-analysis with file paths: %s", paste(savedFiles, collapse = ", ")))
-      
       RcometsAnalytics::runAllMeta(
         filesFolders = savedFiles,  # Pass individual file paths instead of folder
         out.dir = outputFolder,     # Output directory
@@ -499,19 +451,14 @@ runMetaAnalysis <- function(req, res) {
       outputFile <- file.path(sessionFolder, "output.zip")
       if (length(list.files(outputFolder)) > 0) {
         zip::zip(outputFile, list.files(outputFolder, full.names = TRUE), mode = "cherry-pick")
-        logger$info(sprintf("Results archived: %s", outputFile))
       }
       
       # Send success email if provided
       if (!is.null(email_val) && nchar(email_val) > 0) {
         tryCatch({
-          logger$info(sprintf("Attempting to send success email to: %s", email_val))
-          
           # Check if AWS credentials are available
           awsConfig <- getAwsConfig()
-          if (is.null(awsConfig) || length(awsConfig) == 0) {
-            logger$warn("AWS credentials not configured - skipping email")
-          } else {
+          if (!is.null(awsConfig) && length(awsConfig) > 0) {
             # Setup AWS SES for email sending
             ses <- paws::sesv2(config = awsConfig)
             
@@ -534,10 +481,9 @@ runMetaAnalysis <- function(req, res) {
               subject = emailSubject,
               body = emailBody
             )
-            logger$info(sprintf("Success email sent to: %s", email_val))
           }
         }, error = function(e) {
-          logger$warn(sprintf("Email sending failed (non-critical): %s", e$message))
+          logger$warn(sprintf("Email sending failed: %s", e$message))
         })
       }
       
@@ -547,13 +493,9 @@ runMetaAnalysis <- function(req, res) {
       # Send failure email if provided
       if (!is.null(email_val) && nchar(email_val) > 0) {
         tryCatch({
-          logger$info(sprintf("Attempting to send failure email to: %s", email_val))
-          
           # Check if AWS credentials are available
           awsConfig <- getAwsConfig()
-          if (is.null(awsConfig) || length(awsConfig) == 0) {
-            logger$warn("AWS credentials not configured - skipping failure email")
-          } else {
+          if (!is.null(awsConfig) && length(awsConfig) > 0) {
             # Setup AWS SES for email sending
             ses <- paws::sesv2(config = awsConfig)
             
@@ -570,7 +512,6 @@ runMetaAnalysis <- function(req, res) {
                 )
               )
             )
-            logger$info(sprintf("Failure email sent to: %s", email_val))
             
             # Send admin failure email
             sendEmail(
@@ -588,10 +529,9 @@ runMetaAnalysis <- function(req, res) {
                 )
               )
             )
-            logger$info(sprintf("Admin failure email sent to: %s", Sys.getenv("EMAIL_ADMIN")))
           }
         }, error = function(e2) {
-          logger$warn(sprintf("Failed to send failure email (non-critical): %s", e2$message))
+          logger$warn(sprintf("Failed to send failure email: %s", e2$message))
         })
       }
       

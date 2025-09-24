@@ -162,35 +162,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
   function submitMetaAnalysis(event) {
     event.preventDefault();
     if (onSubmitMetaAnalysis) {
-      const formData = new FormData(event.target);
-      
-      // Log detailed submission info
-      console.log("=== Meta-Analysis Submission ===");
-      console.log("Email:", formData.get('email'));
-      
-      // Log all files
-      const files = formData.getAll('metaAnalysisFiles');
-      console.log("Number of files:", files.length);
-      files.forEach((file, index) => {
-        console.log(`File ${index + 1}:`, {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          lastModified: new Date(file.lastModified)
-        });
-      });
-      
-      // Log all FormData entries
-      console.log("All FormData entries:");
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}:`, value.name, `(${value.size} bytes)`);
-        } else {
-          console.log(`${key}:`, value);
-        }
-      }
-      console.log("===============================");
-      
+      const formData = new FormData(event.target);      
       onSubmitMetaAnalysis(formData);
     }
   }
@@ -400,14 +372,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                   <Form.Text>
                     <i className="bi bi-download me-1"></i>
                     <a
-                      href="files/cometsInputAge.xlsx"
+                      href="/api/metaAnalysisSampleFiles"
                       onClick={(ev) =>
                         window.gtag("event", "download", {
                           event_category: "file",
-                          event_label: "sample input",
+                          event_label: "meta analysis sample inputs",
                         })
                       }>
-                      Download Sample Inputs
+                      Download Sample Inputs (cohort_1.xlsx & cohort_2.xlsx)
                     </a>
                   </Form.Text>
                 </Form.Group>
