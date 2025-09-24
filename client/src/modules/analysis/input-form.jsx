@@ -14,7 +14,13 @@ import { isNull, omitBy } from "lodash";
 import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
-export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSubmitMetaAnalysis, onReset, onTabSelect }) {
+export default function InputForm({
+  onSubmitIntegrityCheck,
+  onSubmitModel,
+  onSubmitMetaAnalysis,
+  onReset,
+  onTabSelect,
+}) {
   const [activeTab, setActiveTab] = useState("cohort-analysis");
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
@@ -45,8 +51,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
           value = `${files.length} files selected`;
         } else {
           // Limit to 100 files
-          event.target.value = '';
-          alert('Maximum 100 files allowed. Please select fewer files.');
+          event.target.value = "";
+          alert("Maximum 100 files allowed. Please select fewer files.");
           return;
         }
       } else {
@@ -83,21 +89,21 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     // Validate multiple emails if it's the email field
     if (name === "email" && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const emails = value.split(';').map(email => email.trim());
-      const invalidEmails = emails.filter(email => email && !emailRegex.test(email));
-      
+      const emails = value.split(";").map((email) => email.trim());
+      const invalidEmails = emails.filter((email) => email && !emailRegex.test(email));
+
       if (invalidEmails.length > 0) {
         // Store the value but mark it as having validation errors
-        mergeFormValues({ 
+        mergeFormValues({
           [name]: value,
-          emailValidationError: `Invalid email format: ${invalidEmails.join('; ')}`
+          emailValidationError: `Invalid email format: ${invalidEmails.join("; ")}`,
         });
         return;
       } else {
         // Clear any previous validation errors
-        mergeFormValues({ 
+        mergeFormValues({
           [name]: value,
-          emailValidationError: null
+          emailValidationError: null,
         });
         return;
       }
@@ -108,7 +114,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
 
   function getFileCount(inputFileValue) {
     if (!inputFileValue) return 0;
-    if (typeof inputFileValue === 'string') {
+    if (typeof inputFileValue === "string") {
       // Check if it's the format "X files selected"
       const match = inputFileValue.match(/^(\d+) files selected$/);
       if (match) {
@@ -164,13 +170,13 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     if (onSubmitMetaAnalysis) {
       // Create FormData manually to avoid multipart parser issues with multiple files having the same field name
       const formData = new FormData();
-      
+
       // Add email field
       const emailField = event.target.querySelector('input[name="email"]');
       if (emailField) {
-        formData.append('email', emailField.value);
+        formData.append("email", emailField.value);
       }
-      
+
       // Add files with unique field names to avoid Plumber multipart parser corruption
       const fileInput = event.target.querySelector('input[name="metaAnalysisFiles"]');
       if (fileInput && fileInput.files) {
@@ -179,7 +185,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
           formData.append(`metaAnalysisFile_${i + 1}`, fileInput.files[i]);
         }
       }
-      
+
       onSubmitMetaAnalysis(formData);
     }
   }
@@ -207,10 +213,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
 
   function resetMetaAnalysis(event) {
     // Reset only meta-analysis specific fields and stay on the same tab
-    mergeFormValues({ 
+    mergeFormValues({
       metaAnalysisFiles: null,
       email: "",
-      emailValidationError: null
+      emailValidationError: null,
     });
     if (metaAnalysisFileRef?.current) {
       metaAnalysisFileRef.current.value = "";
@@ -292,13 +298,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     <>
       <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
         <Card.Body>
-          <Tabs
-            activeKey={activeTab}
-            onSelect={handleTabSelect}
-            className="mb-4"
-            id="analysis-tabs"
-            variant="tabs"
-          >
+          <Tabs activeKey={activeTab} onSelect={handleTabSelect} className="mb-4" id="analysis-tabs" variant="tabs">
             <Tab eventKey="cohort-analysis" title="Cohort-Specific Analyses">
               <Form onSubmit={submitIntegrityCheck} onReset={reset}>
                 <Form.Group controlId="cohort" className="mb-3">
@@ -369,7 +369,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                 </div>
               </Form>
             </Tab>
-            
+
             <Tab eventKey="meta-analysis" title="Meta-Analysis">
               <Form onSubmit={submitMetaAnalysis} onReset={reset}>
                 <Form.Group controlId="metaAnalysisFiles" className="mb-3">
@@ -383,9 +383,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                     multiple
                     accept=".xlsx,.xls,.csv"
                   />
-                  <Form.Text className="d-block">
-                    Select up to 100 files. Accepted formats: .xlsx, .xls, .csv
-                  </Form.Text>
+                  <Form.Text className="d-block">Select up to 100 files. Accepted formats: .xlsx, .xls, .csv</Form.Text>
                   <Form.Text>
                     <i className="bi bi-download me-1"></i>
                     <a
@@ -396,27 +394,26 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           event_label: "meta analysis sample inputs",
                         })
                       }>
-                      Download Sample Inputs
+                      Download Sample Inputs (cohort_1.xlsx & cohort_2.xlsx)
                     </a>
                   </Form.Text>
                 </Form.Group>
                 <Form.Group controlId="email" className="mb-3">
                   <Form.Label className="required">Email(s)</Form.Label>
-                  <Form.Control 
-                    type="text" 
-                    name="email" 
-                    onChange={handleChange} 
+                  <Form.Control
+                    type="text"
+                    name="email"
+                    onChange={handleChange}
                     value={formValues.email}
                     placeholder="Enter email addresses separated by semicolons"
                     isInvalid={!!formValues.emailValidationError}
                   />
                   {formValues.emailValidationError && (
-                    <Form.Control.Feedback type="invalid">
-                      {formValues.emailValidationError}
-                    </Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">{formValues.emailValidationError}</Form.Control.Feedback>
                   )}
                   <Form.Text>
-                    Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
+                    Enter one or more email addresses separated by semicolons (e.g., user1@example.com;
+                    user2@example.com)
                   </Form.Text>
                 </Form.Group>
 
@@ -428,7 +425,11 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                   <Button
                     type="submit"
                     variant="primary"
-                    disabled={getFileCount(formValues.metaAnalysisFiles) < 2 || !formValues.email || !!formValues.emailValidationError}>
+                    disabled={
+                      getFileCount(formValues.metaAnalysisFiles) < 2 ||
+                      !formValues.email ||
+                      !!formValues.emailValidationError
+                    }>
                     Run {formValues.metaAnalysisFiles && `(${getFileCount(formValues.metaAnalysisFiles)} files)`}
                   </Button>
                 </div>
@@ -473,7 +474,6 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                     onChange={handleChange}
                     checked={formValues.method === "customModel"}
                   />
-                  
                 </Form.Group>
 
                 {formValues.method === "allModels" && (
@@ -706,10 +706,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
 
                       <Form.Group controlId="email" className="mb-3">
                         <Form.Label className="required">Email(s)</Form.Label>
-                        <Form.Control 
-                          type="text" 
-                          name="email" 
-                          onChange={handleChange} 
+                        <Form.Control
+                          type="text"
+                          name="email"
+                          onChange={handleChange}
                           value={formValues.email}
                           placeholder="Enter email addresses separated by semicolons"
                           isInvalid={!!formValues.emailValidationError}
@@ -720,7 +720,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           </Form.Control.Feedback>
                         )}
                         <Form.Text>
-                          Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
+                          Enter one or more email addresses separated by semicolons (e.g., user1@example.com;
+                          user2@example.com)
                         </Form.Text>
                       </Form.Group>
                     </div>
@@ -734,9 +735,9 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                         type="submit"
                         variant="primary"
                         disabled={
-                          formValues.selectedModelNames?.length <= 1 || 
-                          !formValues.selectedModelType || 
-                          !formValues.email || 
+                          formValues.selectedModelNames?.length <= 1 ||
+                          !formValues.selectedModelType ||
+                          !formValues.email ||
                           !!formValues.emailValidationError
                         }>
                         Run Meta-Analysis
