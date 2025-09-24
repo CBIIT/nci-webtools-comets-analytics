@@ -162,7 +162,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
   function submitMetaAnalysis(event) {
     event.preventDefault();
     if (onSubmitMetaAnalysis) {
-      const formData = new FormData(event.target);
+      const formData = new FormData(event.target);      
       onSubmitMetaAnalysis(formData);
     }
   }
@@ -372,14 +372,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                   <Form.Text>
                     <i className="bi bi-download me-1"></i>
                     <a
-                      href="files/cometsInputAge.xlsx"
+                      href="/api/metaAnalysisSampleFiles"
                       onClick={(ev) =>
                         window.gtag("event", "download", {
                           event_category: "file",
-                          event_label: "sample input",
+                          event_label: "meta analysis sample inputs",
                         })
                       }>
-                      Download Sample Inputs
+                      Download Sample Inputs (cohort_1.xlsx & cohort_2.xlsx)
                     </a>
                   </Form.Text>
                 </Form.Group>
