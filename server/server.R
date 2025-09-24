@@ -13,12 +13,10 @@ api <- pr("comets.R")
 
 # Register a custom multipart parser if needed
 api$registerHook("preroute", function(data, req, res) {
-  # Log Content-Type for debugging
-  cat("Content-Type:", req$headers[['content-type']] %||% "missing", "\n")
+  # Hook for potential future preprocessing
 })
 
 pr() |>
   pr_mount("/api", api) |>
   pr_set_docs(FALSE) |>
-  pr_set_debug(TRUE) |>
   pr_run(host = "0.0.0.0", port = port)
