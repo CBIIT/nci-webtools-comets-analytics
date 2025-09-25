@@ -7,6 +7,7 @@ import Container from "react-bootstrap/Container";
 import Alert from "react-bootstrap/Alert";
 import Loader from "./modules/common/loader";
 import ErrorBoundary from "./modules/common/error-boundary";
+import Footer from "./modules/common/footer";
 import "./styles/main.scss";
 
 // preload lazy-loaded page components
@@ -83,6 +84,7 @@ export default function App() {
             </Suspense>
           </ErrorBoundary>
         </div>
+        <Footer />
       </Router>
     </RecoilRoot>
   );
