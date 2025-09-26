@@ -396,7 +396,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           event_label: "meta analysis sample inputs",
                         })
                       }>
-                      Download Sample Inputs
+                      Download Sample Inputs 
                     </a>
                   </Form.Text>
                 </Form.Group>

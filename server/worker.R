@@ -8,8 +8,16 @@ source("utils.R")
 # configure AWS services if needed
 awsConfig <- getAwsConfig()
 ses <- paws::sesv2(config = awsConfig)
-logger <- createLogger(
-    transports = c(createConsoleTransport())
+# logger <- createLogger(
+#     transports = c(createConsoleTransport())
+# )
+
+# Create a simple mock logger to avoid errors
+logger <- list(
+  info = function(message) { cat(paste("[INFO]", message, "\n")) },
+  warn = function(message) { cat(paste("[WARN]", message, "\n")) },
+  error = function(message) { cat(paste("[ERROR]", message, "\n")) },
+  debug = function(message) { cat(paste("[DEBUG]", message, "\n")) }
 )
 
 

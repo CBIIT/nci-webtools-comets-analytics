@@ -11,13 +11,21 @@ source("utils.R")
 
 # configure AWS services as needed
 awsConfig <- getAwsConfig()
-logger <- createLogger(
-  transports = c(
-    createConsoleTransport(),
-    createDailyRotatingFileTransport(
-      file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
-    )
-  )
+# logger <- createLogger(
+#   transports = c(
+#     createConsoleTransport(),
+#     createDailyRotatingFileTransport(
+#       file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+#     )
+#   )
+# )
+
+# Create a simple mock logger to avoid errors
+logger <- list(
+  info = function(message) { cat(paste("[INFO]", message, "\n")) },
+  warn = function(message) { cat(paste("[WARN]", message, "\n")) },
+  error = function(message) { cat(paste("[ERROR]", message, "\n")) },
+  debug = function(message) { cat(paste("[DEBUG]", message, "\n")) }
 )
 
 # logger$info("Started COMETS Server")
@@ -332,9 +340,7 @@ runMetaAnalysis <- function(req, res) {
   if (is.null(req$body) || length(req$body) == 0) {
     logger$error("Request body is empty or NULL - multipart parsing failed")
     res$status <- 400
-    return(list(error = "No data received - multipart parsing failed", 
-                debug = list(content_type = content_type, 
-                           headers = req$headers)))
+    return(list(error = "No data received - multipart parsing failed"))
   }
   
   # Log the request body structure
@@ -505,8 +511,7 @@ runMetaAnalysis <- function(req, res) {
     }
     
     if (fileCount < 2) {
-      logger$error(sprintf("Found %d files, need at least 2. Saved files: %s", 
-                          fileCount, paste(basename(savedFiles), collapse = ", ")))
+      logger$error(sprintf("Meta-analysis requires at least 2 files, received %d", fileCount))
       stop("Meta-analysis requires at least 2 files")
     }
     
@@ -537,7 +542,7 @@ runMetaAnalysis <- function(req, res) {
       }
       
       # Step 2: Build model specifications (using Interactive model as in your example)
-      logger$info("Step 2: Building model specifications...")
+      # logger$info("Step 2: Building model specifications...")
       modeldata_list <- list()
       
       for (i in seq_along(data_list)) {
@@ -716,13 +721,9 @@ runMetaAnalysis <- function(req, res) {
       # Send success email if provided
       if (!is.null(email_val) && nchar(email_val) > 0) {
         tryCatch({
-          logger$info(sprintf("Attempting to send success email to: %s", email_val))
-          
           # Check if AWS credentials are available
           awsConfig <- getAwsConfig()
-          if (is.null(awsConfig) || length(awsConfig) == 0) {
-            logger$warn("AWS credentials not configured - skipping email")
-          } else {
+          if (!is.null(awsConfig) && length(awsConfig) > 0) {
             # Setup AWS SES for email sending
             ses <- paws::sesv2(config = awsConfig)
             
@@ -752,10 +753,9 @@ runMetaAnalysis <- function(req, res) {
               subject = emailSubject,
               body = emailBody
             )
-            logger$info(sprintf("Success email sent to: %s", email_val))
           }
         }, error = function(e) {
-          logger$warn(sprintf("Email sending failed (non-critical): %s", e$message))
+          logger$warn(sprintf("Email sending failed: %s", e$message))
         })
       }
       
@@ -765,13 +765,9 @@ runMetaAnalysis <- function(req, res) {
       # Send failure email if provided
       if (!is.null(email_val) && nchar(email_val) > 0) {
         tryCatch({
-          logger$info(sprintf("Attempting to send failure email to: %s", email_val))
-          
           # Check if AWS credentials are available
           awsConfig <- getAwsConfig()
-          if (is.null(awsConfig) || length(awsConfig) == 0) {
-            logger$warn("AWS credentials not configured - skipping failure email")
-          } else {
+          if (!is.null(awsConfig) && length(awsConfig) > 0) {
             # Setup AWS SES for email sending
             ses <- paws::sesv2(config = awsConfig)
             
@@ -788,7 +784,6 @@ runMetaAnalysis <- function(req, res) {
                 )
               )
             )
-            logger$info(sprintf("Failure email sent to: %s", email_val))
             
             # Send admin failure email
             sendEmail(
@@ -806,10 +801,9 @@ runMetaAnalysis <- function(req, res) {
                 )
               )
             )
-            logger$info(sprintf("Admin failure email sent to: %s", Sys.getenv("EMAIL_ADMIN")))
           }
         }, error = function(e2) {
-          logger$warn(sprintf("Failed to send failure email (non-critical): %s", e2$message))
+          logger$warn(sprintf("Failed to send failure email: %s", e2$message))
         })
       }
       
