@@ -20,7 +20,7 @@ logger <- createLogger(
   )
 )
 
-logger$info("Started COMETS Server")
+# logger$info("Started COMETS Server")
 
 #* Returns COMETS status
 #* @get /ping/
@@ -71,7 +71,7 @@ loadFile <- function(req, res) {
     # capture errors and warnings from readCOMETSinput
     results <- callWithHandlers(RcometsAnalytics::readCOMETSinput, inputFilePath)
 
-    logger$info(paste("Loaded input file:", inputFile$filename))
+    # logger$info(paste("Loaded input file:", inputFile$filename))
 
     # return errors if present
     if (length(results$errors)) {
@@ -142,7 +142,7 @@ runSelectedModel <- function(req, res) {
 
     modelData <- RcometsAnalytics::getModelData(metaboliteData, modlabel = selectedModelName)
     results <- RcometsAnalytics::runModel(modelData, metaboliteData, cohort)
-    logger$info(paste("Ran selected model: ", selectedModelName))
+    # logger$info(paste("Ran selected model: ", selectedModelName))
 
     results$heatmap <- getHeatmap(results$Effects)
     results$options <- modelData$options
@@ -199,7 +199,7 @@ runCustomModel <- function(req, res) {
       cohort,
       op = options
     )
-    logger$info(paste("Ran custom model: ", modelName))
+    # logger$info(paste("Ran custom model: ", modelName))
 
     results$heatmap <- getHeatmap(results$Effects)
     results$options <- options
@@ -239,7 +239,7 @@ runAllModels <- function(req, res) {
     write_json(params, paramsFilePath)
 
     workerType <- Sys.getenv("WORKER_TYPE")
-    logger$info(paste0("Launched All Models worker: ", workerType))
+    # logger$info(paste0("Launched All Models worker: ", workerType))
     if (workerType == "fargate") {
       svc <- ecs()
       svc$run_task(
@@ -320,13 +320,13 @@ runMetaAnalysis <- function(req, res) {
   id <- plumber::random_cookie_key()
   
   # Log raw request structure for debugging
-  logger$info("=== Meta-Analysis Submission Received ===")
-  logger$info(sprintf("Session ID: %s", id))
+  # logger$info("=== Meta-Analysis Submission Received ===")
+  # logger$info(sprintf("Session ID: %s", id))
   
   # Get content type and log all headers for debugging
   content_type <- req$headers[['content-type']] %||% "unknown"
-  logger$info(sprintf("Request Content-Type: %s", content_type))
-  logger$info(sprintf("All headers: %s", paste(names(req$headers), "=", req$headers, collapse = "; ")))
+  # logger$info(sprintf("Request Content-Type: %s", content_type))
+  # logger$info(sprintf("All headers: %s", paste(names(req$headers), "=", req$headers, collapse = "; ")))
   
   # Check if multipart parsing worked
   if (is.null(req$body) || length(req$body) == 0) {
@@ -338,36 +338,36 @@ runMetaAnalysis <- function(req, res) {
   }
   
   # Log the request body structure
-  logger$info(sprintf("Request body class: %s", class(req$body)))
-  logger$info(sprintf("Request body length: %d", length(req$body)))
-  logger$info(sprintf("Request body names: %s", paste(names(req$body), collapse = ", ")))
+  # logger$info(sprintf("Request body class: %s", class(req$body)))
+  # logger$info(sprintf("Request body length: %d", length(req$body)))
+  # logger$info(sprintf("Request body names: %s", paste(names(req$body), collapse = ", ")))
   
   # Try to process the body
   tryCatch({
-    logger$info("=== EMAIL EXTRACTION DEBUG START ===")
+    # logger$info("=== EMAIL EXTRACTION DEBUG START ===")
     
     # For multipart data, the email field contains raw bytes that need conversion
     email <- req$body$email
-    logger$info(sprintf("Raw email field - class: %s", class(email)))
+    # logger$info(sprintf("Raw email field - class: %s", class(email)))
     
     if (is.list(email) && "value" %in% names(email)) {
       email_raw <- email[["value"]]
-      logger$info(sprintf("Email value field - class: %s", class(email_raw)))
+      # logger$info(sprintf("Email value field - class: %s", class(email_raw)))
       
       # Convert raw bytes to character string
       if (class(email_raw) == "raw") {
         email <- rawToChar(email_raw)
-        logger$info(sprintf("Converted raw bytes to string: '%s'", email))
+        # logger$info(sprintf("Converted raw bytes to string: '%s'", email))
       } else if (is.character(email_raw)) {
         email <- email_raw
-        logger$info(sprintf("Email was already character: '%s'", email))
+        # logger$info(sprintf("Email was already character: '%s'", email))
       } else {
         email <- as.character(email_raw)
-        logger$info(sprintf("Converted to character: '%s'", email))
+        # logger$info(sprintf("Converted to character: '%s'", email))
       }
     } else {
       email <- as.character(email)
-      logger$info(sprintf("Fallback conversion: '%s'", email))
+      # logger$info(sprintf("Fallback conversion: '%s'", email))
     }
     
     # Ensure we have a clean email string
@@ -376,13 +376,13 @@ runMetaAnalysis <- function(req, res) {
       logger$warning("Email is empty after extraction")
     }
     
-    logger$info(sprintf("=== FINAL EMAIL: '%s' ===", email))
+    # logger$info(sprintf("=== FINAL EMAIL: '%s' ===", email))
     
-    logger$info(sprintf("Email: %s", ifelse(nchar(email) == 0, "EMPTY", email)))
+    # logger$info(sprintf("Email: %s", ifelse(nchar(email) == 0, "EMPTY", email)))
     
     # Count potential file fields
     fileFields <- names(req$body)[names(req$body) != "email"]
-    logger$info(sprintf("File field names: %s", paste(fileFields, collapse = ", ")))
+    # logger$info(sprintf("File field names: %s", paste(fileFields, collapse = ", ")))
     
     # Continue with the meta-analysis processing
     
@@ -397,9 +397,9 @@ runMetaAnalysis <- function(req, res) {
     
     # Use the same email handling as runAllModels - simple and direct
     email_val <- email  # Use the email already extracted above
-    logger$info(sprintf("Processing with email: %s", email_val))
+    # logger$info(sprintf("Processing with email: %s", email_val))
     
-    logger$info(sprintf("Final email_val: '%s'", email_val))
+    # logger$info(sprintf("Final email_val: '%s'", email_val))
 
     # Create input and output session folders
     inputSessionFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "input", id)
@@ -417,27 +417,27 @@ runMetaAnalysis <- function(req, res) {
     files <- req$body
     
     # Debug: log the structure of req$body
-    logger$info(sprintf("Request body structure: %s", paste(names(files), collapse = ", ")))
+    # logger$info(sprintf("Request body structure: %s", paste(names(files), collapse = ", ")))
     
     # Enhanced debugging for multipart file parsing
-    logger$info("=== DETAILED MULTIPART PARSING DEBUG ===")
+    # logger$info("=== DETAILED MULTIPART PARSING DEBUG ===")
     for (name in names(files)) {
       obj <- files[[name]]
-      logger$info(sprintf("Field '%s': class=%s, length=%s", name, class(obj), length(obj)))
+      # logger$info(sprintf("Field '%s': class=%s, length=%s", name, class(obj), length(obj)))
       
       if (is.list(obj)) {
-        logger$info(sprintf("  List elements: %s", paste(names(obj), collapse = ", ")))
+        # logger$info(sprintf("  List elements: %s", paste(names(obj), collapse = ", ")))
         if ("filename" %in% names(obj)) {
-          logger$info(sprintf("  Filename: '%s'", obj$filename))
+          # logger$info(sprintf("  Filename: '%s'", obj$filename))
         }
         if ("value" %in% names(obj) && is.raw(obj$value)) {
-          logger$info(sprintf("  Value size: %d bytes", length(obj$value)))
+          # logger$info(sprintf("  Value size: %d bytes", length(obj$value)))
         }
       } else if (is.character(obj)) {
-        logger$info(sprintf("  Character value: '%s'", obj))
+        # logger$info(sprintf("  Character value: '%s'", obj))
       }
     }
-    logger$info("========================================")
+    # logger$info("========================================")
     
     # Find all file objects - look for fields that start with "metaAnalysisFile" (unique field names)
     savedFiles <- c()
@@ -449,15 +449,15 @@ runMetaAnalysis <- function(req, res) {
       # Skip email field and look for file fields
       if (fieldName != "email" && (fieldName == "metaAnalysisFiles" || startsWith(fieldName, "metaAnalysisFile"))) {
         fileObj <- files[[fieldName]]
-        logger$info(sprintf("Processing field: %s, type: %s", fieldName, class(fileObj)))
+        # logger$info(sprintf("Processing field: %s, type: %s", fieldName, class(fileObj)))
         
         if (!is.null(fileObj)) {
           # Check if it's a file object with filename and value
           if (!is.null(fileObj$filename) && !is.null(fileObj$value)) {
-            logger$info(sprintf("Found file object - Name: '%s', Size: %d bytes, Modified: %s", 
-                               fileObj$filename, 
-                               length(fileObj$value),
-                               ifelse(is.null(fileObj$lastModified), "unknown", fileObj$lastModified)))
+            # logger$info(sprintf("Found file object - Name: '%s', Size: %d bytes, Modified: %s", 
+            #                    fileObj$filename, 
+            #                    length(fileObj$value),
+            #                    ifelse(is.null(fileObj$lastModified), "unknown", fileObj$lastModified)))
             
             # Check for duplicate filenames and create unique names if needed
             # For meta-analysis, we need to follow the COMETS naming convention:
@@ -472,8 +472,8 @@ runMetaAnalysis <- function(req, res) {
             currentDate <- format(Sys.Date(), "%Y%m%d")
             cometsFilename <- sprintf("AllModels__%s__%s.%s", baseName, currentDate, fileExt)
             
-            logger$info(sprintf("Processing file: %s -> attempting filename: %s", fileObj$filename, cometsFilename))
-            logger$info(sprintf("Current processedFiles: %s", paste(processedFiles, collapse = ", ")))
+            # logger$info(sprintf("Processing file: %s -> attempting filename: %s", fileObj$filename, cometsFilename))
+            # logger$info(sprintf("Current processedFiles: %s", paste(processedFiles, collapse = ", ")))
             
             # Check for duplicates and create unique names if needed
             uniqueFilename <- cometsFilename
@@ -482,24 +482,24 @@ runMetaAnalysis <- function(req, res) {
               # If there's a conflict, add counter to the base name (cohort name)
               uniqueFilename <- sprintf("AllModels__%s_%d__%s.%s", baseName, counter, currentDate, fileExt)
               counter <- counter + 1
-              logger$info(sprintf("Filename conflict detected for '%s', creating unique name: %s", baseName, uniqueFilename))
+              # logger$info(sprintf("Filename conflict detected for '%s', creating unique name: %s", baseName, uniqueFilename))
             }
             
             fileCount <- fileCount + 1
             processedFiles <- c(processedFiles, uniqueFilename)
-            logger$info(sprintf("Final filename: %s, processedFiles now: %s", uniqueFilename, paste(processedFiles, collapse = ", ")))
+            # logger$info(sprintf("Final filename: %s, processedFiles now: %s", uniqueFilename, paste(processedFiles, collapse = ", ")))
             
             # Save file to input folder using the unique filename
             filePath <- file.path(inputFolder, uniqueFilename)
             writeBin(fileObj$value, filePath)
             savedFiles <- c(savedFiles, filePath)
-            logger$info(sprintf("Successfully saved file #%d: %s (original: %s) - %d bytes", 
-                               fileCount, uniqueFilename, fileObj$filename, length(fileObj$value)))
+            # logger$info(sprintf("Successfully saved file #%d: %s (original: %s) - %d bytes", 
+            #                    fileCount, uniqueFilename, fileObj$filename, length(fileObj$value)))
           } else {
-            logger$info(sprintf("Field %s is not a file object (missing filename or value)", fieldName))
+            # logger$info(sprintf("Field %s is not a file object (missing filename or value)", fieldName))
           }
         } else {
-          logger$info(sprintf("Field %s is NULL", fieldName))
+          # logger$info(sprintf("Field %s is NULL", fieldName))
         }
       }
     }
@@ -510,17 +510,17 @@ runMetaAnalysis <- function(req, res) {
       stop("Meta-analysis requires at least 2 files")
     }
     
-    logger$info(sprintf("Running meta-analysis with %d files", length(savedFiles)))
+    # logger$info(sprintf("Running meta-analysis with %d files", length(savedFiles)))
     
     # Create options file path (optional parameter for runAllMeta)
     opfile <- NULL  # Can be modified to pass custom options if needed
     
     # Run comprehensive meta-analysis using the improved workflow
     tryCatch({
-      logger$info(sprintf("Starting comprehensive meta-analysis with %d files", length(savedFiles)))
+      # logger$info(sprintf("Starting comprehensive meta-analysis with %d files", length(savedFiles)))
       
       # Step 1: Read COMETS input files
-      logger$info("Step 1: Reading COMETS input files...")
+      # logger$info("Step 1: Reading COMETS input files...")
       data_list <- list()
       cohort_names <- c()
       
@@ -531,7 +531,7 @@ runMetaAnalysis <- function(req, res) {
         cohort_name <- sub("__\\d{8}\\.xlsx$", "", cohort_name)  # Remove date and extension
         # Don't remove _1, _2 suffixes as they're part of cohort names like cohort_1, cohort_2
         
-        logger$info(sprintf("Reading file %d: %s (cohort: %s)", i, basename(file_path), cohort_name))
+        # logger$info(sprintf("Reading file %d: %s (cohort: %s)", i, basename(file_path), cohort_name))
         data_list[[i]] <- RcometsAnalytics::readCOMETSinput(file_path)
         cohort_names[i] <- cohort_name
       }
