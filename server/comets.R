@@ -11,13 +11,45 @@ source("utils.R")
 
 # configure AWS services as needed
 awsConfig <- getAwsConfig()
-logger <- createLogger(
-  transports = c(
-    createConsoleTransport(),
-    createDailyRotatingFileTransport(
-      file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
-    )
-  )
+# logger <- createLogger(
+#   transports = c(
+#     createConsoleTransport(),
+#     createDailyRotatingFileTransport(
+#       file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+#     )
+#   )
+# )
+
+# Create a simple mock logger to avoid errors
+logger <- list(
+  info = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[INFO] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[INFO]", message, "\n"))
+    }
+  },
+  warn = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[WARN] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[WARN]", message, "\n"))
+    }
+  },
+  error = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[ERROR] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[ERROR]", message, "\n"))
+    }
+  },
+  debug = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[DEBUG] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[DEBUG]", message, "\n"))
+    }
+  }
 )
 
 # logger$info("Started COMETS Server")
@@ -319,6 +351,9 @@ runModel <- function(req, res) {
 runMetaAnalysis <- function(req, res) {
   id <- plumber::random_cookie_key()
   
+  # Log job start
+  logger$info("Meta-analysis job started", id)
+  
   # Log raw request structure for debugging
   # logger$info("=== Meta-Analysis Submission Received ===")
   # logger$info(sprintf("Session ID: %s", id))
@@ -395,7 +430,7 @@ runMetaAnalysis <- function(req, res) {
     
     # Use the same email handling as runAllModels - simple and direct
     email_val <- email  # Use the email already extracted above
-    # logger$info(sprintf("Processing with email: %s", email_val))
+    logger$info(sprintf("Processing meta-analysis for email: %s", ifelse(nchar(email_val) > 0, email_val, "NONE")), id)
     
     # logger$info(sprintf("Final email_val: '%s'", email_val))
 
@@ -503,7 +538,7 @@ runMetaAnalysis <- function(req, res) {
     }
     
     if (fileCount < 2) {
-      logger$error(sprintf("Meta-analysis requires at least 2 files, received %d", fileCount))
+      logger$error(sprintf("Meta-analysis requires at least 2 files, received %d", fileCount), id)
       stop("Meta-analysis requires at least 2 files")
     }
     
@@ -553,7 +588,7 @@ runMetaAnalysis <- function(req, res) {
       results_list <- list()
       
       for (i in seq_along(data_list)) {
-        logger$info(sprintf("Running model for cohort %s", cohort_names[i]))
+        logger$info(sprintf("Running model for cohort %s", cohort_names[i]), id)
         results_list[[i]] <- RcometsAnalytics::runModel(
           modeldata_list[[i]], 
           data_list[[i]], 
@@ -594,7 +629,7 @@ runMetaAnalysis <- function(req, res) {
         
         if (length(written_file) > 0) {
           output_files[i] <- written_file[1]
-          logger$info(sprintf("Saved intermediate file: %s", basename(written_file[1])))
+          logger$info(sprintf("Saved intermediate file: %s", basename(written_file[1])), id)
         } else {
           stop(sprintf("Failed to find written file for cohort %s with pattern %s", cohort_names[i], pattern))
         }
@@ -620,7 +655,7 @@ runMetaAnalysis <- function(req, res) {
       info_tbl <- get_ret_tbl(meta_results, c("Info", "INFO", "info"))
       
       logger$info(sprintf("Meta-analysis completed. Results table has %d rows", 
-                         if (!is.null(meta_tbl)) nrow(meta_tbl) else 0))
+                         if (!is.null(meta_tbl)) nrow(meta_tbl) else 0), id)
       
       # Step 7: Add metabolite annotations
       # logger$info("Step 7: Adding metabolite annotations...")
@@ -644,7 +679,7 @@ runMetaAnalysis <- function(req, res) {
           meta_df$log10p <- -log10(pmax(meta_df$fixed.pvalue, .Machine$double.xmin))
           meta_df$hetp <- ifelse(meta_df$het.pvalue < 0.05, "hetp<0.05", "hetp ns")
           
-          logger$info("Successfully added metabolite annotations")
+          logger$info("Successfully added metabolite annotations", id)
         }
       }
       
@@ -667,29 +702,29 @@ runMetaAnalysis <- function(req, res) {
         }
         
         saveWorkbook(wb, meta_output_file, overwrite = TRUE)
-        logger$info(sprintf("Saved meta-analysis results to: %s", basename(meta_output_file)))
+        logger$info(sprintf("Saved meta-analysis results to: %s", basename(meta_output_file)), id)
       }
       
       # Save additional tables if they exist
       if (!is.null(errors_tbl)) {
         errors_file <- file.path(outputFolder, sprintf("%s__meta_errors__%s.csv", model_name, Sys.Date()))
         write.csv(as.data.frame(errors_tbl), errors_file, row.names = FALSE)
-        logger$info(sprintf("Saved errors table to: %s", basename(errors_file)))
+        logger$info(sprintf("Saved errors table to: %s", basename(errors_file)), id)
       }
       
       if (!is.null(info_tbl)) {
         info_file <- file.path(outputFolder, sprintf("%s__meta_info__%s.csv", model_name, Sys.Date()))
         write.csv(as.data.frame(info_tbl), info_file, row.names = FALSE)
-        logger$info(sprintf("Saved info table to: %s", basename(info_file)))
+        logger$info(sprintf("Saved info table to: %s", basename(info_file)), id)
       }
       
-      logger$info("Comprehensive meta-analysis completed successfully")
+      logger$info("Comprehensive meta-analysis completed successfully", id)
       
       # Create zip file with results
       outputFile <- file.path(outputSessionFolder, "output.zip")
       if (length(list.files(outputFolder)) > 0) {
         zip::zip(outputFile, list.files(outputFolder, full.names = TRUE), mode = "cherry-pick")
-        logger$info(sprintf("Results archived: %s", outputFile))
+        logger$info(sprintf("Results archived: %s", outputFile), id)
         
         # Upload to S3 (following same pattern as processor.R)
         tryCatch({
@@ -703,10 +738,10 @@ runMetaAnalysis <- function(req, res) {
               Bucket = Sys.getenv("S3_BUCKET"),
               Key = s3FilePath
             )
-            logger$info(sprintf("Uploaded meta-analysis results to S3: %s", s3FilePath))
+            logger$info(sprintf("Uploaded meta-analysis results to S3: %s", s3FilePath), id)
           }
         }, error = function(e) {
-          logger$warn(sprintf("S3 upload failed (non-critical): %s", e$message))
+          logger$warn(sprintf("S3 upload failed (non-critical): %s", e$message), id)
         })
       }
       
@@ -747,12 +782,12 @@ runMetaAnalysis <- function(req, res) {
             )
           }
         }, error = function(e) {
-          logger$warn(sprintf("Email sending failed: %s", e$message))
+          logger$warn(sprintf("Email sending failed: %s", e$message), id)
         })
       }
       
     }, error = function(e) {
-      logger$error(sprintf("Meta-analysis failed: %s", e$message))
+      logger$error(sprintf("Meta-analysis failed: %s", e$message), id)
       
       # Send failure email if provided
       if (!is.null(email_val) && nchar(email_val) > 0) {
@@ -795,7 +830,7 @@ runMetaAnalysis <- function(req, res) {
             )
           }
         }, error = function(e2) {
-          logger$warn(sprintf("Failed to send failure email: %s", e2$message))
+          logger$warn(sprintf("Failed to send failure email: %s", e2$message), id)
         })
       }
       
