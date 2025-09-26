@@ -538,7 +538,7 @@ runMetaAnalysis <- function(req, res) {
       modeldata_list <- list()
       
       for (i in seq_along(data_list)) {
-        logger$info(sprintf("Building model for cohort %s", cohort_names[i]))
+        # logger$info(sprintf("Building model for cohort %s", cohort_names[i]))
         modeldata_list[[i]] <- RcometsAnalytics::getModelData(
           data_list[[i]], 
           modelspec = "Interactive", 
@@ -549,7 +549,7 @@ runMetaAnalysis <- function(req, res) {
       }
       
       # Step 3: Run individual cohort analyses
-      logger$info("Step 3: Running individual cohort analyses...")
+      #logger$info("Step 3: Running individual cohort analyses...")
       results_list <- list()
       
       for (i in seq_along(data_list)) {
@@ -563,12 +563,12 @@ runMetaAnalysis <- function(req, res) {
       }
       
       # Step 4: Save intermediate results in COMETS format
-      logger$info("Step 4: Saving intermediate results...")
+      #logger$info("Step 4: Saving intermediate results...")
       output_files <- c()
       model_name <- "AgeAdjustedForBMI"  # Following your example
       
       for (i in seq_along(results_list)) {
-        logger$info(sprintf("Saving results for cohort %s", cohort_names[i]))
+        #logger$info(sprintf("Saving results for cohort %s", cohort_names[i]))
         
         # Get options for this cohort
         op <- RcometsAnalytics:::runAllModels.getOptions(data_list[[i]])
@@ -601,14 +601,14 @@ runMetaAnalysis <- function(req, res) {
       }
       
       # Step 5: Run meta-analysis on intermediate results
-      logger$info("Step 5: Running meta-analysis...")
-      logger$info(sprintf("Meta-analysis input files: %s", paste(basename(output_files), collapse = ", ")))
-      
+      # logger$info("Step 5: Running meta-analysis...")
+      # logger$info(sprintf("Meta-analysis input files: %s", paste(basename(output_files), collapse = ", ")))
+
       meta_results <- RcometsAnalytics::runMeta(output_files)
       
       # Step 6: Extract and process meta-analysis results
-      logger$info("Step 6: Processing meta-analysis results...")
-      
+      # logger$info("Step 6: Processing meta-analysis results...")
+
       # Helper function to safely extract tables
       get_ret_tbl <- function(x, choices) {
         nm <- intersect(choices, names(x))
@@ -623,8 +623,8 @@ runMetaAnalysis <- function(req, res) {
                          if (!is.null(meta_tbl)) nrow(meta_tbl) else 0))
       
       # Step 7: Add metabolite annotations
-      logger$info("Step 7: Adding metabolite annotations...")
-      
+      # logger$info("Step 7: Adding metabolite annotations...")
+
       # Combine all metabolite data
       allmetab <- do.call(rbind, lapply(data_list, function(d) d$metab))
       uid_col <- intersect(c("uid_01", "uid"), colnames(allmetab))[1]
@@ -649,8 +649,8 @@ runMetaAnalysis <- function(req, res) {
       }
       
       # Step 8: Save final results
-      logger$info("Step 8: Saving final results...")
-      
+      # logger$info("Step 8: Saving final results...")
+
       # Save main meta-analysis results
       meta_output_file <- file.path(outputFolder, sprintf("%s__meta__%s.xlsx", model_name, Sys.Date()))
       
