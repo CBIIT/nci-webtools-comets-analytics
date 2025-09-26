@@ -7,12 +7,15 @@ RUN dnf -y update \
     make \
     nodejs \
     npm \
+    git \
  && dnf clean all
 
 RUN mkdir /client
 
 WORKDIR /client
 
+COPY package.json /package.json
+COPY .git /.git
 COPY client/package.json /client/
 
 RUN npm install
