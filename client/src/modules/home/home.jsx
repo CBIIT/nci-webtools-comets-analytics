@@ -36,12 +36,14 @@ export default function Home() {
                     Available in R
                   </Badge>
                   <Badge pill bg="primary" className="me-2">
-                    Upcoming in Web
+                    Available in Web
                   </Badge>
                 </h3>
                 New features include:
                 <ul>
-                  <li>Support for performing meta-analyses, chemical enrichment, and pathway enrichment</li>
+                  <li>Support for performing meta-analyses</li>
+                  <li>Support for chemical enrichment</li>
+                  <li>Pathway enrichment</li>
                 </ul>
                 <p>
                   Check out the R Package{" "}
