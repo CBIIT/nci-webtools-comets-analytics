@@ -162,7 +162,24 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
   function submitMetaAnalysis(event) {
     event.preventDefault();
     if (onSubmitMetaAnalysis) {
-      const formData = new FormData(event.target);      
+      // Create FormData manually to avoid multipart parser issues with multiple files having the same field name
+      const formData = new FormData();
+      
+      // Add email field
+      const emailField = event.target.querySelector('input[name="email"]');
+      if (emailField) {
+        formData.append('email', emailField.value);
+      }
+      
+      // Add files with unique field names to avoid Plumber multipart parser corruption
+      const fileInput = event.target.querySelector('input[name="metaAnalysisFiles"]');
+      if (fileInput && fileInput.files) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          // Use unique field names: metaAnalysisFile_1, metaAnalysisFile_2, etc.
+          formData.append(`metaAnalysisFile_${i + 1}`, fileInput.files[i]);
+        }
+      }
+      
       onSubmitMetaAnalysis(formData);
     }
   }
@@ -372,14 +389,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                   <Form.Text>
                     <i className="bi bi-download me-1"></i>
                     <a
-                      href="/api/metaAnalysisSampleFiles"
+                      href="files/meta_analysis_sample_files.zip"
                       onClick={(ev) =>
                         window.gtag("event", "download", {
                           event_category: "file",
                           event_label: "meta analysis sample inputs",
                         })
                       }>
-                      Download Sample Inputs (cohort_1.xlsx & cohort_2.xlsx)
+                      Download Sample Inputs 
                     </a>
                   </Form.Text>
                 </Form.Group>
