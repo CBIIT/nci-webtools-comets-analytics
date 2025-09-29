@@ -5,10 +5,13 @@ RUN dnf -y update \
     gcc-c++ \
     httpd \
     make \
-    nodejs \
+    nodejs20 \
+    nodejs20-npm  \
     npm \
     git \
  && dnf clean all
+
+RUN ln -s -f /usr/bin/node-20 /usr/bin/node; ln -s -f /usr/bin/npm-20 /usr/bin/npm;
 
 RUN mkdir /client
 
@@ -22,9 +25,9 @@ RUN npm install
 COPY client /client/
 
 # Accept git information as build arguments
-ARG GIT_TAG=unknown
-ARG GIT_BRANCH=unknown  
-ARG LAST_COMMIT_DATE=unknown
+ARG GIT_TAG=dev
+ARG GIT_BRANCH=dev  
+ARG LAST_COMMIT_DATE=dev
 
 # Set environment variables for Vite build
 ENV VITE_GIT_TAG=${GIT_TAG}
