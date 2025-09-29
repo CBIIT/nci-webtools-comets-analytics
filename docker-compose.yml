@@ -30,6 +30,10 @@ services:
     build:
       context: "."
       dockerfile: "docker/frontend.dockerfile"
+      args:
+        - GIT_TAG=${GIT_TAG:-unknown}
+        - GIT_BRANCH=${GIT_BRANCH:-unknown}
+        - LAST_COMMIT_DATE=${LAST_COMMIT_DATE:-unknown}
     ports: 
       - "8080:80"
     environment: 

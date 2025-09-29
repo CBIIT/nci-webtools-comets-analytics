@@ -15,15 +15,26 @@ RUN mkdir /client
 WORKDIR /client
 
 COPY package.json /package.json
-COPY .git /.git
 COPY client/package.json /client/
 
 RUN npm install
 
 COPY client /client/
 
-RUN npm run build \
- && mv /client/dist/* /var/www/html/
+# Accept git information as build arguments
+ARG GIT_TAG=unknown
+ARG GIT_BRANCH=unknown  
+ARG LAST_COMMIT_DATE=unknown
+
+# Set environment variables for Vite build
+ENV VITE_GIT_TAG=${GIT_TAG}
+ENV VITE_GIT_BRANCH=${GIT_BRANCH}
+ENV VITE_LAST_COMMIT_DATE=${LAST_COMMIT_DATE}
+
+# Build the application and move to web root
+RUN echo "Building with Git Info: Tag=$VITE_GIT_TAG, Branch=$VITE_GIT_BRANCH, Date=$VITE_LAST_COMMIT_DATE" && \
+    npm run build && \
+    mv /client/dist/* /var/www/html/
 
 COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
