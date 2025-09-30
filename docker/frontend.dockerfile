@@ -17,9 +17,10 @@ RUN mkdir /client
 
 WORKDIR /client
 
-COPY client/package.json /client/
+COPY client/package.json client/package-lock.json /client/
 
-RUN npm install
+RUN npm ci --ignore-scripts
+RUN npm rebuild esbuild
 
 COPY client /client/
 
