@@ -5,13 +5,10 @@ RUN dnf -y update \
    gcc-c++ \
    httpd \
    make \
-   nodejs22 \
-   nodejs22-npm  \
+   nodejs \
    npm \
    git \
    && dnf clean all
-
-RUN ln -s -f /usr/bin/node-22 /usr/bin/node; ln -s -f /usr/bin/npm-22 /usr/bin/npm;
 
 RUN mkdir /client
 
@@ -19,8 +16,7 @@ WORKDIR /client
 
 COPY client/package.json client/package-lock.json /client/
 
-RUN npm ci --ignore-scripts
-RUN npm rebuild esbuild
+RUN npm install
 
 COPY client /client/
 
