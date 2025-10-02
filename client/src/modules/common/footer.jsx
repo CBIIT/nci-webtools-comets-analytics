@@ -7,7 +7,12 @@ export default function Footer() {
   // eslint-disable-next-line no-undef
   const lastCommitDate = typeof __LAST_COMMIT_DATE__ !== 'undefined' ? __LAST_COMMIT_DATE__ : new Date().toISOString().split('T')[0];
   
-  // Extract version from git tag or branch (e.g., "comets_3.1.2_20240828" -> "3.1.2")
+  // Debug logging
+  console.log('Footer Debug - gitTag:', gitTag);
+  console.log('Footer Debug - gitBranch:', gitBranch);
+  console.log('Footer Debug - lastCommitDate:', lastCommitDate);
+  
+  // Extract version from git tag or branch (e.g., "comets_3.1.2_20240828" -> "3.1.2" or "comets_3.2.0_dev" -> "3.2.0")
   const extractVersion = (source) => {
     try {
       const match = source.match(/comets_(\d+\.\d+\.\d+)/);
