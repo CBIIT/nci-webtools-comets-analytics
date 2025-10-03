@@ -6,7 +6,7 @@ export default function Footer() {
   const lastCommitDate = typeof __LAST_COMMIT_DATE__ !== 'undefined' ? __LAST_COMMIT_DATE__ : new Date().toISOString().split('T')[0];
   
   // Debug logging
-  console.log('Footer Debug - releaseVersion:', releaseVersion);
+  console.log('Footer Debug - releaseVersion: -- ', releaseVersion);
   console.log('Footer Debug - lastCommitDate:', lastCommitDate);
   
   // Format the last updated date to YYYY-MM-DD
