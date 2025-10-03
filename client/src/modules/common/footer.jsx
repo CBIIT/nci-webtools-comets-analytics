@@ -7,8 +7,8 @@ export default function Footer() {
   
   // Debug logging
   console.log('Footer Debug - releaseVersion: -- ', releaseVersion);
-  console.log('Footer Debug - lastCommitDate:', lastCommitDate);
-  
+  console.log('Footer Debug - lastCommitDate: -- ', lastCommitDate);
+
   // Format the last updated date to YYYY-MM-DD
   const formatDate = (dateStr) => {
     try {
