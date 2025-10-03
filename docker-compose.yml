@@ -31,8 +31,7 @@ services:
       context: "."
       dockerfile: "docker/frontend.dockerfile"
       args:
-        - GIT_TAG=dev-local-tag
-        - GIT_BRANCH=dev-local-branch
+        - RELEASE_VERSION=3.2.0-dev
         - LAST_COMMIT_DATE=dev-local-commit-date
     ports: 
       - "8080:80"
