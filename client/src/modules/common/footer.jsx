@@ -1,70 +1,13 @@
 export default function Footer() {
   // Get build information from Vite define
   // eslint-disable-next-line no-undef
-  const gitTag = typeof __GIT_TAG__ !== 'undefined' ? __GIT_TAG__ : 'unknown';
-  // eslint-disable-next-line no-undef
-  const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'unknown';
+  const releaseVersion = typeof __RELEASE_VERSION__ !== 'undefined' ? __RELEASE_VERSION__ : 'unknown';
   // eslint-disable-next-line no-undef
   const lastCommitDate = typeof __LAST_COMMIT_DATE__ !== 'undefined' ? __LAST_COMMIT_DATE__ : new Date().toISOString().split('T')[0];
   
   // Debug logging
-  console.log('Footer Debug - gitTag:', gitTag);
-  console.log('Footer Debug - gitBranch:', gitBranch);
+  console.log('Footer Debug - releaseVersion:', releaseVersion);
   console.log('Footer Debug - lastCommitDate:', lastCommitDate);
-  
-  // Extract version from git tag or branch (e.g., "comets_3.1.2_20240828" -> "3.1.2" or "comets_3.2.0_dev" -> "3.2.0")
-  const extractVersion = (source) => {
-    try {
-      const match = source.match(/comets_(\d+\.\d+\.\d+)/);
-      return match ? match[1] : source;
-    } catch {
-      return source;
-    }
-  };
-
-  // Extract date from git tag or branch (e.g., "comets_3.1.2_20240828" -> "20240828")
-  const extractDateFromSource = (source) => {
-    try {
-      const match = source.match(/comets_\d+\.\d+\.\d+_(\d{8})/);
-      if (match) {
-        const dateStr = match[1];
-        // Convert YYYYMMDD to YYYY-MM-DD
-        return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  };
-
-  // Determine which source to use for version info
-  const getVersionSource = () => {
-    // If branch is master or has no version number, use tag
-    if (gitBranch === 'master' || gitBranch === 'main' || !extractVersion(gitBranch).match(/^\d+\.\d+\.\d+$/)) {
-      return gitTag;
-    }
-    
-    const tagDate = extractDateFromSource(gitTag);
-    const branchDate = extractDateFromSource(gitBranch);
-    
-    // If both have dates, use the newer one
-    if (tagDate && branchDate) {
-      return tagDate < branchDate ? gitBranch : gitTag;
-    }
-    
-    // If only branch has a date, use branch
-    if (branchDate && !tagDate) {
-      return gitBranch;
-    }
-    
-    // If neither has a date but branch has a valid version number, use branch
-    if (extractVersion(gitBranch).match(/^\d+\.\d+\.\d+$/)) {
-      return gitBranch;
-    }
-    
-    // Otherwise use tag
-    return gitTag;
-  };
   
   // Format the last updated date to YYYY-MM-DD
   const formatDate = (dateStr) => {
@@ -82,7 +25,6 @@ export default function Footer() {
   };
 
   const currentYear = new Date().getFullYear();
-  const versionSource = getVersionSource();
 
   return (
     <footer className="bg-primary-darker text-light pt-4 flex-grow-0 no-print">
@@ -92,7 +34,7 @@ export default function Footer() {
             <h2 className="h4">COMETS Analytics</h2>
             <div className="small text-primary-light">
               <div>Last Updated: {formatDate(lastCommitDate)}</div>
-              <div>Version: {extractVersion(versionSource)}</div>
+              <div>Version: {releaseVersion}</div>
             </div>
           </div>
           
