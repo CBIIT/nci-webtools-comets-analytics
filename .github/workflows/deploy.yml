@@ -117,6 +117,8 @@ jobs:
           tags: |
             ${{ env.FRONTEND_IMAGE }}
             ${{ env.FRONTEND_IMAGE_LATEST }}
+          build-args: |
+            APP_VERSION=${{ github.ref_name }}
           cache-from: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:frontend-cache
           cache-to: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:frontend-cache,image-manifest=true,oci-mediatypes=true,mode=max
 
