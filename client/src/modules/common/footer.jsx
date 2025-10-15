@@ -1,29 +1,18 @@
+function parseVersionAndDate(versionString) {
+  if (!versionString) return { version: "dev", date: new Date().toISOString().split("T")[0] };
+  const versionMatch = versionString.match(/(\d+\.\d+\.\d+)(_dev)?/);
+  const version = versionMatch ? versionMatch[1] + (versionMatch[2] || "") : "dev";
+
+  const dateMatch = versionString.match(/(\d{8})/)?.[1];
+  const date = dateMatch
+    ? `${dateMatch.slice(0, 4)}-${dateMatch.slice(4, 6)}-${dateMatch.slice(6, 8)}`
+    : new Date().toISOString().split("T")[0];
+
+  return { version, date };
+}
+
 export default function Footer() {
-  // Get build information from Vite define
-  // eslint-disable-next-line no-undef
-  const releaseVersion = typeof __RELEASE_VERSION__ !== 'undefined' ? __RELEASE_VERSION__ : 'unknown';
-  // eslint-disable-next-line no-undef
-  const lastCommitDate = typeof __LAST_COMMIT_DATE__ !== 'undefined' ? __LAST_COMMIT_DATE__ : new Date().toISOString().split('T')[0];
-  
-  // Debug logging
-  console.log('Footer Debug - releaseVersion: -- ', releaseVersion);
-  console.log('Footer Debug - lastCommitDate: -- ', lastCommitDate);
-
-  // Format the last updated date to YYYY-MM-DD
-  const formatDate = (dateStr) => {
-    try {
-      // If it's already in YYYY-MM-DD format, return as is
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-        return dateStr;
-      }
-      // Otherwise, convert to YYYY-MM-DD format
-      const date = new Date(dateStr);
-      return date.toISOString().split('T')[0];
-    } catch {
-      return dateStr;
-    }
-  };
-
+  const { version, date } = parseVersionAndDate(import.meta.env.VITE_APP_VERSION);
   const currentYear = new Date().getFullYear();
 
   return (
@@ -33,11 +22,11 @@ export default function Footer() {
           <div className="col-lg-3 mb-4">
             <h2 className="h4">COMETS Analytics</h2>
             <div className="small text-primary-light">
-              <div>Last Updated: {formatDate(lastCommitDate)}</div>
-              <div>Version: {releaseVersion}</div>
+              <div>Last Updated: {date}</div>
+              <div>Version: {version}</div>
             </div>
           </div>
-          
+
           <div className="col-lg-3 mb-4">
             <div className="h5 mb-1 font-weight-light">CONTACT US</div>
             <ul className="list-unstyled mb-0">
@@ -88,9 +77,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="text-center my-3 text-primary-light">
-          ©2017-{currentYear} COMETS Analytics
-        </div>
+        <div className="text-center my-3 text-primary-light">©2017-{currentYear} COMETS Analytics</div>
       </div>
     </footer>
   );

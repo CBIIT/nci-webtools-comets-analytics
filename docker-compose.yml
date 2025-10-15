@@ -1,25 +1,25 @@
 services:
-  # processor:
-  #   build: 
-  #     context: "."
-  #     args:
-  #       - R_RENV_CACHE_HOST=./server/renv/cache
-  #     dockerfile: "docker/backend.dockerfile"
-  #   entrypoint: "Rscript processor.R"
-  #   volumes:
-  #     - "./server/temp:/server/temp"
-  #     - "./server/logs:/server/logs"
-  #   env_file:
-  #     - server/.env      
+  processor:
+    build:
+      context: "."
+      args:
+        - R_RENV_CACHE_HOST=./server/renv/cache
+      dockerfile: "docker/backend.dockerfile"
+    entrypoint: "Rscript processor.R"
+    volumes:
+      - "./server/temp:/server/temp"
+      - "./server/logs:/server/logs"
+    env_file:
+      - server/.env
   backend:
-    build: 
+    build:
       context: "."
       args:
         - R_RENV_CACHE_HOST=./server/renv/cache
       dockerfile: "docker/backend.dockerfile"
     expose:
       - "8000"
-    ports: 
+    ports:
       - "8000:8000"
     volumes:
       - "./server/temp:/server/temp"
@@ -31,12 +31,9 @@ services:
       context: "."
       dockerfile: "docker/frontend.dockerfile"
       args:
-        - RELEASE_VERSION=3.2.0-dev
-        - LAST_COMMIT_DATE=dev-local-commit-date
-    ports: 
+        - APP_VERSION=3.2.0-dev
+    ports:
       - "8080:80"
-    environment: 
+    environment:
       API_HOST: "http://backend:8000"
       SERVER_NAME: localhost
-
-
