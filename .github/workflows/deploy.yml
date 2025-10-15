@@ -81,15 +81,6 @@ jobs:
                       ${{ env.PARAMETER_PATH }}/efs_access_point_id = EFS_ACCESS_POINT_ID,
                   withDecryption: "true"
 
-            - name: Create client .env.production file
-              run: |
-                  echo "VITE_VERSION=$VERSION" > client/.env.production
-                  echo "VITE_LAST_UPDATE=$DATE" >> client/.env.production
-                  echo "VITE_API_BASE_URL=http://localhost:$BACKEND_CONTAINER_PORT" >> client/.env.production
-              env:
-                  VERSION: $VERSION
-                  DATE: $DATE
-
             - name: Login to Amazon ECR
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v1
@@ -224,4 +215,3 @@ jobs:
                       aws ecs list-task-definitions --family-prefix "$family" --sort DESC --query 'taskDefinitionArns[3:]' --output text \
                           | xargs -n1 -r aws ecs deregister-task-definition --task-definition
                   done
-
