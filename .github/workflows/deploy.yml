@@ -17,13 +17,6 @@ on:
           - stage
           - prod
 
-env:
-  APP: comets-analytics
-  TZ: America/New_York
-  AWS_REGION: us-east-1
-  TASK_DEFINITION_TEMPLATE_PATH: aws
-  DOCKER_BUILDKIT: 1
-
 permissions:
   id-token: write
 jobs:
@@ -34,6 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{  inputs.tier || (endsWith(github.ref_name, '_dev') && 'dev' || 'qa') }}
     env:
+      APP: comets-analytics
+      TZ: America/New_York
+      AWS_REGION: us-east-1
+      TASK_DEFINITION_TEMPLATE_PATH: aws
+      DOCKER_BUILDKIT: 1
       FRONTEND_CONTAINER_PORT: 80
       BACKEND_CONTAINER_PORT: 8000
       ECS_WEB_CPU_UNITS: "2 vCPU"
@@ -44,42 +42,50 @@ jobs:
     steps:
       - uses: "actions/checkout@v5"
 
-      - name: Set tier and image tier env vars
+      - name: Set environment variables
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            TIER="${{ inputs.tier }}"
-          else
-            TIER=$(echo "${{ github.ref_name }}" | awk -F'_' '{print $NF}')
-          fi
-          echo "TIER=$TIER" >> $GITHUB_ENV
-          echo "IMAGE_TIER=$(if [[ "$TIER" == "dev" || "$TIER" == "qa" ]]; then echo "development"; else echo "release"; fi)" >> $GITHUB_ENV
+          # Determine deployment tier
+          BRANCH="${{ github.ref_name }}"
+          [[ "${{ github.event_name }}" == "workflow_dispatch" ]] \
+            && TIER="${{ inputs.tier }}" \
+            || TIER="${BRANCH##*_}"
+
+          # Set tier-dependent variables
+          [[ "$TIER" =~ ^(dev|qa)$ ]] && IMAGE_TIER="development" || IMAGE_TIER="release"
+          [[ "$TIER" == "dev" ]] && LOG_LEVEL="debug" || LOG_LEVEL="info"
+
+          # Parse version info from branch name
+          IFS='_' read -r _ VERSION DATE <<< "$BRANCH"
+
+          # Build image tags
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          REPO="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$APP"
+
+          # Export environment variables
+          cat << EOF >> $GITHUB_ENV
+          TIER=$TIER
+          IMAGE_TIER=$IMAGE_TIER
+          LOG_LEVEL=$LOG_LEVEL
+          VERSION=${VERSION:-unknown_version}
+          DATE=${DATE:-unknown_date}
+          IMAGE_REPOSITORY=$REPO
+          FRONTEND_IMAGE=$REPO:$IMAGE_TIER-frontend-$BRANCH-$TIMESTAMP
+          BACKEND_IMAGE=$REPO:$IMAGE_TIER-backend-$BRANCH-$TIMESTAMP
+          FRONTEND_IMAGE_LATEST=$REPO:$IMAGE_TIER-frontend-$BRANCH-latest
+          BACKEND_IMAGE_LATEST=$REPO:$IMAGE_TIER-backend-$BRANCH-latest
+          PARAMETER_PATH=/analysistools/$TIER/$APP
+          ENVIRONMENT_TIER=${TIER^^}
+          EOF
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5.1.0
         with:
           role-to-assume: ${{ secrets.CICD_ROLE_ARN }}
-          role-session-name: ${{ env.TIER }}-comets-analytics-deploy-${{ github.ref_name }}
+          role-session-name: $TIER-$APP-deploy-$BRANCH
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set dynamic environment variables
-        run: |
-          BRANCH_NAME=${{ github.ref_name }}
-          VERSION=$(echo "$BRANCH_NAME" | awk -F'_' '{print $2}')
-          DATE=$(echo "$BRANCH_NAME" | awk -F'_' '{print $3}')
-          echo "VERSION=${VERSION:-unknown_version}" >> $GITHUB_ENV
-          echo "DATE=${DATE:-unknown_date}" >> $GITHUB_ENV
-
-          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          REPO=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$APP
-          echo "IMAGE_REPOSITORY=$REPO" >> $GITHUB_ENV
-          echo "FRONTEND_IMAGE=$REPO:$IMAGE_TIER-frontend-${{ github.ref_name }}-$TIMESTAMP" >> $GITHUB_ENV
-          echo "BACKEND_IMAGE=$REPO:$IMAGE_TIER-backend-${{ github.ref_name }}-$TIMESTAMP" >> $GITHUB_ENV
-          echo "FRONTEND_IMAGE_LATEST=$REPO:$IMAGE_TIER-frontend-${{ github.ref_name }}-latest" >> $GITHUB_ENV
-          echo "BACKEND_IMAGE_LATEST=$REPO:$IMAGE_TIER-backend-${{ github.ref_name }}-latest" >> $GITHUB_ENV
-          echo "PARAMETER_PATH=/analysistools/${TIER}/${APP}" >> $GITHUB_ENV
-          echo "ENVIRONMENT_TIER=${TIER^^}" >> $GITHUB_ENV
-
-      - uses: dkershner6/aws-ssm-getparameters-action@v2
+      - name: Get parameters from AWS SSM
+        uses: dkershner6/aws-ssm-getparameters-action@v2
         with:
           parameterPairs: |
             ${{ env.PARAMETER_PATH }}/ecs_cluster = ECS_CLUSTER,
@@ -133,17 +139,6 @@ jobs:
             APP_VERSION=${{ github.ref_name }}
           cache-from: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:frontend-cache
           cache-to: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:frontend-cache,image-manifest=true,oci-mediatypes=true,mode=max
-
-      - name: Set LOG_LEVEL based on tier
-        run: |
-          if [[ "$TIER" == "dev" ]]; then
-            echo "LOG_LEVEL=debug" >> $GITHUB_ENV
-          else
-            echo "LOG_LEVEL=info" >> $GITHUB_ENV
-          fi
-
-      # - name: Install envsubst
-      #   run: sudo apt-get update && sudo apt-get install -y gettext-base
 
       - name: Substitute web task definition variables
         id: substitute-web-task-definition
