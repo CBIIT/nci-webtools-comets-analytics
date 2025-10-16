@@ -81,7 +81,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5.1.0
         with:
           role-to-assume: ${{ secrets.CICD_ROLE_ARN }}
-          role-session-name: $TIER-$APP-deploy-$BRANCH
+          role-session-name: ${{ env.TIER }}-${{ env.APP }}-deploy-${{ env.BRANCH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Get parameters from AWS SSM
@@ -144,7 +144,7 @@ jobs:
         id: substitute-web-task-definition
         run: |
           echo "Substituting web task definition variables"
-          envsubst < $TASK_DEFINITION_TEMPLATE_PATH/web.yml > web.yml
+          envsubst < ${{ env.TASK_DEFINITION_TEMPLATE_PATH }}/web.yml > web.yml
         env:
           ECS_WEB_TASK: ${{ env.ECS_WEB_TASK }}
           ECS_WEB_TASK_CPU_UNITS: ${{ env.ECS_WEB_TASK_CPU_UNITS }}
