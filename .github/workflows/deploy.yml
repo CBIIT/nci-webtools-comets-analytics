@@ -130,8 +130,8 @@ jobs:
             echo "LOG_LEVEL=info" >> $GITHUB_ENV
           fi
 
-      - name: Install envsubst
-        run: sudo apt-get update && sudo apt-get install -y gettext-base
+      # - name: Install envsubst
+      #   run: sudo apt-get update && sudo apt-get install -y gettext-base
 
       - name: Substitute web task definition variables
         id: substitute-web-task-definition
