@@ -34,8 +34,8 @@ jobs:
       BACKEND_CONTAINER_PORT: 8000
       TIER: ${{ inputs.tier }}
       IMAGE_TIER: ${{ contains(fromJson('["dev","qa"]'), inputs.tier) && 'development' || 'release' }}
-      ECS_CPU_UNITS: "2 vCPU"
-      ECS_MEMORY_UNITS: "4 GB"
+      ECS_WEB_CPU_UNITS: "2 vCPU"
+      ECS_WEB_MEMORY_UNITS: "4 GB"
       ECS_WORKER_CPU_UNITS: "4 vCPU"
       ECS_WORKER_MEMORY_UNITS: "16 GB"
 

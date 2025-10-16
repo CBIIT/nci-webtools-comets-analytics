@@ -1,7 +1,7 @@
 family: "$ECS_WEB_TASK"
 networkMode: awsvpc
-cpu: "$ECS_WEB_TASK_CPU_UNITS"
-memory: "$ECS_WEB_TASK_MEMORY_UNITS"
+cpu: "$ECS_WEB_CPU_UNITS"
+memory: "$ECS_WEB_MEMORY_UNITS"
 executionRoleArn: "$ROLE_ARN"
 taskRoleArn: "$ROLE_ARN"
 requiresCompatibilities:
