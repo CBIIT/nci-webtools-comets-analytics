@@ -445,7 +445,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
               <h2 className="h5 text-primary mb-4">Method of Analyses</h2>
 
               <Form onSubmit={submitModel} onReset={reset}>
-                <Form.Group controlId="method" className="mb-3">
+                <Form.Group as="fieldset" controlId="method" className="mb-3">
+                  <Form.Label as="legend" className="required">Analysis Method</Form.Label>
                   <Form.Check
                     type="radio"
                     name="method"
@@ -566,6 +567,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           value={formValues.selectedModelName}
                           onChange={(ev) => handleSelectChange("selectedModelName", ev)}
                           defaultOptions
+                          inputId="selectedModelName"
+                          aria-label="Select model"
                           options={integrityCheckResults.models
                             .filter(
                               (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type
@@ -693,6 +696,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           value={formValues.selectedModelNames}
                           onChange={(ev) => handleSelectChange("selectedModelNames", ev)}
                           defaultOptions
+                          inputId="selectedModelNames"
+                          aria-label="Select models for meta-analysis"
                           options={integrityCheckResults.models
                             .filter(
                               (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type
@@ -785,6 +790,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                         value={formValues.exposures}
                         onChange={(ev) => handleSelectChange("exposures", ev)}
                         defaultOptions
+                        inputId="exposures"
+                        aria-label="Select exposure variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -799,6 +806,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                         value={formValues.outcomes}
                         onChange={(ev) => handleSelectChange("outcomes", ev)}
                         defaultOptions
+                        inputId="outcomes"
+                        aria-label="Select outcome variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -813,6 +822,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                         value={formValues.adjustedCovariates}
                         onChange={(ev) => handleSelectChange("adjustedCovariates", ev)}
                         defaultOptions
+                        inputId="adjustedCovariates"
+                        aria-label="Select adjusted covariate variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -827,6 +838,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                         value={formValues.strata}
                         onChange={(ev) => handleSelectChange("strata", ev)}
                         defaultOptions
+                        inputId="strata"
+                        aria-label="Select strata variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -834,14 +847,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                       />
                     </Form.Group>
                     <Form.Group className="mb-3">
-                      <Form.Label>Where</Form.Label>
+                      <Form.Label>Where (Filter Condition)</Form.Label>
 
                       <InputGroup className="mb-3">
                         <Form.Select
                           name="filterVariable"
                           id="filterVariable"
                           onChange={handleChange}
-                          aria-label="filterVariable">
+                          aria-label="Filter variable">
                           <option value="" hidden>
                             No variable chosen
                           </option>
@@ -855,7 +868,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           name="filterOperator"
                           id="filterOperator"
                           onChange={handleChange}
-                          aria-label="filterOperator"
+                          aria-label="Filter operator"
                           style={{ maxWidth: "80px" }}>
                           <option>=</option>
                           <option>&lt;</option>
@@ -867,7 +880,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           name="filterValue"
                           id="filterValue"
                           onChange={handleChange}
-                          aria-label="filterValue"
+                          aria-label="Filter value"
+                          placeholder="Value"
                         />
                       </InputGroup>
                     </Form.Group>
@@ -880,6 +894,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           name="time"
                           value={formValues.time}
                           onChange={(ev) => handleSelectChange("time", ev)}
+                          inputId="time"
+                          aria-label="Select time variable"
                           options={nonMetaboliteVariables}
                           // closeMenuOnSelect={true}
                           isClearable
@@ -895,6 +911,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           name="group"
                           value={formValues.group}
                           onChange={(ev) => handleSelectChange("group", ev)}
+                          inputId="group"
+                          aria-label="Select group variable"
                           options={nonMetaboliteVariables}
                           // closeMenuOnSelect={true}
                           isClearable
