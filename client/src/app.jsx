@@ -67,7 +67,7 @@ export default function App() {
           </Container>
         </Navbar>
 
-        <div id="main-content" className="flex-grow-1">
+        <main id="main-content" className="flex-grow-1">
           <ErrorBoundary
             fallback={
               <Alert variant="danger">
@@ -83,7 +83,7 @@ export default function App() {
               </Routes>
             </Suspense>
           </ErrorBoundary>
-        </div>
+        </main>
         <Footer />
       </Router>
     </RecoilRoot>

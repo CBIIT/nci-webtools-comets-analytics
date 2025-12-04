@@ -30,7 +30,7 @@ export default function Home() {
           <Container>
             <Row className="justify-content-start">
               <Col md={12}>
-                <h3 className="h5 mb-4">
+                <h2 className="h5 mb-4">
                   <span className="me-2">COMETS Analytics v3.0</span>
                   <Badge pill bg="success" className="me-2">
                     Available in R
@@ -38,7 +38,7 @@ export default function Home() {
                   <Badge pill bg="primary" className="me-2">
                     Available in Web
                   </Badge>
-                </h3>
+                </h2>
                 New features include:
                 <ul>
                   <li>Support for performing meta-analyses</li>
