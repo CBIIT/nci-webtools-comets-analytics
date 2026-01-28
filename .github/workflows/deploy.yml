@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       tier:
-        description: "Tier to deploy to"
+        description: "Deploy environment"
         required: true
         default: "dev"
         type: choice
@@ -15,19 +15,16 @@ on:
 
 permissions:
   id-token: write
+  contents: read
 jobs:
   Deploy:
-    permissions:
-      contents: "read"
-      id-token: "write"
     runs-on: ubuntu-latest
     environment: ${{ inputs.tier }}
     env:
       APP: comets-analytics
       TZ: America/New_York
       AWS_REGION: us-east-1
-      TASK_DEFINITION_TEMPLATE_PATH: aws
-      DOCKER_BUILDKIT: 1
+      TASK_DEFINITION_TEMPLATE_PATH: .github/aws
       FRONTEND_CONTAINER_PORT: 80
       BACKEND_CONTAINER_PORT: 8000
       TIER: ${{ inputs.tier }}
@@ -42,7 +39,7 @@ jobs:
       - uses: "actions/checkout@v6.0.1"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5.1.0
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           role-to-assume: ${{ env.CICD_ROLE_ARN }}
           role-session-name: ${{ env.TIER }}-comets-analytics-deploy-${{ github.ref_name }}
@@ -101,19 +98,19 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.12.0
 
       - name: Create and use a new builder instance
         run: |
           docker buildx create --name mybuilder --use
 
       - name: Build backend image ${{ env.BACKEND_IMAGE }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: docker/backend.dockerfile
@@ -126,7 +123,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:backend-cache,image-manifest=true,oci-mediatypes=true,mode=max
 
       - name: Build frontend image ${{ env.FRONTEND_IMAGE }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: docker/frontend.dockerfile
@@ -143,42 +140,36 @@ jobs:
         run: |
           echo "Substituting web task definition variables"
           envsubst < $TASK_DEFINITION_TEMPLATE_PATH/web.yml > web.yml
-        env:
-          ECS_WEB_TASK: ${{ env.ECS_WEB_TASK }}
-          ECS_WEB_TASK_CPU_UNITS: ${{ env.ECS_WEB_TASK_CPU_UNITS }}
-          ECS_WEB_TASK_MEMORY_UNITS: ${{ env.ECS_WEB_TASK_MEMORY_UNITS }}
-          ROLE_ARN: ${{ env.ROLE_ARN }}
-          EFS_FILESYSTEM_ID: ${{ env.EFS_FILESYSTEM_ID }}
-          EFS_ACCESS_POINT_ID: ${{ env.EFS_ACCESS_POINT_ID }}
-          FRONTEND_CONTAINER_PORT: ${{ env.FRONTEND_CONTAINER_PORT }}
-          BACKEND_CONTAINER_PORT: ${{ env.BACKEND_CONTAINER_PORT }}
-          FRONTEND_IMAGE_LATEST: ${{ env.FRONTEND_IMAGE_LATEST }}
-          BACKEND_IMAGE_LATEST: ${{ env.BACKEND_IMAGE_LATEST }}
-          AWS_REGION: ${{ env.AWS_REGION }}
-          TIER: ${{ env.TIER }}
-          APP: ${{ env.APP }}
-          ENVIRONMENT_TIER: ${{ env.ENVIRONMENT_TIER }}
-          LOG_LEVEL: ${{ env.LOG_LEVEL }}
+
+      - name: Substitute worker task definition variables
+        id: substitute-worker-task-definition
+        run: |
+          echo "Substituting worker task definition variables"
+          envsubst < $TASK_DEFINITION_TEMPLATE_PATH/worker.yml > worker.yml
 
       - name: Print rendered web task definition
         run: |
           echo "Rendered web Task Definition:"
           cat web.yml
 
-      - name: Register web task definition
-        id: register-web
+      - name: Print rendered worker task definition
         run: |
-          arn=$(aws ecs register-task-definition --cli-input-yaml file://web.yml --query "taskDefinition.taskDefinitionArn" --output text)
-          echo "WEB_TASK_DEF_ARN=$arn" >> $GITHUB_ENV
+          echo "Rendered Worker Task Definition:"
+          cat worker.yml
+
+      - name: Register task definitions
+        run: |
+          aws ecs register-task-definition --cli-input-yaml file://web.yml
+          aws ecs register-task-definition --cli-input-yaml file://worker.yml
 
       - name: Update web service
         run: |
           aws ecs update-service \
               --cluster ${{ env.ECS_CLUSTER }} \
               --service ${{ env.ECS_WEB_SERVICE }} \
-              --task-definition $WEB_TASK_DEF_ARN \
+              --task-definition ${{ env.ECS_WEB_TASK }} \
               --desired-count 1 \
-              --propagateTags TASK_DEFINITION \
+              --propagate-tags TASK_DEFINITION \
               --force-new-deployment
 
       # - name: Wait for service stability
@@ -186,34 +177,6 @@ jobs:
       #     aws ecs wait services-stable \
       #         --cluster ${{ env.ECS_CLUSTER }} \
       #         --services ${{ env.ECS_WEB_SERVICE }}
-
-      - name: Substitute worker task definition variables
-        id: substitute-worker-task-definition
-        run: |
-          echo "Substituting worker task definition variables"
-          envsubst < $TASK_DEFINITION_TEMPLATE_PATH/worker.yml > worker.yml
-        env:
-          ECS_WORKER_TASK: ${{ env.ECS_WORKER_TASK }}
-          ECS_WORKER_CPU_UNITS: ${{ env.ECS_WORKER_CPU_UNITS }}
-          ECS_WORKER_MEMORY_UNITS: ${{ env.ECS_WORKER_MEMORY_UNITS }}
-          ROLE_ARN: ${{ env.ROLE_ARN }}
-          EFS_FILESYSTEM_ID: ${{ env.EFS_FILESYSTEM_ID }}
-          EFS_ACCESS_POINT_ID: ${{ env.EFS_ACCESS_POINT_ID }}
-          BACKEND_CONTAINER_PORT: ${{ env.BACKEND_CONTAINER_PORT }}
-          BACKEND_IMAGE_LATEST: ${{ env.BACKEND_IMAGE_LATEST }}
-          AWS_REGION: ${{ env.AWS_REGION }}
-          TIER: ${{ env.TIER }}
-          APP: ${{ env.APP }}
-          ENVIRONMENT_TIER: ${{ env.ENVIRONMENT_TIER }}
-          LOG_LEVEL: ${{ env.LOG_LEVEL }}
-
-      - name: Print rendered worker task definition
-        run: |
-          echo "Rendered Worker Task Definition:"
-          cat worker.yml
-
-      - name: Register worker task definition
-        run: aws ecs register-task-definition --cli-input-yaml file://worker.yml
 
       - name: Remove old task definitions
         run: |
