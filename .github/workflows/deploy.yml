@@ -18,6 +18,7 @@ permissions:
   contents: read
 jobs:
   Deploy:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: ${{ inputs.tier }}
     env:
@@ -33,7 +34,7 @@ jobs:
       ECS_MEMORY_UNITS: "4 GB"
       ECS_WORKER_CPU_UNITS: "4 vCPU"
       ECS_WORKER_MEMORY_UNITS: "16 GB"
-      CICD_ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-cicd
+      CICD_ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/power-user-github-actions-cicd
 
     steps:
       - uses: "actions/checkout@v6.0.1"
@@ -119,8 +120,8 @@ jobs:
           tags: |
             ${{ env.BACKEND_IMAGE }}
             ${{ env.BACKEND_IMAGE_LATEST }}
-          cache-from: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:backend-cache
-          cache-to: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:backend-cache,image-manifest=true,oci-mediatypes=true,mode=max
+          cache-from: type=registry,ref=${{ env.BACKEND_IMAGE_LATEST }}
+          cache-to: type=inline
 
       - name: Build frontend image ${{ env.FRONTEND_IMAGE }}
         uses: docker/build-push-action@v6.18.0
@@ -132,8 +133,8 @@ jobs:
           tags: |
             ${{ env.FRONTEND_IMAGE }}
             ${{ env.FRONTEND_IMAGE_LATEST }}
-          cache-from: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:frontend-cache
-          cache-to: type=registry,ref=${{ env.IMAGE_REPOSITORY }}:frontend-cache,image-manifest=true,oci-mediatypes=true,mode=max
+          cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE_LATEST }}
+          cache-to: type=inline
 
       - name: Substitute web task definition variables
         id: substitute-web-task-definition
