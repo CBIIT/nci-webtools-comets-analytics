@@ -7,7 +7,7 @@ source("utils.R")
 
 # configure AWS services if needed
 awsConfig <- getAwsConfig()
-ses <- paws::sesv2(config = awsConfig)
+# Note: ses is initialized in each handler to ensure fresh connections
 # logger <- createLogger(
 #     transports = c(createConsoleTransport())
 # )
@@ -205,14 +205,32 @@ messageHandler <- function(id) {
     emailBody <- whisker::whisker.render(template, templateData)
     logger$info(emailBody)
 
-    sendEmail(
-        sesv2 = ses,
-        from = Sys.getenv("EMAIL_SENDER"),
-        to = email,
-        subject = emailSubject,
-        body = emailBody
-    )
-    logger$info(paste("Sent user success email to: ", email))
+    # Send email with proper error handling
+    if (!is.null(email) && nchar(email) > 0) {
+        tryCatch({
+            # Validate AWS configuration
+            if (!is.null(awsConfig) && length(awsConfig) > 0 && Sys.getenv("EMAIL_SENDER") != "") {
+                # Re-initialize SES to ensure fresh connection
+                ses <- paws::sesv2(config = awsConfig)
+                
+                sendEmail(
+                    sesv2 = ses,
+                    from = Sys.getenv("EMAIL_SENDER"),
+                    to = email,
+                    subject = emailSubject,
+                    body = emailBody
+                )
+                logger$info(paste("Sent user success email to: ", email))
+            } else {
+                logger$warn("AWS SES not configured - skipping email notification")
+            }
+        }, error = function(e) {
+            logger$error(sprintf("Failed to send success email: %s", e$message))
+        })
+    } else {
+        logger$info("No email address provided - skipping email notification")
+    }
+    
     unname(modelResults)
 
     TRUE
@@ -230,40 +248,57 @@ errorHandler <- function(message, output) {
     warnings <- output$warnings
     capturedOutput <- output$capturedOutput
 
-    # send user failure email
-    sendEmail(
-        sesv2 = ses,
-        from = Sys.getenv("EMAIL_SENDER"),
-        to = email,
-        subject = "COMETS Analytics Batch Results - Error",
-        body = whisker::whisker.render(
-            readLines(file.path("email-templates", "user-failure.html")),
-            list(
-                originalFileName = originalFileName
-            )
-        )
-    )
+    # Send failure emails with proper error handling
+    if (!is.null(email) && nchar(email) > 0) {
+        tryCatch({
+            # Validate AWS configuration
+            if (!is.null(awsConfig) && length(awsConfig) > 0 && Sys.getenv("EMAIL_SENDER") != "") {
+                # Re-initialize SES to ensure fresh connection
+                ses <- paws::sesv2(config = awsConfig)
+                
+                # send user failure email
+                sendEmail(
+                    sesv2 = ses,
+                    from = Sys.getenv("EMAIL_SENDER"),
+                    to = email,
+                    subject = "COMETS Analytics Batch Results - Error",
+                    body = whisker::whisker.render(
+                        readLines(file.path("email-templates", "user-failure.html")),
+                        list(
+                            originalFileName = originalFileName
+                        )
+                    )
+                )
+                logger$info(paste("Sent user failure email to: ", email))
 
-    logger$info(paste("Sent user failure email to: ", email))
-
-    # send admin failure email
-    sendEmail(
-        sesv2 = ses,
-        from = Sys.getenv("EMAIL_SENDER"),
-        to = Sys.getenv("EMAIL_ADMIN"),
-        subject = "COMETS Analytics Batch Results - Error",
-        body = whisker::whisker.render(
-            readLines(file.path("email-templates", "admin-failure.html")),
-            list(
-                originalFileName = originalFileName,
-                email = email,
-                cohort = cohort,
-                error = paste0(errors, collapse = "", sep = "")
-            )
-        )
-    )
-
-    logger$info(paste("Sent admin failure email to: ", Sys.getenv("EMAIL_ADMIN")))
+                # send admin failure email
+                if (Sys.getenv("EMAIL_ADMIN") != "") {
+                    sendEmail(
+                        sesv2 = ses,
+                        from = Sys.getenv("EMAIL_SENDER"),
+                        to = Sys.getenv("EMAIL_ADMIN"),
+                        subject = "COMETS Analytics Batch Results - Error",
+                        body = whisker::whisker.render(
+                            readLines(file.path("email-templates", "admin-failure.html")),
+                            list(
+                                originalFileName = originalFileName,
+                                email = email,
+                                cohort = cohort,
+                                error = paste0(errors, collapse = "", sep = "")
+                            )
+                        )
+                    )
+                    logger$info(paste("Sent admin failure email to: ", Sys.getenv("EMAIL_ADMIN")))
+                }
+            } else {
+                logger$warn("AWS SES not configured - skipping failure email notifications")
+            }
+        }, error = function(e) {
+            logger$error(sprintf("Failed to send failure emails: %s", e$message))
+        })
+    } else {
+        logger$info("No email address provided - skipping failure email notifications")
+    }
 }
 
 logger$info("Started COMETS worker")
