@@ -687,14 +687,14 @@
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.17.8",
+      "Version": "1.16.2",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "1d991cd6160fa7b1fdbd3689034cbd15"
+      "Hash": "2b6c8c2f8f157fcf38115ebf233b36e3"
     },
     "dendextend": {
       "Package": "dendextend",
