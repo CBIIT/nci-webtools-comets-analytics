@@ -18,9 +18,14 @@ export default function Home() {
 
               <div>
                 <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
-                <NavLink className="btn btn-outline-light mb-4" to="/analysis">
-                  Perform Analysis
-                </NavLink>
+                <div className="d-flex flex-wrap gap-2 mb-4">
+                  <NavLink className="btn btn-outline-light" to="/single-cohort-analysis">
+                    Perform Single Cohort Analysis
+                  </NavLink>
+                  <NavLink className="btn btn-outline-light" to="/meta-analysis">
+                    Perform Meta-Analysis
+                  </NavLink>
+                </div>
               </div>
             </Col>
           </Row>
@@ -148,7 +153,8 @@ export default function Home() {
             </p>
 
             <p>
-              Go to the <NavLink to="/analysis">Analysis page</NavLink> to get started, or to the{" "}
+              Go to <NavLink to="/single-cohort-analysis">Single Cohort Analysis</NavLink> or{" "}
+              <NavLink to="/meta-analysis">Meta-Analysis</NavLink> to get started, or to the{" "}
               <NavLink to="/about">About page</NavLink> to learn more!
             </p>
             <p>
