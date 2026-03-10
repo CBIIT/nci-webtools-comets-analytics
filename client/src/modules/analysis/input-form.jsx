@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import Select from "react-select";
 import Form from "react-bootstrap/Form";
@@ -14,8 +15,15 @@ import { isNull, omitBy } from "lodash";
 import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
-export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSubmitMetaAnalysis, onReset, onTabSelect }) {
-  const [activeTab, setActiveTab] = useState("cohort-analysis");
+export default function InputForm({
+  initialTab = "cohort-analysis",
+  onSubmitIntegrityCheck,
+  onSubmitModel,
+  onSubmitMetaAnalysis,
+  onReset,
+  onTabSelect,
+}) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
   const variables = useRecoilValue(variablesState);
@@ -28,6 +36,13 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
   );
   const inputFileRef = useRef(null);
   const metaAnalysisFileRef = useRef(null);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+    if (onTabSelect) {
+      onTabSelect(initialTab);
+    }
+  }, [initialTab, onTabSelect]);
 
   function handleChange(event) {
     let { name, value, type, files, checked } = event.target;
@@ -287,6 +302,10 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
 
     return <ObjectList obj={modelOptions} className="mb-1 text-start" />;
   }
+
+  ModelOptions.propTypes = {
+    modelTypeName: PropTypes.string,
+  };
 
   return (
     <>
@@ -847,14 +866,14 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                       />
                     </Form.Group>
                     <Form.Group className="mb-3">
-                      <Form.Label>Where (Filter Condition)</Form.Label>
+                      <Form.Label>Where</Form.Label>
 
                       <InputGroup className="mb-3">
                         <Form.Select
                           name="filterVariable"
                           id="filterVariable"
                           onChange={handleChange}
-                          aria-label="Filter variable">
+                          aria-label="filterVariable">
                           <option value="" hidden>
                             No variable chosen
                           </option>
@@ -868,7 +887,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
                           name="filterOperator"
                           id="filterOperator"
                           onChange={handleChange}
-                          aria-label="Filter operator"
+                          aria-label="filterOperator"
                           style={{ maxWidth: "80px" }}>
                           <option>=</option>
                           <option>&lt;</option>
@@ -945,3 +964,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onSub
     </>
   );
 }
+
+InputForm.propTypes = {
+  initialTab: PropTypes.oneOf(["cohort-analysis", "meta-analysis"]),
+  onSubmitIntegrityCheck: PropTypes.func,
+  onSubmitModel: PropTypes.func,
+  onSubmitMetaAnalysis: PropTypes.func,
+  onReset: PropTypes.func,
+  onTabSelect: PropTypes.func,
+};
