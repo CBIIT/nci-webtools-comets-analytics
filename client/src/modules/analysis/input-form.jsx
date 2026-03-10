@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import PropTypes from "prop-types";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import Select from "react-select";
@@ -8,8 +8,6 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
 import ObjectList from "../common/object-list";
 import { isNull, omitBy } from "lodash";
 import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
@@ -21,9 +19,7 @@ export default function InputForm({
   onSubmitModel,
   onSubmitMetaAnalysis,
   onReset,
-  onTabSelect,
 }) {
-  const [activeTab, setActiveTab] = useState(initialTab);
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
   const variables = useRecoilValue(variablesState);
@@ -36,13 +32,6 @@ export default function InputForm({
   );
   const inputFileRef = useRef(null);
   const metaAnalysisFileRef = useRef(null);
-
-  useEffect(() => {
-    setActiveTab(initialTab);
-    if (onTabSelect) {
-      onTabSelect(initialTab);
-    }
-  }, [initialTab, onTabSelect]);
 
   function handleChange(event) {
     let { name, value, type, files, checked } = event.target;
@@ -213,14 +202,7 @@ export default function InputForm({
     }
   }
 
-  function handleTabSelect(key) {
-    setActiveTab(key);
-    if (onTabSelect) {
-      onTabSelect(key);
-    }
-  }
-
-  function resetMetaAnalysis(event) {
+  function resetMetaAnalysis() {
     // Reset only meta-analysis specific fields and stay on the same tab
     mergeFormValues({ 
       metaAnalysisFiles: null,
@@ -311,14 +293,7 @@ export default function InputForm({
     <>
       <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
         <Card.Body>
-          <Tabs
-            activeKey={activeTab}
-            onSelect={handleTabSelect}
-            className="mb-4"
-            id="analysis-tabs"
-            variant="tabs"
-          >
-            <Tab eventKey="cohort-analysis" title="Cohort-Specific Analyses">
+          {initialTab === "cohort-analysis" && (
               <Form onSubmit={submitIntegrityCheck} onReset={reset}>
                 <Form.Group controlId="cohort" className="mb-3">
                   <Form.Label className="required">COMETS Cohort</Form.Label>
@@ -387,9 +362,9 @@ export default function InputForm({
                   </Button>
                 </div>
               </Form>
-            </Tab>
-            
-            <Tab eventKey="meta-analysis" title="Meta-Analysis">
+          )}
+
+          {initialTab === "meta-analysis" && (
               <Form onSubmit={submitMetaAnalysis} onReset={reset}>
                 <Form.Group controlId="metaAnalysisFiles" className="mb-3">
                   <Form.Label className="required">Input Data Files</Form.Label>
@@ -452,8 +427,7 @@ export default function InputForm({
                   </Button>
                 </div>
               </Form>
-            </Tab>
-          </Tabs>
+          )}
         </Card.Body>
       </Card>
 
@@ -971,5 +945,4 @@ InputForm.propTypes = {
   onSubmitModel: PropTypes.func,
   onSubmitMetaAnalysis: PropTypes.func,
   onReset: PropTypes.func,
-  onTabSelect: PropTypes.func,
 };

@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import PropTypes from "prop-types";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
@@ -25,12 +25,8 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
   const [integrityCheckResults, setIntegrityCheckResults] = useRecoilState(integrityCheckResultsState);
   const [modelResults, setModelResults] = useRecoilState(modelResultsState);
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(activeResultsTabState);
-  const [isMetaAnalysisMode, setIsMetaAnalysisMode] = useState(initialTab === "meta-analysis");
+  const isMetaAnalysisMode = initialTab === "meta-analysis";
   const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
-
-  useEffect(() => {
-    setIsMetaAnalysisMode(initialTab === "meta-analysis");
-  }, [initialTab]);
 
   async function handleSubmitIntegrityCheck(params) {
     try {
@@ -96,15 +92,9 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
     }
   }
 
-  function handleTabSelect(tabKey) {
-    // Set meta-analysis mode when Meta-Analysis tab is selected
-    setIsMetaAnalysisMode(tabKey === 'meta-analysis');
-  }
-
   function handleReset() {
     setIntegrityCheckResults(null);
     setModelResults(null);
-    setIsMetaAnalysisMode(false);
   }
 
   function handleSelectTab(key) {
@@ -133,7 +123,6 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
                   onSubmitModel={handleSubmitModel}
                   onSubmitMetaAnalysis={handleSubmitMetaAnalysis}
                   onReset={handleReset}
-                  onTabSelect={handleTabSelect}
                 />
               </Suspense>
             </ErrorBoundary>
