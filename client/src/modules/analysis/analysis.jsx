@@ -107,6 +107,19 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
     <>
       {loading && <Loader fullscreen>Loading</Loader>}
       <Container className="my-3">
+        <div className="mb-3 p-3 border rounded bg-light">
+          {isMetaAnalysisMode ? (
+            <>
+              <h2 className="h5 text-primary mb-2">Meta-Analysis</h2>
+              <p className="mb-0">Introduction - TBD</p>
+            </>
+          ) : (
+            <>
+              <h2 className="h5 text-primary mb-2">Single Cohort Analysis</h2>
+              <p className="mb-0">Introduction - TBD</p>
+            </>
+          )}
+        </div>
         <Row>
           <Col md={4}>
             <ErrorBoundary
