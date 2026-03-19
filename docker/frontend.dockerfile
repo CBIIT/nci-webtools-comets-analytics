@@ -24,10 +24,14 @@ RUN npm run build \
 
 COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/httpd/access_log \
+    && ln -sf /dev/stderr /var/log/httpd/error_log
+
 WORKDIR /var/www/html
 
 EXPOSE 80
 EXPOSE 443
 
 CMD rm -rf /run/httpd/* /tmp/httpd* \
- && exec /usr/sbin/httpd -DFOREGROUND
+    && exec /usr/sbin/httpd -DFOREGROUND
