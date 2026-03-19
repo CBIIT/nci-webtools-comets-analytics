@@ -11,10 +11,10 @@ source("utils.R")
 awsConfig <- getAwsConfig()
 logger <- createLogger(
   transports = c(
-    createConsoleTransport(),
-    createDailyRotatingFileTransport(
-      file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
-    )
+    createConsoleTransport()
+    # createDailyRotatingFileTransport(
+    #   file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+    # )
   )
 )
 
