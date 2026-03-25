@@ -1,7 +1,27 @@
 library(dotenv)
 library(jsonlite)
 library(paws)
+
+# Load reshape2 BEFORE RcometsAnalytics
+library(reshape2)
 library(RcometsAnalytics)
+
+# Patch data.table's melt.default to always use reshape2::melt for data.frames
+# This fixes the deprecation error in data.table 1.16+
+if (requireNamespace("data.table", quietly = TRUE)) {
+  # Replace data.table's melt.default with reshape2's version
+  assignInNamespace(
+    "melt.default",
+    function(data, ...) {
+      if (is.data.frame(data)) {
+        reshape2::melt(data, ...)
+      } else {
+        reshape2::melt(data, ...)
+      }
+    },
+    ns = "data.table"
+  )
+}
 
 source("utils.R")
 
@@ -10,13 +30,45 @@ awsConfig <- getAwsConfig()
 s3 <- paws::s3(config = awsConfig)
 ses <- paws::sesv2(config = awsConfig)
 sqs <- paws::sqs(config = awsConfig)
-logger <- createLogger(
-  transports = c(
-    createConsoleTransport(),
-    createDailyRotatingFileTransport(
-      file.path(Sys.getenv("LOG_FOLDER"), "comets-processor")
-    )
-  )
+# logger <- createLogger(
+#   transports = c(
+#     createConsoleTransport(),
+#     createDailyRotatingFileTransport(
+#       file.path(Sys.getenv("LOG_FOLDER"), "comets-processor")
+#     )
+#   )
+# )
+
+# Create a simple mock logger to avoid errors
+logger <- list(
+  info = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[INFO] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[INFO]", message, "\n"))
+    }
+  },
+  warn = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[WARN] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[WARN]", message, "\n"))
+    }
+  },
+  error = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[ERROR] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[ERROR]", message, "\n"))
+    }
+  },
+  debug = function(message, jobId = NULL) { 
+    if (!is.null(jobId)) {
+      cat(paste("[DEBUG] [Job:", jobId, "]", message, "\n"))
+    } else {
+      cat(paste("[DEBUG]", message, "\n"))
+    }
+  }
 )
 logger$info("Started COMETS Processor")
 
@@ -52,12 +104,12 @@ messageHandler <- function(message) {
   s3FilePath <- params$s3FilePath
   email <- params$email
 
-  outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), id, "output")
+  outputFolder <- file.path(Sys.getenv("SESSION_FOLDER"), "output", id)
   inputFilePath <- file.path(outputFolder, "input.xlsx")
 
   # clear and recreate output folder
-  unlink(outputFolder, recursive = T)
-  dir.create(outputFolder, recursive = T)
+  unlink(outputFolder, recursive = TRUE)
+  dir.create(outputFolder, recursive = TRUE)
 
   s3Object <- s3$get_object(
     Bucket = Sys.getenv("S3_BUCKET"),

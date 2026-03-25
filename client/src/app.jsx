@@ -1,12 +1,13 @@
 import { Suspense, lazy } from "react";
 import { RecoilRoot } from "recoil";
-import { BrowserRouter as Router, Route, Routes, NavLink } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, NavLink, Navigate } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
 import Alert from "react-bootstrap/Alert";
 import Loader from "./modules/common/loader";
 import ErrorBoundary from "./modules/common/error-boundary";
+import Footer from "./modules/common/footer";
 import "./styles/main.scss";
 
 // preload lazy-loaded page components
@@ -27,9 +28,14 @@ export default function App() {
       element: <Home />,
     },
     {
-      route: "/analysis",
-      title: "Analysis",
-      element: <Analysis />,
+      route: "/single-cohort-analysis",
+      title: "Single Cohort Analysis",
+      element: <Analysis initialTab="cohort-analysis" />,
+    },
+    {
+      route: "/meta-analysis",
+      title: "Meta-Analysis",
+      element: <Analysis initialTab="meta-analysis" />,
     },
     // {
     //   route: "/create-input",
@@ -66,7 +72,7 @@ export default function App() {
           </Container>
         </Navbar>
 
-        <div id="main-content" className="flex-grow-1">
+        <main id="main-content" className="flex-grow-1">
           <ErrorBoundary
             fallback={
               <Alert variant="danger">
@@ -79,10 +85,12 @@ export default function App() {
                 {links.map((link, index) => (
                   <Route key={`route-${index}`} path={link.route} element={link.element} />
                 ))}
+                <Route path="/analysis" element={<Navigate to="/single-cohort-analysis" replace />} />
               </Routes>
             </Suspense>
           </ErrorBoundary>
-        </div>
+        </main>
+        <Footer />
       </Router>
     </RecoilRoot>
   );

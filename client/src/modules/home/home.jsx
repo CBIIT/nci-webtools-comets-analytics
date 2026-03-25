@@ -18,9 +18,14 @@ export default function Home() {
 
               <div>
                 <p className="lead mb-3">Perform consortium-based analyses of metabolomics data</p>
-                <NavLink className="btn btn-outline-light mb-4" to="/analysis">
-                  Perform Analysis
-                </NavLink>
+                <div className="d-flex flex-wrap gap-2 mb-4">
+                  <NavLink className="btn btn-outline-light" to="/single-cohort-analysis">
+                    Perform Single Cohort Analysis
+                  </NavLink>
+                  <NavLink className="btn btn-outline-light" to="/meta-analysis">
+                    Perform Meta-Analysis
+                  </NavLink>
+                </div>
               </div>
             </Col>
           </Row>
@@ -30,18 +35,20 @@ export default function Home() {
           <Container>
             <Row className="justify-content-start">
               <Col md={12}>
-                <h3 className="h5 mb-4">
+                <h2 className="h5 mb-4">
                   <span className="me-2">COMETS Analytics v3.0</span>
                   <Badge pill bg="success" className="me-2">
                     Available in R
                   </Badge>
                   <Badge pill bg="primary" className="me-2">
-                    Upcoming in Web
+                    Available in Web
                   </Badge>
-                </h3>
+                </h2>
                 New features include:
                 <ul>
-                  <li>Support for performing meta-analyses, chemical enrichment, and pathway enrichment</li>
+                  <li>Support for performing meta-analyses</li>
+                  <li>Support for chemical enrichment</li>
+                  <li>Pathway enrichment</li>
                 </ul>
                 <p>
                   Check out the R Package{" "}
@@ -146,7 +153,8 @@ export default function Home() {
             </p>
 
             <p>
-              Go to the <NavLink to="/analysis">Analysis page</NavLink> to get started, or to the{" "}
+              Go to <NavLink to="/single-cohort-analysis">Single Cohort Analysis</NavLink> or{" "}
+              <NavLink to="/meta-analysis">Meta-Analysis</NavLink> to get started, or to the{" "}
               <NavLink to="/about">About page</NavLink> to learn more!
             </p>
             <p>

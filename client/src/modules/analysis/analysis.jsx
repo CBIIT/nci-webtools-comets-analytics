@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import PropTypes from "prop-types";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
@@ -12,18 +13,19 @@ import InputForm from "./input-form";
 import ModelResults from "./results/model-results";
 import HeatmapResults from "./results/heatmap-results";
 import IntegrityCheckResults from "./results/integrity-check-results";
-import { getIntegrityCheckResults, getModelResults } from "../../services/query";
+import { getIntegrityCheckResults, getModelResults, getMetaAnalysisResults } from "../../services/query";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import { integrityCheckResultsState, modelResultsState, loadingState, activeResultsTabState } from "./analysis.state";
 import { formValuesState } from "./input-form.state";
 import { heatmapOptionsState } from "./results/heatmap-results.state";
 
-export default function Analysis() {
+export default function Analysis({ initialTab = "cohort-analysis" }) {
   const formValues = useRecoilValue(formValuesState);
   const [loading, setLoading] = useRecoilState(loadingState);
   const [integrityCheckResults, setIntegrityCheckResults] = useRecoilState(integrityCheckResultsState);
   const [modelResults, setModelResults] = useRecoilState(modelResultsState);
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(activeResultsTabState);
+  const isMetaAnalysisMode = initialTab === "meta-analysis";
   const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
 
   async function handleSubmitIntegrityCheck(params) {
@@ -56,6 +58,7 @@ export default function Analysis() {
           allModels: "all",
           selectedModel: params.selectedModelName,
           customModel: params.modelName,
+          metaAnalysis: "Meta-Analysis",
         }[params.method] || "custom";
 
       window.gtag("event", "run", {
@@ -70,6 +73,22 @@ export default function Analysis() {
     } finally {
       setLoading(false);
       setActiveResultsTab("modelResults");
+    }
+  }
+
+    async function handleSubmitMetaAnalysis(formData) {
+    try {
+      setLoading(true);
+      const results = await getMetaAnalysisResults(formData);
+      setModelResults(results);
+      setActiveResultsTab("modelResults");
+    } catch (error) {
+      setModelResults({
+        errors: String(error),
+      });
+      console.error("handleSubmitMetaAnalysis", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -88,6 +107,19 @@ export default function Analysis() {
     <>
       {loading && <Loader fullscreen>Loading</Loader>}
       <Container className="my-3">
+        <div className="mb-3 p-3 border rounded bg-light">
+          {isMetaAnalysisMode ? (
+            <>
+              <h2 className="h5 text-primary mb-2">Meta-Analysis</h2>
+              <p className="mb-0">Introduction - TBD</p>
+            </>
+          ) : (
+            <>
+              <h2 className="h5 text-primary mb-2">Single Cohort Analysis</h2>
+              <p className="mb-0">Introduction - TBD</p>
+            </>
+          )}
+        </div>
         <Row>
           <Col md={4}>
             <ErrorBoundary
@@ -99,51 +131,79 @@ export default function Analysis() {
               }>
               <Suspense fallback={<Loader>Loading Form</Loader>}>
                 <InputForm
+                  initialTab={initialTab}
                   onSubmitIntegrityCheck={handleSubmitIntegrityCheck}
                   onSubmitModel={handleSubmitModel}
+                  onSubmitMetaAnalysis={handleSubmitMetaAnalysis}
                   onReset={handleReset}
                 />
               </Suspense>
             </ErrorBoundary>
           </Col>
           <Col md={8}>
-            <Tab.Container id="results-tabs" activeKey={activeResultsTab} onSelect={handleSelectTab}>
-              <Card className="shadow-sm mb-3" style={{ minHeight: "400px" }}>
-                <Card.Header>
-                  <Nav variant="tabs">
-                    <Nav.Item>
-                      <Nav.Link eventKey="integrityCheckResults">Integrity Check</Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                      <Nav.Link eventKey="modelResults" disabled={!modelResults}>
-                        Results
-                      </Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                      <Nav.Link eventKey="heatmap" disabled={!modelResults}>
-                        Heatmap
-                      </Nav.Link>
-                    </Nav.Item>
-                  </Nav>
-                </Card.Header>
-                <Card.Body>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="integrityCheckResults">
-                      <IntegrityCheckResults results={integrityCheckResults} />
-                    </Tab.Pane>
-                    <Tab.Pane eventKey="modelResults">
-                      <ModelResults results={modelResults} />
-                    </Tab.Pane>
-                    <Tab.Pane eventKey="heatmap">
-                      <HeatmapResults results={modelResults} formValues={formValues} />
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Card.Body>
-              </Card>
-            </Tab.Container>
+            <ErrorBoundary
+              fallback={
+                <Alert variant="danger">
+                  An internal error prevented the results panel from loading. Please contact the website administrator if
+                  this problem persists.
+                </Alert>
+              }>
+              <Tab.Container id="results-tabs" activeKey={activeResultsTab} onSelect={handleSelectTab}>
+                <Card className="shadow-sm mb-3" style={{ minHeight: "400px" }}>
+                  <Card.Header>
+                    <Nav variant="tabs">
+                      {!isMetaAnalysisMode && (
+                        <Nav.Item>
+                          <Nav.Link eventKey="integrityCheckResults">Integrity Check</Nav.Link>
+                        </Nav.Item>
+                      )}
+                      <Nav.Item>
+                        <Nav.Link eventKey="modelResults" disabled={!modelResults}>
+                          Results
+                        </Nav.Link>
+                      </Nav.Item>
+                      {!isMetaAnalysisMode && (
+                        <Nav.Item>
+                          <Nav.Link eventKey="heatmap" disabled={!modelResults}>
+                            Heatmap
+                          </Nav.Link>
+                        </Nav.Item>
+                      )}
+                    </Nav>
+                  </Card.Header>
+                  <Card.Body>
+                    <Tab.Content>
+                      {!isMetaAnalysisMode && (
+                        <Tab.Pane eventKey="integrityCheckResults">
+                          <ErrorBoundary fallback={<Alert variant="danger">Error loading integrity check results.</Alert>}>
+                            <IntegrityCheckResults results={integrityCheckResults} />
+                          </ErrorBoundary>
+                        </Tab.Pane>
+                      )}
+                      <Tab.Pane eventKey="modelResults">
+                        <ErrorBoundary fallback={<Alert variant="danger">Error loading model results.</Alert>}>
+                          <ModelResults results={modelResults} />
+                        </ErrorBoundary>
+                      </Tab.Pane>
+                      {!isMetaAnalysisMode && (
+                        <Tab.Pane eventKey="heatmap">
+                          <ErrorBoundary fallback={<Alert variant="danger">Error loading heatmap results.</Alert>}>
+                            <HeatmapResults results={modelResults} formValues={formValues} />
+                          </ErrorBoundary>
+                        </Tab.Pane>
+                      )}
+                    </Tab.Content>
+                  </Card.Body>
+                </Card>
+              </Tab.Container>
+            </ErrorBoundary>
           </Col>
         </Row>
       </Container>
     </>
   );
 }
+
+Analysis.propTypes = {
+  initialTab: PropTypes.oneOf(["cohort-analysis", "meta-analysis"]),
+};

@@ -42,3 +42,11 @@ export async function getModelResults(params) {
   });
   return await parseResponse(response);
 }
+
+export async function getMetaAnalysisResults(formData) {
+  const response = await fetch("api/runMetaAnalysis", {
+    method: "POST",
+    body: formData, // FormData object containing files and email
+  });
+  return await parseResponse(response);
+}
