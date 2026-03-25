@@ -5,12 +5,14 @@ RUN dnf -y update \
    && dnf -y install epel-release \
    && dnf -y install \
    cairo-devel \
+   cmake \
    git \
    flexiblas-devel \
    glpk-devel \
    httpd-devel \
    libcurl-devel \
    libjpeg-turbo-devel \
+   libuv-devel \
    libsodium \
    libsodium-devel \
    libxml2-devel \
