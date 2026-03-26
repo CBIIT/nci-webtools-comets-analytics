@@ -395,7 +395,7 @@ export default function InputForm({
                   </Form.Text>
                 </Form.Group>
                 <Form.Group controlId="email" className="mb-3">
-                  <Form.Label className="required">Email(s)</Form.Label>
+                  <Form.Label className="required">Email</Form.Label>
                   <Form.Control 
                     type="text" 
                     name="email" 
@@ -409,9 +409,9 @@ export default function InputForm({
                       {formValues.emailValidationError}
                     </Form.Control.Feedback>
                   )}
-                  <Form.Text>
+                  {/* <Form.Text>
                     Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
-                  </Form.Text>
+                  </Form.Text> */}
                 </Form.Group>
 
                 <div className="text-end">
@@ -717,9 +717,9 @@ export default function InputForm({
                             {formValues.emailValidationError}
                           </Form.Control.Feedback>
                         )}
-                        <Form.Text>
+                        {/* <Form.Text>
                           Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
-                        </Form.Text>
+                        </Form.Text> */}
                       </Form.Group>
                     </div>
 
