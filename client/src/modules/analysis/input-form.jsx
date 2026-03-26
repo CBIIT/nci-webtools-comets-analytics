@@ -401,7 +401,7 @@ export default function InputForm({
                     name="email" 
                     onChange={handleChange} 
                     value={formValues.email}
-                    placeholder="Enter email addresses separated by semicolons"
+                    placeholder="Enter email address"
                     isInvalid={!!formValues.emailValidationError}
                   />
                   {formValues.emailValidationError && (
@@ -703,13 +703,13 @@ export default function InputForm({
                       </Form.Group>
 
                       <Form.Group controlId="email" className="mb-3">
-                        <Form.Label className="required">Email(s)</Form.Label>
+                        <Form.Label className="required">Email</Form.Label>
                         <Form.Control 
                           type="text" 
                           name="email" 
                           onChange={handleChange} 
                           value={formValues.email}
-                          placeholder="Enter email addresses separated by semicolons"
+                          placeholder="Enter email address"
                           isInvalid={!!formValues.emailValidationError}
                         />
                         {formValues.emailValidationError && (
