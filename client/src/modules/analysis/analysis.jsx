@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
@@ -14,28 +14,80 @@ import ModelResults from "./results/model-results";
 import HeatmapResults from "./results/heatmap-results";
 import IntegrityCheckResults from "./results/integrity-check-results";
 import { getIntegrityCheckResults, getModelResults, getMetaAnalysisResults } from "../../services/query";
-import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { integrityCheckResultsState, modelResultsState, loadingState, activeResultsTabState } from "./analysis.state";
-import { formValuesState } from "./input-form.state";
-import { heatmapOptionsState } from "./results/heatmap-results.state";
+import { defaultFormValues, formValuesState } from "./input-form.state";
+import { defaultHeatmapOptions, heatmapOptionsState } from "./results/heatmap-results.state";
+
+function cloneState(value) {
+  if (value == null) {
+    return value;
+  }
+
+  return JSON.parse(JSON.stringify(value));
+}
+
+function createDefaultSnapshot(tabName) {
+  return {
+    formValues: cloneState(defaultFormValues),
+    integrityCheckResults: null,
+    modelResults: null,
+    activeResultsTab: tabName === "meta-analysis" ? "modelResults" : "integrityCheckResults",
+    heatmapOptions: cloneState(defaultHeatmapOptions),
+  };
+}
 
 export default function Analysis({ initialTab = "cohort-analysis" }) {
-  const formValues = useRecoilValue(formValuesState);
+  const [formValues, setFormValues] = useRecoilState(formValuesState);
   const [loading, setLoading] = useRecoilState(loadingState);
   const [integrityCheckResults, setIntegrityCheckResults] = useRecoilState(integrityCheckResultsState);
   const [modelResults, setModelResults] = useRecoilState(modelResultsState);
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(activeResultsTabState);
+  const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
   const isMetaAnalysisMode = initialTab === "meta-analysis";
-  const resetFormValues = useResetRecoilState(formValuesState);
-  const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
+  const previousTabRef = useRef(initialTab);
+  const snapshotsRef = useRef({
+    "cohort-analysis": createDefaultSnapshot("cohort-analysis"),
+    "meta-analysis": createDefaultSnapshot("meta-analysis"),
+  });
 
   useEffect(() => {
-    resetFormValues();
-    setIntegrityCheckResults(null);
-    setModelResults(null);
-    resetHeatmapOptions();
-    setActiveResultsTab(isMetaAnalysisMode ? "modelResults" : "integrityCheckResults");
-  }, [initialTab, isMetaAnalysisMode, resetFormValues, resetHeatmapOptions, setActiveResultsTab, setIntegrityCheckResults, setModelResults]);
+    const previousTab = previousTabRef.current;
+
+    if (previousTab === initialTab) {
+      return;
+    }
+
+    snapshotsRef.current[previousTab] = {
+      formValues: cloneState(formValues),
+      integrityCheckResults: cloneState(integrityCheckResults),
+      modelResults: cloneState(modelResults),
+      activeResultsTab,
+      heatmapOptions: cloneState(heatmapOptions),
+    };
+
+    const nextSnapshot = snapshotsRef.current[initialTab] || createDefaultSnapshot(initialTab);
+
+    setFormValues(cloneState(nextSnapshot.formValues));
+    setIntegrityCheckResults(cloneState(nextSnapshot.integrityCheckResults));
+    setModelResults(cloneState(nextSnapshot.modelResults));
+    setHeatmapOptions(cloneState(nextSnapshot.heatmapOptions));
+    setActiveResultsTab(nextSnapshot.activeResultsTab);
+
+    previousTabRef.current = initialTab;
+  }, [
+    activeResultsTab,
+    formValues,
+    heatmapOptions,
+    initialTab,
+    integrityCheckResults,
+    modelResults,
+    setActiveResultsTab,
+    setFormValues,
+    setHeatmapOptions,
+    setIntegrityCheckResults,
+    setModelResults,
+  ]);
 
   async function handleSubmitIntegrityCheck(params) {
     try {
@@ -59,7 +111,7 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
   async function handleSubmitModel(params) {
     try {
       setLoading(true);
-      resetHeatmapOptions();
+      setHeatmapOptions(cloneState(defaultHeatmapOptions));
       setModelResults(await getModelResults(params));
 
       const modelLabel =
@@ -140,7 +192,6 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
               }>
               <Suspense fallback={<Loader>Loading Form</Loader>}>
                 <InputForm
-                  key={initialTab}
                   initialTab={initialTab}
                   onSubmitIntegrityCheck={handleSubmitIntegrityCheck}
                   onSubmitModel={handleSubmitModel}
