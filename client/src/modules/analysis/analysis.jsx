@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import PropTypes from "prop-types";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
@@ -26,7 +26,16 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
   const [modelResults, setModelResults] = useRecoilState(modelResultsState);
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(activeResultsTabState);
   const isMetaAnalysisMode = initialTab === "meta-analysis";
+  const resetFormValues = useResetRecoilState(formValuesState);
   const resetHeatmapOptions = useResetRecoilState(heatmapOptionsState);
+
+  useEffect(() => {
+    resetFormValues();
+    setIntegrityCheckResults(null);
+    setModelResults(null);
+    resetHeatmapOptions();
+    setActiveResultsTab(isMetaAnalysisMode ? "modelResults" : "integrityCheckResults");
+  }, [initialTab, isMetaAnalysisMode, resetFormValues, resetHeatmapOptions, setActiveResultsTab, setIntegrityCheckResults, setModelResults]);
 
   async function handleSubmitIntegrityCheck(params) {
     try {
@@ -131,6 +140,7 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
               }>
               <Suspense fallback={<Loader>Loading Form</Loader>}>
                 <InputForm
+                  key={initialTab}
                   initialTab={initialTab}
                   onSubmitIntegrityCheck={handleSubmitIntegrityCheck}
                   onSubmitModel={handleSubmitModel}

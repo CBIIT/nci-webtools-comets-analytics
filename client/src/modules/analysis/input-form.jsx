@@ -431,7 +431,7 @@ export default function InputForm({
         </Card.Body>
       </Card>
 
-      {integrityCheckResults && !integrityCheckResults.errors && (
+      {initialTab === "cohort-analysis" && integrityCheckResults && !integrityCheckResults.errors && (
         <>
           <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
             <Card.Body>
