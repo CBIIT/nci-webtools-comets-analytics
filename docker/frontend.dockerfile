@@ -31,6 +31,10 @@ RUN cp -r /client/dist/* /var/www/html/
 
 COPY docker/frontend.conf /etc/httpd/conf.d/frontend.conf
 
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/httpd/access_log \
+    && ln -sf /dev/stderr /var/log/httpd/error_log
+
 WORKDIR /var/www/html
 
 EXPOSE 80
