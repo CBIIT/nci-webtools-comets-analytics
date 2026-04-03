@@ -6,6 +6,7 @@ RUN dnf -y update \
    && dnf -y install \
    cairo-devel \
    git \
+   flexiblas-devel \
    glpk-devel \
    httpd-devel \
    libcurl-devel \
@@ -16,10 +17,15 @@ RUN dnf -y update \
    libXt-devel  \
    mariadb-connector-c-devel \
    openssl-devel \
-   R \
    readline-devel \
    rsync \
    v8-devel \
+   && dnf clean all
+
+RUN dnf config-manager --set-enabled ol9_addons \
+   && dnf -y install \
+   R-4.4.1 \
+   R-devel-4.4.1 \
    && dnf clean all
 
 RUN mkdir -p /server
