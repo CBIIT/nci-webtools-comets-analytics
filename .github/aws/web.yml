@@ -104,7 +104,7 @@ containerDefinitions:
         tls: "on"
         tls.verify: "off"
         dd_service: "$TIER-$APP-backend"
-        dd_source: "nodejs"
+        dd_source: "R"
         dd_tags: "project:$APP tier:$TIER"
         provider: ecs
       secretOptions:
