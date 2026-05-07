@@ -30,6 +30,7 @@ awsConfig <- getAwsConfig()
 s3 <- paws::s3(config = awsConfig)
 ses <- paws::sesv2(config = awsConfig)
 sqs <- paws::sqs(config = awsConfig)
+<<<<<<< HEAD
 # logger <- createLogger(
 #   transports = c(
 #     createConsoleTransport(),
@@ -69,6 +70,15 @@ logger <- list(
       cat(paste("[DEBUG]", message, "\n"))
     }
   }
+=======
+logger <- createLogger(
+  transports = c(
+    createConsoleTransport()
+    # createDailyRotatingFileTransport(
+    #   file.path(Sys.getenv("LOG_FOLDER"), "comets-processor")
+    # )
+  )
+>>>>>>> a522118844aca7fce742d9782b788de7ce3685b6
 )
 logger$info("Started COMETS Processor")
 

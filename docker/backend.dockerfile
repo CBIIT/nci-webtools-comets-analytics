@@ -24,13 +24,22 @@ RUN dnf -y update \
    v8-devel \
    && dnf clean all
 
-RUN dnf config-manager --set-enabled ol9_addons \
-   && dnf -y install \
-   R-4.4.1 \
-   R-devel-4.4.1 \
-   && dnf clean all
+# Install R 4.4.1 from Posit (pinned to match renv.lock)
+RUN curl -O https://cdn.posit.co/r/rhel-9/pkgs/R-4.4.1-1-1.x86_64.rpm \
+   && dnf -y install R-4.4.1-1-1.x86_64.rpm \
+   && rm R-4.4.1-1-1.x86_64.rpm \
+   && ln -s /opt/R/4.4.1/bin/R /usr/local/bin/R \
+   && ln -s /opt/R/4.4.1/bin/Rscript /usr/local/bin/Rscript
 
 RUN mkdir -p /server
+
+RUN echo '\
+options(\
+    repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/rhel9/latest"),\
+    renv.config.repos.override = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/rhel9/latest"),\
+    HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])),\
+    Ncpus = parallel::detectCores()\
+)' >> /opt/R/4.4.1/lib/R/library/base/R/Rprofile
 
 # install R packages with renv
 COPY server/renv.lock /server/
