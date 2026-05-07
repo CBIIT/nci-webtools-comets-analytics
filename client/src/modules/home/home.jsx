@@ -98,7 +98,7 @@ export default function Home() {
               </a>
               , with web interface support from <a href="mailto:kai-ling.chen@nih.gov">Kailing Chen</a> and{" "}
               <a href="mailto:brian.park@nih.gov">Brian Park</a>{" "}
-              <a target="_blank" rel="noopener noreferrer" href="http://cbiit.nci.nih.gov/">
+              <a target="_blank" rel="noopener noreferrer" href="https://www.cancer.gov/about-nci/organization/cbiit">
                 (Center for Biomedical Informatics &amp; Information Technology, National Cancer Institute)
               </a>{" "}
               and R package development support from <a href="mailto:WheelerB@imsweb.com">Bill Wheeler</a>{" "}

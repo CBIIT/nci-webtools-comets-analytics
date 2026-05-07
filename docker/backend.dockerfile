@@ -1,4 +1,4 @@
-FROM oraclelinux:9
+FROM --platform=linux/amd64 oraclelinux:9
 
 RUN dnf -y update \
    && dnf config-manager --set-enabled ol9_codeready_builder \
@@ -6,6 +6,7 @@ RUN dnf -y update \
    && dnf -y install \
    cairo-devel \
    git \
+   flexiblas-devel \
    glpk-devel \
    httpd-devel \
    libcurl-devel \
@@ -16,11 +17,17 @@ RUN dnf -y update \
    libXt-devel  \
    mariadb-connector-c-devel \
    openssl-devel \
-   R \
    readline-devel \
    rsync \
    v8-devel \
    && dnf clean all
+
+# Install R 4.4.1 from Posit (pinned to match renv.lock)
+RUN curl -O https://cdn.posit.co/r/rhel-9/pkgs/R-4.4.1-1-1.x86_64.rpm \
+   && dnf -y install R-4.4.1-1-1.x86_64.rpm \
+   && rm R-4.4.1-1-1.x86_64.rpm \
+   && ln -s /opt/R/4.4.1/bin/R /usr/local/bin/R \
+   && ln -s /opt/R/4.4.1/bin/Rscript /usr/local/bin/Rscript
 
 RUN mkdir -p /server
 
@@ -30,7 +37,7 @@ options(\
     renv.config.repos.override = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/rhel9/latest"),\
     HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])),\
     Ncpus = parallel::detectCores()\
-)' >> /usr/lib64/R/library/base/R/Rprofile
+)' >> /opt/R/4.4.1/lib/R/library/base/R/Rprofile
 
 # install R packages with renv
 COPY server/renv.lock /server/

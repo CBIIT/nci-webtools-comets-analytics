@@ -12,6 +12,7 @@ services:
   #   env_file:
   #     - server/.env      
   backend:
+    platform: linux/amd64
     build: 
       context: "."
       args:

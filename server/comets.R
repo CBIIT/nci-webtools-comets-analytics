@@ -11,10 +11,10 @@ source("utils.R")
 awsConfig <- getAwsConfig()
 logger <- createLogger(
   transports = c(
-    createConsoleTransport(),
-    createDailyRotatingFileTransport(
-      file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
-    )
+    createConsoleTransport()
+    # createDailyRotatingFileTransport(
+    #   file.path(Sys.getenv("LOG_FOLDER"), "comets-app")
+    # )
   )
 )
 
@@ -292,6 +292,11 @@ runModel <- function(req, res) {
 
   # queue models
   else if (method == "allModels") {
+    return(runAllModels(req, res))
+  }
+
+  # meta analysis (queue models)
+  else if (method == "metaAnalysis") {
     return(runAllModels(req, res))
   }
 
