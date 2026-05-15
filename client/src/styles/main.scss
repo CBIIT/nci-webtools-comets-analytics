@@ -3,6 +3,21 @@
 @import "bootstrap-icons/font/bootstrap-icons.css";
 @import "./bootstrap-theme.scss";
 
+.top-footer-section {
+	width: 100%;
+}
+
+.top-footer-grid {
+	display: grid;
+	gap: 1.5rem;
+	grid-template-columns: 1fr;
+	width: 100%;
+}
+
+.top-footer-column {
+	min-width: 0;
+}
+
 .usa-footer__secondary-section {
 	border-top: 1px solid rgba(255, 255, 255, 0.15);
 	margin-top: 1rem;
@@ -135,9 +150,26 @@
 }
 
 @media (min-width: 992px) {
+	.top-footer-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
 	.grid-footer-container > .grid-row {
 		display: grid;
 		gap: 1.5rem;
 		grid-template-columns: 5fr 7fr;
+	}
+
+	.usa-footer__secondary-section .usa-footer__contact-links {
+		justify-self: end;
+		text-align: right;
+	}
+
+	.usa-footer__secondary-section .usa-footer__contact-info {
+		justify-content: flex-end;
+	}
+
+	.usa-footer__secondary-section .usa-footer__address address {
+		margin-left: auto;
 	}
 }

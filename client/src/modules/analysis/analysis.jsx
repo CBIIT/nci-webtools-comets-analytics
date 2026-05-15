@@ -46,12 +46,27 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
   const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
   const isMetaAnalysisMode = initialTab === "meta-analysis";
   const previousTabRef = useRef(initialTab);
+  const hasInitializedSnapshotRef = useRef(false);
   const snapshotsRef = useRef({
     "cohort-analysis": createDefaultSnapshot("cohort-analysis"),
     "meta-analysis": createDefaultSnapshot("meta-analysis"),
   });
 
   useEffect(() => {
+    if (!hasInitializedSnapshotRef.current) {
+      const initialSnapshot = snapshotsRef.current[initialTab] || createDefaultSnapshot(initialTab);
+
+      setFormValues(cloneState(initialSnapshot.formValues));
+      setIntegrityCheckResults(cloneState(initialSnapshot.integrityCheckResults));
+      setModelResults(cloneState(initialSnapshot.modelResults));
+      setHeatmapOptions(cloneState(initialSnapshot.heatmapOptions));
+      setActiveResultsTab(initialSnapshot.activeResultsTab);
+
+      previousTabRef.current = initialTab;
+      hasInitializedSnapshotRef.current = true;
+      return;
+    }
+
     const previousTab = previousTabRef.current;
 
     if (previousTab === initialTab) {

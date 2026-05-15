@@ -28,9 +28,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-primary-darker text-light pt-4 flex-grow-0 no-print">
-      <div className="container">
-        <div className="row">
-          <div className="col-lg-3 mb-4">
+      <div className="container-fluid px-4 px-lg-5 top-footer-section">
+        <div className="top-footer-grid">
+          <div className="top-footer-column">
             <h2 className="h4">COMETS Analytics</h2>
             <div className="small text-primary-light">
               <div>Last Updated: {formatDate(lastCommitDate)}</div>
@@ -38,7 +38,7 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="col-lg-3 mb-4">
+          <div className="top-footer-column">
             <div className="h5 mb-1 font-weight-light">CONTACT US</div>
             <ul className="list-unstyled mb-0">
               <li>
@@ -49,7 +49,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="col-lg-6 mb-4">
+          <div className="top-footer-column">
             <div className="h5 mb-1 font-weight-light">MORE RESOURCES</div>
             <ul className="list-unstyled mb-0">
               <li>
@@ -87,7 +87,9 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+      </div>
 
+      <div className="container-fluid px-4 px-lg-5">
         <div className="usa-footer__secondary-section">
           <div className="grid-footer-container">
             <div className="grid-row grid-gap">
