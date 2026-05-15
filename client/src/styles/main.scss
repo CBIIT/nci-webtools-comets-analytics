@@ -2,3 +2,142 @@
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 @import "./bootstrap-theme.scss";
+
+.usa-footer__secondary-section {
+	border-top: 1px solid rgba(255, 255, 255, 0.15);
+	margin-top: 1rem;
+ padding-top: 1.25rem;
+}
+
+.grid-footer-container {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.usa-footer__logo-heading {
+ font-size: 1.39rem;
+ font-weight: 600;
+ line-height: 1.2;
+	margin: 0;
+}
+
+.logo__agency-name,
+.logo__parent-organization {
+	display: block;
+}
+
+.logo__agency-name {
+ font-size: inherit;
+ font-weight: inherit;
+}
+
+.logo__parent-organization {
+	color: rgba(255, 255, 255, 0.8);
+ font-size: 1.01rem;
+}
+
+.usa-footer__contact-heading,
+.usa-footer__social-heading {
+ font-size: 1.43rem;
+ font-weight: 600;
+ line-height: 1.2;
+ margin-bottom: 0.25rem;
+ text-transform: none;
+}
+
+.usa-footer__contact-links,
+.usa-footer__contact-heading,
+.usa-footer__address {
+	text-align: left;
+}
+
+.usa-footer__contact-info {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	justify-content: flex-start;
+}
+
+.usa-footer__contact-info a,
+.usa-footer__address a {
+	color: #fff;
+	text-decoration: none;
+}
+
+.usa-footer__contact-info a:hover,
+.usa-footer__address a:hover {
+	text-decoration: underline;
+}
+
+.nci-big__social {
+	display: flex;
+	flex-wrap: wrap;
+ gap: 0;
+}
+
+.usa-social-link {
+ background: transparent;
+ border-radius: 0;
+	color: #fff;
+ display: inline-block;
+ height: 40px;
+ padding-right: 8px;
+ width: 42px;
+}
+
+.usa-social-link:hover {
+ background: transparent;
+	color: #fff;
+}
+
+.usa-social-link .usa-icon {
+	fill: currentColor;
+ height: 24px;
+ width: 24px;
+}
+
+.usa-footer__address address {
+	margin: 0;
+}
+
+.usa-footer__address address a {
+	display: block;
+ font-size: 0.89rem;
+ line-height: 1.6;
+ margin-bottom: 0;
+}
+
+.usa-footer__return-to-top {
+ margin-top: 0.75rem;
+ padding-top: 0;
+	text-align: right;
+}
+
+.usa-footer__return-to-top a {
+ background-color: #007bbd;
+ border-radius: 100% 0 0;
+ color: #fff;
+ display: block;
+ font-size: 0.76rem;
+ height: 75px;
+ line-height: 0.95rem;
+ margin-left: auto;
+ padding: 32px 6px 0 16px;
+	text-decoration: none;
+ width: 75px;
+}
+
+.usa-footer__return-to-top a:hover {
+ background-color: #004971;
+ color: #fff;
+	text-decoration: underline;
+}
+
+@media (min-width: 992px) {
+	.grid-footer-container > .grid-row {
+		display: grid;
+		gap: 1.5rem;
+		grid-template-columns: 5fr 7fr;
+	}
+}
