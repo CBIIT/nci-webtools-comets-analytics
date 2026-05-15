@@ -42,12 +42,7 @@ export default function About() {
           <Card.Body>
             <h2 className="h5 text-primary mb-4">Current Version Functionality</h2>
             <p>
-              <span className="me-1 badge rounded-pill bg-primary">Current v2.1</span>Analytic modules with support for
-              survival and and conditional logistic models have been developed in the R package and integrated into the
-              web application.
-            </p>
-            <p>
-              <span className="me-1 badge rounded-pill bg-success">Upcoming v3.0</span>Analytic modules with support for
+              <span className="me-1 badge rounded-pill bg-primary">Current v3.0</span>Analytic modules with support for
               meta-analyses, chemical enrichment, and pathway enrichment have been developed in the R Package and will
               be integrated into the web application.
             </p>
