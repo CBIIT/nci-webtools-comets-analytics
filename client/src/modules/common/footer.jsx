@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 export default function Footer() {
   // Get build information from Vite define
   // eslint-disable-next-line no-undef
@@ -25,6 +27,20 @@ export default function Footer() {
   };
 
   const currentYear = new Date().getFullYear();
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 120);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <footer className="bg-primary-darker text-light flex-grow-0 no-print">
@@ -36,15 +52,14 @@ export default function Footer() {
               <ul className="list-unstyled mb-3">
                 <li>
                   <a className="text-light" href="/about">
-                    About COMETS
+                    About COMETS Analytics
                   </a>
                 </li>
               </ul>
-              <div className="h5 mb-1 font-weight-light">Contact Us</div>
               <ul className="list-unstyled mb-3">
                 <li>
                   <a className="text-light" href="mailto:comets.analytics@gmail.com">
-                    General Support
+                    Contact Us
                   </a>
                 </li>
               </ul>
@@ -56,7 +71,7 @@ export default function Footer() {
           
             <div className="top-footer-column">
               <div className="h5 mb-1 font-weight-light">Resources</div>
-              <ul className="list-unstyled mb-0 text-light small">
+              <ul className="list-unstyled mb-0 text-light">
                 <li>
                   <a
                     className="text-light"
@@ -89,7 +104,7 @@ export default function Footer() {
 
             <div className="top-footer-column">
               <div className="h5 mb-1 font-weight-light">Policies</div>
-              <ul className="list-unstyled mb-0 text-light small">
+              <ul className="list-unstyled mb-0 text-light">
                 <li><a className="text-light" href="https://www.cancer.gov/policies/accessibility" target="_blank" rel="noopener">Accessibility</a></li>
                 <li><a className="text-light" href="https://www.nih.gov/institutes-nih/nih-office-director/office-communications-public-liaison/freedom-information-act-office" target="_blank" rel="noopener">FOIA</a></li>
                 <li><a className="text-light" href="https://www.cancer.gov/policies/privacy-security" target="_blank" rel="noopener">Privacy & Security</a></li>
@@ -97,6 +112,10 @@ export default function Footer() {
                 <li><a className="text-light" href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html" target="_blank" rel="noopener">Vulnerability Disclosure</a></li>
               </ul>
             </div>
+
+                 <div className="top-footer-copyright text-center my-3 text-primary-light">
+                    ©2017-{currentYear} COMETS Analytics
+              </div>
           </div>
         </div>
       </div>
@@ -113,7 +132,7 @@ export default function Footer() {
                   </p>
                 </div>
               </div>
-              <div className="usa-footer__contact-links desktop:grid-col-7">
+              <div className="usa-footer__contact-links desktop:grid-col-5">
                 <div className="usa-footer__contact-heading">Contact Us</div>
                 <div className="usa-footer__address">
                   <div className="usa-footer__contact-info grid-row grid-gap">
@@ -129,6 +148,7 @@ export default function Footer() {
                   </div>
                 </div>
               </div>
+
             </div>
 
             <div className="grid-row grid-gap">
@@ -222,7 +242,7 @@ export default function Footer() {
                 </div>
               </div>
 
-              <div className="usa-footer__contact-links desktop:grid-col-7">
+              <div className="usa-footer__contact-links desktop:grid-col-5">
                 <div className="usa-footer__address height-full">
                   <div className="usa-footer__contact-info grid-row grid-gap height-full">
                     <address>
@@ -238,6 +258,16 @@ export default function Footer() {
           </div>
         </div>
 
+        {showBackToTop ? (
+          <div className="usa-footer__return-to-top-floating">
+            <div className="usa-footer__return-to-top">
+              <a href="#" aria-label="Back To Top">
+                <span>BACK TO TOP</span>
+              </a>
+            </div>
+          </div>
+        ) : null}
+
         <input
           className="usa-input width-full"
           style={{ display: "none" }}
@@ -249,16 +279,8 @@ export default function Footer() {
           readOnly
         />
 
-        <div className="usa-footer__return-to-top">
-          <a href="#" aria-label="Back To Top">
-            <span>Back To Top</span>
-          </a>
-        </div>
 
-        <div className="text-center my-3 text-primary-light">
-          ©2017-{currentYear} COMETS Analytics
-        </div>
-      </div>
+  </div>
     </footer>
   );
 }
