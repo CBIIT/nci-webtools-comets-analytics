@@ -27,69 +27,71 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-primary-darker text-light pt-4 flex-grow-0 no-print">
-      <div className="container-fluid px-4 px-lg-5 top-footer-section">
-        <div className="top-footer-grid">
-          <div className="top-footer-column">
-            <h2 className="h4">COMETS Analytics</h2>
-            <div className="small text-primary-light">
-              <div>Last Updated: {formatDate(lastCommitDate)}</div>
-              <div>Version: {releaseVersion}</div>
+    <footer className="bg-primary-darker text-light flex-grow-0 no-print">
+      <div className="top-footer-section">
+        <div className="container pt-4">
+          <div className="top-footer-grid">
+            <div className="top-footer-column">
+              <h2 className="h4">COMETS Analytics</h2>
+              <div className="small text-primary-light">
+                <div>Last Updated: {formatDate(lastCommitDate)}</div>
+                <div>Version: {releaseVersion}</div>
+              </div>
             </div>
-          </div>
           
-          <div className="top-footer-column">
-            <div className="h5 mb-1 font-weight-light">CONTACT US</div>
-            <ul className="list-unstyled mb-0">
-              <li>
-                <a className="text-light" href="mailto:comets.analytics@gmail.com">
-                  General Support
-                </a>
-              </li>
-            </ul>
-          </div>
+            <div className="top-footer-column">
+              <div className="h5 mb-1 font-weight-light">CONTACT US</div>
+              <ul className="list-unstyled mb-0">
+                <li>
+                  <a className="text-light" href="mailto:comets.analytics@gmail.com">
+                    General Support
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-          <div className="top-footer-column">
-            <div className="h5 mb-1 font-weight-light">MORE RESOURCES</div>
-            <ul className="list-unstyled mb-0">
-              <li>
-                <a className="text-light" href="https://epi.grants.cancer.gov/comets/" target="_blank" rel="noopener">
-                  About COMETS
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-light"
-                  href="https://www.youtube.com/watch?reload=9&v=dWJ_fdibnms"
-                  target="_blank"
-                  rel="noopener">
-                  Introduction
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-light"
-                  href="https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/"
-                  target="_blank"
-                  rel="noopener">
-                  Tutorials
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-light"
-                  href="https://cbiit.github.io/R-cometsAnalytics/cometsvignette_v1.6.html"
-                  target="_blank"
-                  rel="noopener">
-                  Vignettes
-                </a>
-              </li>
-            </ul>
+            <div className="top-footer-column">
+              <div className="h5 mb-1 font-weight-light">MORE RESOURCES</div>
+              <ul className="list-unstyled mb-0">
+                <li>
+                  <a className="text-light" href="https://epi.grants.cancer.gov/comets/" target="_blank" rel="noopener">
+                    About COMETS
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="text-light"
+                    href="https://www.youtube.com/watch?reload=9&v=dWJ_fdibnms"
+                    target="_blank"
+                    rel="noopener">
+                    Introduction
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="text-light"
+                    href="https://cbiit.github.io/R-cometsAnalytics/Tutorial/docs/"
+                    target="_blank"
+                    rel="noopener">
+                    Tutorials
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="text-light"
+                    href="https://cbiit.github.io/R-cometsAnalytics/cometsvignette_v1.6.html"
+                    target="_blank"
+                    rel="noopener">
+                    Vignettes
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container-fluid px-4 px-lg-5">
+      <div className="container">
         <div className="usa-footer__secondary-section">
           <div className="grid-footer-container">
             <div className="grid-row grid-gap">
