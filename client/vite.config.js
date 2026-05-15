@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      __RELEASE_VERSION__: JSON.stringify(env.VITE_RELEASE_VERSION || 'unknown'),
+      __RELEASE_VERSION__: JSON.stringify(env.VITE_RELEASE_VERSION || '3.1.3'),
       __LAST_COMMIT_DATE__: JSON.stringify(env.VITE_LAST_COMMIT_DATE || new Date().toISOString().split('T')[0]),
     },
   };
