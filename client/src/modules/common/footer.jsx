@@ -47,9 +47,9 @@ export default function Footer() {
       <div className="top-footer-section">
         <div className="container pt-4">
           <div className="top-footer-grid">
-            <div className="top-footer-column">
+            <div className="top-footer-column top-footer-column--about">
               <div className="h5 mb-1 font-weight-light">About</div>
-              <ul className="list-unstyled mb-3">
+              <ul className="list-unstyled mb-2">
                 <li>
                   <a className="text-light" href="/about">
                     About COMETS Analytics
@@ -69,7 +69,7 @@ export default function Footer() {
               </div>
             </div>
           
-            <div className="top-footer-column">
+            <div className="top-footer-column top-footer-column--resources">
               <div className="h5 mb-1 font-weight-light">Resources</div>
               <ul className="list-unstyled mb-0 text-light">
                 <li>
@@ -102,7 +102,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            <div className="top-footer-column">
+            <div className="top-footer-column top-footer-column--policies">
               <div className="h5 mb-1 font-weight-light">Policies</div>
               <ul className="list-unstyled mb-0 text-light">
                 <li><a className="text-light" href="https://www.cancer.gov/policies/accessibility" target="_blank" rel="noopener">Accessibility</a></li>

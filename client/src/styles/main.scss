@@ -6,7 +6,7 @@
 .top-footer-section {
 	background-color: rgb(17, 65, 130);
 	margin-bottom: 0.5rem;
-	padding-bottom: 1rem;
+	padding-bottom: 0rem;
 	width: 100%;
 }
 
@@ -191,12 +191,13 @@
 
 @media (min-width: 992px) {
 	.top-footer-grid {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.5rem;
+		grid-template-columns: 5fr 5fr 2fr;
 	}
 
 	.grid-footer-container > .grid-row {
 		display: grid;
-		gap: 1.5rem;
+		gap: 0.5rem;
 		grid-template-columns: 5fr 7fr;
 	}
 
