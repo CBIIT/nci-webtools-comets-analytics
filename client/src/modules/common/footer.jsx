@@ -32,32 +32,31 @@ export default function Footer() {
         <div className="container pt-4">
           <div className="top-footer-grid">
             <div className="top-footer-column">
-              <h2 className="h4">COMETS Analytics</h2>
-              <div className="small text-primary-light">
-                <div>Last Updated: {formatDate(lastCommitDate)}</div>
-                <div>Version: {releaseVersion}</div>
-              </div>
-            </div>
-          
-            <div className="top-footer-column">
-              <div className="h5 mb-1 font-weight-light">CONTACT US</div>
-              <ul className="list-unstyled mb-0">
+              <div className="h5 mb-1 font-weight-light">About</div>
+              <ul className="list-unstyled mb-3">
+                <li>
+                  <a className="text-light" href="/about">
+                    About COMETS
+                  </a>
+                </li>
+              </ul>
+              <div className="h5 mb-1 font-weight-light">Contact Us</div>
+              <ul className="list-unstyled mb-3">
                 <li>
                   <a className="text-light" href="mailto:comets.analytics@gmail.com">
                     General Support
                   </a>
                 </li>
               </ul>
+              <div className="small text-primary-light">
+                <div><strong>Last Updated:</strong> {formatDate(lastCommitDate)}</div>
+                <div><strong>Version:</strong> {releaseVersion}</div>
+              </div>
             </div>
-
+          
             <div className="top-footer-column">
-              <div className="h5 mb-1 font-weight-light">MORE RESOURCES</div>
-              <ul className="list-unstyled mb-0">
-                <li>
-                  <a className="text-light" href="https://epi.grants.cancer.gov/comets/" target="_blank" rel="noopener">
-                    About COMETS
-                  </a>
-                </li>
+              <div className="h5 mb-1 font-weight-light">Resources</div>
+              <ul className="list-unstyled mb-0 text-light small">
                 <li>
                   <a
                     className="text-light"
@@ -85,6 +84,17 @@ export default function Footer() {
                     Vignettes
                   </a>
                 </li>
+              </ul>
+            </div>
+
+            <div className="top-footer-column">
+              <div className="h5 mb-1 font-weight-light">Policies</div>
+              <ul className="list-unstyled mb-0 text-light small">
+                <li><a className="text-light" href="https://www.cancer.gov/policies/accessibility" target="_blank" rel="noopener">Accessibility</a></li>
+                <li><a className="text-light" href="https://www.nih.gov/institutes-nih/nih-office-director/office-communications-public-liaison/freedom-information-act-office" target="_blank" rel="noopener">FOIA</a></li>
+                <li><a className="text-light" href="https://www.cancer.gov/policies/privacy-security" target="_blank" rel="noopener">Privacy & Security</a></li>
+                <li><a className="text-light" href="https://www.cancer.gov/policies/disclaimer" target="_blank" rel="noopener">Disclaimers</a></li>
+                <li><a className="text-light" href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html" target="_blank" rel="noopener">Vulnerability Disclosure</a></li>
               </ul>
             </div>
           </div>

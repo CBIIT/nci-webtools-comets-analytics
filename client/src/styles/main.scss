@@ -12,9 +12,21 @@
 
 .top-footer-grid {
 	display: grid;
-	gap: 1.5rem;
+	gap: 2rem;
 	grid-template-columns: 1fr;
 	width: 100%;
+}
+
+@media (min-width: 576px) {
+	.top-footer-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 768px) {
+	.top-footer-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
 }
 
 .top-footer-column {
