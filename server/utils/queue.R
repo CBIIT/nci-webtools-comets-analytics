@@ -23,7 +23,7 @@ receiveMessage <- function(sqs, queueName, messageHandler, errorHandler, logger,
       }
     },
     error = function(x) {
-      print(x)
+      logger$error(paste("Queue processing error:", x$message))
     }
   )
 }

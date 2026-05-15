@@ -60,11 +60,17 @@ a,
 
 .navbar-dark.bg-orange {
   .navbar-nav .nav-link {
-    color: $light;
+    color: #ffffff; // Changed from $light to pure white for better contrast with orange
+
+    &:hover,
+    &:focus {
+      color: #ffffff;
+      background-color: #fd7e14;
+    }
 
     &.active {
-      color: $dark;
-      background-color: $yellow;
+      color: #000000; // Changed to pure black for better contrast with yellow
+      background-color: #ffc107; // Using a bright yellow for better contrast
     }
   }
 }
@@ -190,7 +196,7 @@ a,
 }
 
 .bg-orange {
-  background-color: $orange;
+  background-color: #fd7e14;
 }
 
 .accent-primary {

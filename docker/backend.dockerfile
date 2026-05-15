@@ -64,6 +64,9 @@ RUN R -e "\
    renv::settings\$snapshot.type('all'); \
    renv::snapshot();"
 
+# install RaMP package from GitHub and its Bioconductor dependency
+RUN R -e "renv::install('bioc::BiocFileCache'); renv::install('ncats/RaMP-DB')"
+
 COPY server /server/
 
 ENV TZ=America/New_York

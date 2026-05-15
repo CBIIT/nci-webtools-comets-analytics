@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import PropTypes from "prop-types";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import Select from "react-select";
 import Form from "react-bootstrap/Form";
@@ -12,7 +13,13 @@ import { isNull, omitBy } from "lodash";
 import { cohortsState, defaultCustomModelOptions, formValuesState, variablesState } from "./input-form.state";
 import { integrityCheckResultsState } from "./analysis.state";
 
-export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onReset }) {
+export default function InputForm({
+  initialTab = "cohort-analysis",
+  onSubmitIntegrityCheck,
+  onSubmitModel,
+  onSubmitMetaAnalysis,
+  onReset,
+}) {
   const cohorts = useRecoilValue(cohortsState);
   const integrityCheckResults = useRecoilValue(integrityCheckResultsState);
   const variables = useRecoilValue(variablesState);
@@ -24,6 +31,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     (variable) => !variable.isMetabolite && variable.value !== "All metabolites"
   );
   const inputFileRef = useRef(null);
+  const metaAnalysisFileRef = useRef(null);
 
   function handleChange(event) {
     let { name, value, type, files, checked } = event.target;
@@ -33,7 +41,21 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
 
     if (type === "file") {
-      value = files && files.length ? files[0].name : null;
+      if (files && files.length) {
+        // Handle multiple files - store file names as array or count
+        if (files.length === 1) {
+          value = files[0].name;
+        } else if (files.length <= 100) {
+          value = `${files.length} files selected`;
+        } else {
+          // Limit to 100 files
+          event.target.value = '';
+          alert('Maximum 100 files allowed. Please select fewer files.');
+          return;
+        }
+      } else {
+        value = null;
+      }
     }
 
     if (name === "showPredefinedModelTypes") {
@@ -62,7 +84,44 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
       });
     }
 
+    // Validate multiple emails if it's the email field
+    if (name === "email" && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emails = value.split(';').map(email => email.trim());
+      const invalidEmails = emails.filter(email => email && !emailRegex.test(email));
+      
+      if (invalidEmails.length > 0) {
+        // Store the value but mark it as having validation errors
+        mergeFormValues({ 
+          [name]: value,
+          emailValidationError: `Invalid email format: ${invalidEmails.join('; ')}`
+        });
+        return;
+      } else {
+        // Clear any previous validation errors
+        mergeFormValues({ 
+          [name]: value,
+          emailValidationError: null
+        });
+        return;
+      }
+    }
+
     mergeFormValues({ [name]: value });
+  }
+
+  function getFileCount(inputFileValue) {
+    if (!inputFileValue) return 0;
+    if (typeof inputFileValue === 'string') {
+      // Check if it's the format "X files selected"
+      const match = inputFileValue.match(/^(\d+) files selected$/);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+      // If it's a single file name, return 1
+      return 1;
+    }
+    return 0;
   }
 
   function handleSelectChange(name, selection = []) {
@@ -104,14 +163,54 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     }
   }
 
+  function submitMetaAnalysis(event) {
+    event.preventDefault();
+    if (onSubmitMetaAnalysis) {
+      // Create FormData manually to avoid multipart parser issues with multiple files having the same field name
+      const formData = new FormData();
+      
+      // Add email field
+      const emailField = event.target.querySelector('input[name="email"]');
+      if (emailField) {
+        formData.append('email', emailField.value);
+      }
+      
+      // Add files with unique field names to avoid Plumber multipart parser corruption
+      const fileInput = event.target.querySelector('input[name="metaAnalysisFiles"]');
+      if (fileInput && fileInput.files) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          // Use unique field names: metaAnalysisFile_1, metaAnalysisFile_2, etc.
+          formData.append(`metaAnalysisFile_${i + 1}`, fileInput.files[i]);
+        }
+      }
+      
+      onSubmitMetaAnalysis(formData);
+    }
+  }
+
   function reset(event) {
     event.preventDefault();
     resetFormValues();
     if (inputFileRef?.current) {
       inputFileRef.current.value = "";
     }
+    if (metaAnalysisFileRef?.current) {
+      metaAnalysisFileRef.current.value = "";
+    }
     if (typeof onReset === "function") {
       onReset();
+    }
+  }
+
+  function resetMetaAnalysis() {
+    // Reset only meta-analysis specific fields and stay on the same tab
+    mergeFormValues({ 
+      metaAnalysisFiles: null,
+      email: "",
+      emailValidationError: null
+    });
+    if (metaAnalysisFileRef?.current) {
+      metaAnalysisFileRef.current.value = "";
     }
   }
 
@@ -186,91 +285,161 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     return <ObjectList obj={modelOptions} className="mb-1 text-start" />;
   }
 
+  ModelOptions.propTypes = {
+    modelTypeName: PropTypes.string,
+  };
+
   return (
     <>
       <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
         <Card.Body>
-          <Form onSubmit={submitIntegrityCheck} onReset={reset}>
-            <h2 className="h5 text-primary mb-4">Cohort-Specific Analyses</h2>
+          {initialTab === "cohort-analysis" && (
+              <Form onSubmit={submitIntegrityCheck} onReset={reset}>
+                <Form.Group controlId="cohort" className="mb-3">
+                  <Form.Label className="required">COMETS Cohort</Form.Label>
+                  <Form.Select
+                    name="cohort"
+                    value={formValues.cohort}
+                    onChange={handleChange}
+                    disabled={integrityCheckResults?.id}>
+                    <option value="Other/Undefined">Other/Undefined</option>
+                    {cohorts.map((c) => (
+                      <option key={c.Cohort} value={c.Cohort}>
+                        {c.Cohort}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
+                </Form.Group>
 
-            <Form.Group controlId="cohort" className="mb-3">
-              <Form.Label className="required">COMETS Cohort</Form.Label>
-              <Form.Select
-                name="cohort"
-                value={formValues.cohort}
-                onChange={handleChange}
-                disabled={integrityCheckResults?.id}>
-                <option value="Other/Undefined">Other/Undefined</option>
-                {cohorts.map((c) => (
-                  <option key={c.Cohort} value={c.Cohort}>
-                    {c.Cohort}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Text>If not COMETS-specific, choose Other/Undefined</Form.Text>
-            </Form.Group>
+                {formValues.cohort === "Other/Undefined" && (
+                  <Form.Group controlId="customCohort" className="mb-3">
+                    <Form.Label className="required">Custom Cohort</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="customCohort"
+                      value={formValues.customCohort}
+                      onChange={handleChange}
+                      disabled={integrityCheckResults?.id}
+                    />
+                    <Form.Text>
+                      If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique
+                      custom name for each dataset
+                    </Form.Text>
+                  </Form.Group>
+                )}
 
-            {formValues.cohort === "Other/Undefined" && (
-              <Form.Group controlId="customCohort" className="mb-3">
-                <Form.Label className="required">Custom Cohort</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="customCohort"
-                  value={formValues.customCohort}
-                  onChange={handleChange}
-                  disabled={integrityCheckResults?.id}
-                />
-                <Form.Text>
-                  If there are multiple datasets to be meta-analyzed from a single cohort, be sure to use a unique
-                  custom name for each dataset
-                </Form.Text>
-              </Form.Group>
-            )}
+                <Form.Group controlId="inputFile" className="mb-3">
+                  <Form.Label className="required">Input Data File</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="inputFile"
+                    ref={inputFileRef}
+                    onChange={handleChange}
+                    disabled={integrityCheckResults?.id}
+                  />
+                  <Form.Text>
+                    <i className="bi bi-download me-1"></i>
+                    <a
+                      href="files/cometsInputAge.xlsx"
+                      onClick={(ev) =>
+                        window.gtag("event", "download", {
+                          event_category: "file",
+                          event_label: "sample input",
+                        })
+                      }>
+                      Download Sample Input
+                    </a>
+                  </Form.Text>
+                </Form.Group>
 
-            <Form.Group controlId="inputFile" className="mb-3">
-              <Form.Label className="required">Input Data File</Form.Label>
-              <Form.Control
-                type="file"
-                name="inputFile"
-                ref={inputFileRef}
-                onChange={handleChange}
-                disabled={integrityCheckResults?.id}
-              />
-              <Form.Text>
-                <i className="bi bi-download me-1"></i>
-                <a
-                  href="files/cometsInputAge.xlsx"
-                  onClick={(ev) =>
-                    window.gtag("event", "download", {
-                      event_category: "file",
-                      event_label: "sample input",
-                    })
-                  }>
-                  Download Sample Input
-                </a>
-              </Form.Text>
-            </Form.Group>
+                <div className="text-end">
+                  <Button type="reset" variant="danger-outline" className="me-1" disabled={integrityCheckResults?.id}>
+                    Reset
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={integrityCheckResults?.id || !formValues.inputFile}>
+                    Check Integrity
+                  </Button>
+                </div>
+              </Form>
+          )}
 
-            <div className="text-end">
-              <Button type="reset" variant="danger-outline" className="me-1" disabled={integrityCheckResults?.id}>
-                Reset
-              </Button>
-              <Button type="submit" variant="primary" disabled={integrityCheckResults?.id || !formValues.inputFile}>
-                Check Integrity
-              </Button>
-            </div>
-          </Form>
+          {initialTab === "meta-analysis" && (
+              <Form onSubmit={submitMetaAnalysis} onReset={reset}>
+                <Form.Group controlId="metaAnalysisFiles" className="mb-3">
+                  <Form.Label className="required">Input Data Files</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="metaAnalysisFiles"
+                    ref={metaAnalysisFileRef}
+                    onChange={handleChange}
+                    disabled={integrityCheckResults?.id}
+                    multiple
+                    accept=".xlsx,.xls,.csv"
+                  />
+                  <Form.Text className="d-block">
+                    Select up to 100 files. Accepted formats: .xlsx, .xls, .csv
+                  </Form.Text>
+                  <Form.Text>
+                    <i className="bi bi-download me-1"></i>
+                    <a
+                      href="files/meta_analysis_sample_files.zip"
+                      onClick={(ev) =>
+                        window.gtag("event", "download", {
+                          event_category: "file",
+                          event_label: "meta analysis sample inputs",
+                        })
+                      }>
+                      Download Sample Inputs 
+                    </a>
+                  </Form.Text>
+                </Form.Group>
+                <Form.Group controlId="email" className="mb-3">
+                  <Form.Label className="required">Email</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    name="email" 
+                    onChange={handleChange} 
+                    value={formValues.email}
+                    placeholder="Enter email address"
+                    isInvalid={!!formValues.emailValidationError}
+                  />
+                  {formValues.emailValidationError && (
+                    <Form.Control.Feedback type="invalid">
+                      {formValues.emailValidationError}
+                    </Form.Control.Feedback>
+                  )}
+                  {/* <Form.Text>
+                    Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
+                  </Form.Text> */}
+                </Form.Group>
+
+                <div className="text-end">
+                  <Button type="button" variant="danger-outline" className="me-1" onClick={resetMetaAnalysis}>
+                    Reset
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={getFileCount(formValues.metaAnalysisFiles) < 2 || !formValues.email || !!formValues.emailValidationError}>
+                    Run {formValues.metaAnalysisFiles && `(${getFileCount(formValues.metaAnalysisFiles)} files)`}
+                  </Button>
+                </div>
+              </Form>
+          )}
         </Card.Body>
       </Card>
 
-      {integrityCheckResults && !integrityCheckResults.errors && (
+      {initialTab === "cohort-analysis" && integrityCheckResults && !integrityCheckResults.errors && (
         <>
           <Card className="shadow-sm mb-3 position-relative" style={{ minHeight: "100px" }}>
             <Card.Body>
               <h2 className="h5 text-primary mb-4">Method of Analyses</h2>
 
               <Form onSubmit={submitModel} onReset={reset}>
-                <Form.Group controlId="method" className="mb-3">
+                <Form.Group as="fieldset" controlId="method" className="mb-3">
+                  <Form.Label as="legend" className="required">Analysis Method</Form.Label>
                   <Form.Check
                     type="radio"
                     name="method"
@@ -298,15 +467,7 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                     onChange={handleChange}
                     checked={formValues.method === "customModel"}
                   />
-                  <Form.Check
-                    type="radio"
-                    name="method"
-                    value="metaAnalysis"
-                    id="metaAnalysis"
-                    label="Meta-analysis"
-                    onChange={handleChange}
-                    checked={formValues.method === "metaAnalysis"}
-                  />
+                  
                 </Form.Group>
 
                 {formValues.method === "allModels" && (
@@ -399,6 +560,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           value={formValues.selectedModelName}
                           onChange={(ev) => handleSelectChange("selectedModelName", ev)}
                           defaultOptions
+                          inputId="selectedModelName"
+                          aria-label="Select model"
                           options={integrityCheckResults.models
                             .filter(
                               (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type
@@ -526,6 +689,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           value={formValues.selectedModelNames}
                           onChange={(ev) => handleSelectChange("selectedModelNames", ev)}
                           defaultOptions
+                          inputId="selectedModelNames"
+                          aria-label="Select models for meta-analysis"
                           options={integrityCheckResults.models
                             .filter(
                               (m) => !formValues.selectedModelType || formValues.selectedModelType === m.model_type
@@ -539,7 +704,22 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
 
                       <Form.Group controlId="email" className="mb-3">
                         <Form.Label className="required">Email</Form.Label>
-                        <Form.Control type="email" name="email" onChange={handleChange} value={formValues.email} />
+                        <Form.Control 
+                          type="text" 
+                          name="email" 
+                          onChange={handleChange} 
+                          value={formValues.email}
+                          placeholder="Enter email address"
+                          isInvalid={!!formValues.emailValidationError}
+                        />
+                        {formValues.emailValidationError && (
+                          <Form.Control.Feedback type="invalid">
+                            {formValues.emailValidationError}
+                          </Form.Control.Feedback>
+                        )}
+                        {/* <Form.Text>
+                          Enter one or more email addresses separated by semicolons (e.g., user1@example.com; user2@example.com)
+                        </Form.Text> */}
                       </Form.Group>
                     </div>
 
@@ -551,7 +731,12 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                       <Button
                         type="submit"
                         variant="primary"
-                        disabled={formValues.selectedModelNames?.length <= 1 || !formValues.selectedModelType}>
+                        disabled={
+                          formValues.selectedModelNames?.length <= 1 || 
+                          !formValues.selectedModelType || 
+                          !formValues.email || 
+                          !!formValues.emailValidationError
+                        }>
                         Run Meta-Analysis
                       </Button>
                     </div>
@@ -598,6 +783,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         value={formValues.exposures}
                         onChange={(ev) => handleSelectChange("exposures", ev)}
                         defaultOptions
+                        inputId="exposures"
+                        aria-label="Select exposure variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -612,6 +799,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         value={formValues.outcomes}
                         onChange={(ev) => handleSelectChange("outcomes", ev)}
                         defaultOptions
+                        inputId="outcomes"
+                        aria-label="Select outcome variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -626,6 +815,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         value={formValues.adjustedCovariates}
                         onChange={(ev) => handleSelectChange("adjustedCovariates", ev)}
                         defaultOptions
+                        inputId="adjustedCovariates"
+                        aria-label="Select adjusted covariate variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -640,6 +831,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                         value={formValues.strata}
                         onChange={(ev) => handleSelectChange("strata", ev)}
                         defaultOptions
+                        inputId="strata"
+                        aria-label="Select strata variables"
                         options={variables}
                         filterOption={filterVariable}
                         isMulti
@@ -680,7 +873,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           name="filterValue"
                           id="filterValue"
                           onChange={handleChange}
-                          aria-label="filterValue"
+                          aria-label="Filter value"
+                          placeholder="Value"
                         />
                       </InputGroup>
                     </Form.Group>
@@ -693,6 +887,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           name="time"
                           value={formValues.time}
                           onChange={(ev) => handleSelectChange("time", ev)}
+                          inputId="time"
+                          aria-label="Select time variable"
                           options={nonMetaboliteVariables}
                           // closeMenuOnSelect={true}
                           isClearable
@@ -708,6 +904,8 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
                           name="group"
                           value={formValues.group}
                           onChange={(ev) => handleSelectChange("group", ev)}
+                          inputId="group"
+                          aria-label="Select group variable"
                           options={nonMetaboliteVariables}
                           // closeMenuOnSelect={true}
                           isClearable
@@ -740,3 +938,11 @@ export default function InputForm({ onSubmitIntegrityCheck, onSubmitModel, onRes
     </>
   );
 }
+
+InputForm.propTypes = {
+  initialTab: PropTypes.oneOf(["cohort-analysis", "meta-analysis"]),
+  onSubmitIntegrityCheck: PropTypes.func,
+  onSubmitModel: PropTypes.func,
+  onSubmitMetaAnalysis: PropTypes.func,
+  onReset: PropTypes.func,
+};

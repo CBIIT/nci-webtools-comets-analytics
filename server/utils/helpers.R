@@ -13,7 +13,6 @@ callWithHandlers <- function(func, ...) {
       withCallingHandlers(
         func(...),
         warning = function(x) {
-          print(x$message)
           warnings <<- c(warnings, x$message)
         }
       ),

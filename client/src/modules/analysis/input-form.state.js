@@ -24,22 +24,26 @@ export const defaultCustomModelOptions = {
   group: "",
 };
 
+export const defaultFormValues = {
+  cohort: "Other/Undefined",
+  customCohort: "",
+  inputFile: null,
+  metaAnalysisFiles: null,
+  method: "allModels",
+  selectedModelName: "",
+  selectedModelType: "",
+  selectedModelNames: [],
+  email: "",
+  emailValidationError: null,
+  modelType: "",
+  showPredefinedModelTypes: false,
+  showCustomModelTypes: false,
+  ...defaultCustomModelOptions,
+};
+
 export const formValuesState = atom({
   key: "inputForm.formValuesState",
-  default: {
-    cohort: "Other/Undefined",
-    customCohort: "",
-    inputFile: null,
-    method: "allModels",
-    selectedModelName: "",
-    selectedModelType: "",
-    selectedModelNames: [],
-    email: "",
-    modelType: "",
-    showPredefinedModelTypes: false,
-    showCustomModelTypes: false,
-    ...defaultCustomModelOptions,
-  },
+  default: defaultFormValues,
 });
 
 export const cohortsState = selector({
