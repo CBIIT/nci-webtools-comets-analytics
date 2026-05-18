@@ -43,8 +43,8 @@ export default function About() {
             <h2 className="h5 text-primary mb-4">Current Version Functionality</h2>
             <p>
               <span className="me-1 badge rounded-pill bg-primary">Current v3.0</span>Analytic modules with support for
-              meta-analyses, chemical enrichment, and pathway enrichment have been developed in the R Package and will
-              be integrated into the web application.
+              meta-analyses, chemical enrichment, and pathway enrichment have been developed in the R Package and were 
+              integrated into the web application.
             </p>
             <p>
               Previous releases can be found here:{" "}
