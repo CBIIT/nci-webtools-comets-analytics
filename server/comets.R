@@ -514,6 +514,7 @@ runMetaAnalysis <- function(req, res) {
     
     # Create options file path (optional parameter for runAllMeta)
     opfile <- NULL  # Can be modified to pass custom options if needed
+    metaAnalysisStartTime <- Sys.time()
     
     # Run comprehensive meta-analysis using the improved workflow
     tryCatch({
@@ -716,6 +717,8 @@ runMetaAnalysis <- function(req, res) {
       # Send success email if provided
       if (!is.null(email_val) && nchar(email_val) > 0) {
         tryCatch({
+          totalProcessingTime <- round(as.numeric(Sys.time() - metaAnalysisStartTime), 2)
+
           # Check if AWS credentials are available
           awsConfig <- getAwsConfig()
           if (!is.null(awsConfig) && length(awsConfig) > 0) {
@@ -727,10 +730,10 @@ runMetaAnalysis <- function(req, res) {
             templateData <- list(
               originalFileName = "Meta-Analysis Files",
               resultsUrl = paste0(Sys.getenv("EMAIL_BASE_URL"), "/api/metaAnalysisResults/", id),
-              totalProcessingTime = "N/A",
+              totalProcessingTime = totalProcessingTime,
               modelResults = list(list(
                 modelName = "Meta-Analysis",
-                processingTime = "N/A",
+                processingTime = totalProcessingTime,
                 hasWarnings = FALSE,
                 hasErrors = FALSE,
                 warnings = "",

@@ -38,6 +38,11 @@
 	justify-self: center;
 }
 
+.nav-tabs .nav-link.heatmap-tab-disabled {
+	color: #6c757d !important;
+	opacity: 1;
+}
+
 .usa-footer__secondary-section {
 	/* border-top: 1px solid rgba(255, 255, 255, 0.15); */
 	margin-top: 1rem;

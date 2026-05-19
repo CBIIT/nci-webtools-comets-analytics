@@ -45,6 +45,8 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
   const [activeResultsTab, setActiveResultsTab] = useRecoilState(activeResultsTabState);
   const [heatmapOptions, setHeatmapOptions] = useRecoilState(heatmapOptionsState);
   const isMetaAnalysisMode = initialTab === "meta-analysis";
+  const isAllModelsMethod = !isMetaAnalysisMode && formValues?.method === "allModels";
+  const isHeatmapDisabled = !modelResults || isAllModelsMethod;
   const previousTabRef = useRef(initialTab);
   const hasInitializedSnapshotRef = useRef(false);
   const snapshotsRef = useRef({
@@ -103,6 +105,12 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
     setIntegrityCheckResults,
     setModelResults,
   ]);
+
+  useEffect(() => {
+    if (isAllModelsMethod && activeResultsTab === "heatmap") {
+      setActiveResultsTab("modelResults");
+    }
+  }, [activeResultsTab, isAllModelsMethod, setActiveResultsTab]);
 
   async function handleSubmitIntegrityCheck(params) {
     try {
@@ -240,7 +248,10 @@ export default function Analysis({ initialTab = "cohort-analysis" }) {
                       </Nav.Item>
                       {!isMetaAnalysisMode && (
                         <Nav.Item>
-                          <Nav.Link eventKey="heatmap" disabled={!modelResults}>
+                          <Nav.Link
+                            eventKey="heatmap"
+                            className={isHeatmapDisabled ? "heatmap-tab-disabled" : undefined}
+                            disabled={isHeatmapDisabled}>
                             Heatmap
                           </Nav.Link>
                         </Nav.Item>
