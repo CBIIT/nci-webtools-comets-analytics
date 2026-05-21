@@ -65,7 +65,7 @@ export default function Footer() {
               </ul>
               <div className="small text-primary-light">
                 <div><strong>Last Updated:</strong> {formatDate(lastCommitDate)}</div>
-                <div><strong>Version:</strong> {releaseVersion}</div>
+                <div><strong>Site Release Version:</strong> {releaseVersion}</div>
               </div>
             </div>
           
