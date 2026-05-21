@@ -733,7 +733,7 @@ runMetaAnalysis <- function(req, res) {
               totalProcessingTime = totalProcessingTime,
               modelResults = list(list(
                 modelName = "Meta-Analysis",
-                processingTime = totalProcessingTime,
+                processingTime = "",
                 hasWarnings = FALSE,
                 hasErrors = FALSE,
                 warnings = "",
