@@ -24,7 +24,7 @@
             {{/hasErrors}}
 
             {{^hasErrors}}
-                ({{ processingTime }} seconds)
+                {{#processingTime}}({{ processingTime }} seconds){{/processingTime}}
             {{/hasErrors}}
         </p>
         <div style="margin-left: 20px"> 
