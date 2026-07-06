@@ -59,18 +59,21 @@ a,
 }
 
 .navbar-dark.bg-orange {
+  // Darker orange so white nav-link text meets WCAG AA (white #ffffff on #b8500c = 5.01:1)
+  background-color: #b8500c !important;
+
   .navbar-nav .nav-link {
-    color: #ffffff; // Changed from $light to pure white for better contrast with orange
+    color: #ffffff; // white on #b8500c = 5.01:1 (AA pass)
 
     &:hover,
     &:focus {
       color: #ffffff;
-      background-color: #fd7e14;
+      background-color: #a2470b; // slightly darker on hover/focus, keeps white at 6.1:1
     }
 
     &.active {
       color: #000000; // Changed to pure black for better contrast with yellow
-      background-color: #ffc107; // Using a bright yellow for better contrast
+      background-color: #ffc107; // Using a bright yellow for better contrast (black on #ffc107 = 12.88:1)
     }
   }
 }
