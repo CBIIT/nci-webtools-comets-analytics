@@ -65,7 +65,11 @@ RUN R -e "\
    renv::snapshot();"
 
 # install RaMP package from GitHub and its Bioconductor dependency
-RUN R -e "renv::install('bioc::BiocFileCache'); renv::install('ncats/RaMP-DB')"
+# Pin dbplyr to 2.5.2 (last version compatible with the project's dplyr 1.1.4).
+# dbplyr 2.6.0 (2026-06-17) is pulled in transitively by BiocFileCache and calls
+# dplyr::filter_out, which is not exported by CRAN dplyr 1.1.4, so the unpinned
+# install breaks the build. Installing 2.5.2 first makes BiocFileCache use it.
+RUN R -e "renv::install('dbplyr@2.5.2'); renv::install('bioc::BiocFileCache'); renv::install('ncats/RaMP-DB')"
 
 COPY server /server/
 
