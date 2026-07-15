@@ -44,12 +44,20 @@ export function getSelectColumn(onSelect) {
     ),
     SecondaryHeader: ({ getToggleAllRowsSelectedProps }) => (
       <div className="form-check">
-        <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} className="form-check-input" />
+        <IndeterminateCheckbox
+          {...getToggleAllRowsSelectedProps()}
+          className="form-check-input"
+          aria-label="Select all rows"
+        />
       </div>
     ),
     Cell: ({ row }) => (
       <div className="form-check">
-        <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} className="form-check-input" />
+        <IndeterminateCheckbox
+          {...row.getToggleRowSelectedProps()}
+          className="form-check-input"
+          aria-label="Select row"
+        />
       </div>
     ),
   };
@@ -78,6 +86,7 @@ export function getColumns(table) {
       id: columnName,
       accessor: (record) => record[columnName],
       sortType: isNumericColumn ? "basic" : "alphanumeric",
+      aria: `Filter by ${columnName}`,
       ...columnFilter,
       ...columnWidth,
     };
