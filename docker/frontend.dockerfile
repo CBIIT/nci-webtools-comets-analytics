@@ -5,9 +5,20 @@ RUN dnf -y update \
     gcc-c++ \
     httpd \
     make \
-    nodejs \
-    npm \
+    gzip \
+    tar \
  && dnf clean all
+
+# AL2023 repos lack a patched Node 24 (CVE-2026-111497 fixed in 24.22.1)
+ARG NODE_VERSION=24.22.1
+
+RUN FILE=node-v${NODE_VERSION}-linux-x64.tar.gz \
+ && cd /tmp \
+ && curl -fsSLO https://nodejs.org/dist/v${NODE_VERSION}/${FILE} \
+ && curl -fsSLO https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt \
+ && grep " ${FILE}$" SHASUMS256.txt | sha256sum -c - \
+ && tar -xzf ${FILE} -C /usr/local --strip-components=1 --no-same-owner \
+ && rm -f ${FILE} SHASUMS256.txt
 
 RUN mkdir /client
 
